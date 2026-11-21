@@ -93,6 +93,7 @@ alter table leads add column if not exists crew_note text;
 alter table leads add column if not exists deposit_amount numeric(10,2);
 alter table leads add column if not exists deposit_paid_at timestamptz;
 alter table leads add column if not exists quote_accepted_at timestamptz;
+alter table leads add column if not exists customer_phone text;
 create table if not exists crews (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -220,17 +221,20 @@ drop function if exists submit_lead(text,text,text,text,text,text);
 drop function if exists submit_lead(text,text,text,text,text,text,text);
 drop function if exists submit_lead(text,text,text,text,text,text,text,text);
 drop function if exists submit_lead(text,text,text,text,text,text,text,text,text);
-create or replace function submit_lead(p_ref text, p_code text, p_name text, p_address text, p_summary text, p_message text, p_token text, p_rc text default null, p_when text default null, p_source text default null, p_campaign text default null)
+drop function if exists submit_lead(text,text,text,text,text,text,text,text,text,text,text);
+create or replace function submit_lead(p_ref text, p_code text, p_name text, p_address text, p_summary text, p_message text, p_token text, p_rc text default null, p_when text default null, p_source text default null, p_campaign text default null, p_phone text default null)
 returns void language plpgsql security definer set search_path = public as $$
-declare pid uuid; pc text; rc text; ak text; dup uuid; ex uuid; ip text; nk text; hint uuid;
+declare pid uuid; pc text; rc text; ak text; dup uuid; ex uuid; ip text; nk text; hint uuid; ph text;
 begin
   if p_ref is null or length(p_ref) not between 4 and 20 then return; end if;
   if p_token is null or p_token !~ '^[a-f0-9]{24,48}$' then return; end if;
   if length(trim(coalesce(p_name,''))) < 2 or length(trim(coalesce(p_address,''))) < 5 then return; end if;
+  ph := nullif(left(regexp_replace(coalesce(p_phone,''), '[^0-9+]', '', 'g'), 16), '');
+  if ph is not null and length(regexp_replace(ph, '\D', '', 'g')) < 7 then ph := null; end if;
   select id into ex from leads where ref = p_ref;
   if ex is not null then
     -- ayni talep duzenleniyor (sadece yeni ve ayni takip kodu)
-    update leads set customer_name = left(p_name,120), address = left(p_address,300), summary = left(p_summary,500), message = left(p_message,3000),
+    update leads set customer_phone = ph, customer_name = left(p_name,120), address = left(p_address,300), summary = left(p_summary,500), message = left(p_message,3000),
            addr_key = lower(regexp_replace(coalesce(p_address,''),'[^a-zA-Z0-9]','','g')), when_text = left(p_when,100), name_key = lower(regexp_replace(coalesce(p_name,''),'[^a-zA-Z0-9]','','g'))
      where id = ex and status = 'new' and track_token = p_token;
     return;
@@ -248,10 +252,10 @@ begin
        and l.status = 'done' and l.completed_at > now() - interval '12 months' order by l.completed_at desc limit 1;
   end if;
   -- tekrar kayit: ortak payi sadece ilk kayda gider
-  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, message, track_token, referrer_code, addr_key, dup_of, when_text, name_key, repeat_hint, source, campaign)
-  values (p_ref, case when dup is null then pid end, case when dup is null then pc end, left(p_name,120), left(p_address,300), left(p_summary,500), left(p_message,3000), p_token, rc, ak, dup, left(p_when,100), nk, hint, left(lower(regexp_replace(coalesce(p_source,''),'[^a-zA-Z0-9._ -]','','g')),40), left(lower(regexp_replace(coalesce(p_campaign,''),'[^a-zA-Z0-9._ -]','','g')),60));
+  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, message, track_token, referrer_code, addr_key, dup_of, when_text, name_key, repeat_hint, source, campaign, customer_phone)
+  values (p_ref, case when dup is null then pid end, case when dup is null then pc end, left(p_name,120), left(p_address,300), left(p_summary,500), left(p_message,3000), p_token, rc, ak, dup, left(p_when,100), nk, hint, left(lower(regexp_replace(coalesce(p_source,''),'[^a-zA-Z0-9._ -]','','g')),40), left(lower(regexp_replace(coalesce(p_campaign,''),'[^a-zA-Z0-9._ -]','','g')),60), ph);
 end $$;
-grant execute on function submit_lead(text,text,text,text,text,text,text,text,text,text,text) to anon, authenticated;
+grant execute on function submit_lead(text,text,text,text,text,text,text,text,text,text,text,text) to anon, authenticated;
 
 -- Ortak, kendi musterisi icin is olusturur (ozel takip linki uretilir)
 create or replace function partner_create_lead(p_ref text, p_name text, p_address text, p_summary text, p_token text)
@@ -865,13 +869,14 @@ revoke all on function crew_me() from public, anon;
 grant execute on function crew_me() to authenticated;
 
 -- Ekibin isleri: bugunden itibaren (Florida), bitmis olanlar son 3 gun. Fiyat/ortak bilgisi YOK.
+drop function if exists crew_jobs();
 create or replace function crew_jobs()
-returns table(id uuid, ref text, scheduled_at timestamp, customer_name text, address text, summary text, access text, note text, status text, crew_status text, crew_note text, photos int)
+returns table(id uuid, ref text, scheduled_at timestamp, customer_name text, address text, summary text, access text, note text, status text, crew_status text, crew_note text, photos int, phone text)
 language sql stable security definer set search_path = public as $$
   select l.id, l.ref, l.scheduled_at, l.customer_name, l.address, l.summary,
          substring(l.message from E'Access: ([^\n]*)'), substring(l.message from E'Notes: ([^\n]*)'),
          l.status, l.crew_status, l.crew_note,
-         (select count(*)::int from job_photos j where j.lead_id = l.id)
+         (select count(*)::int from job_photos j where j.lead_id = l.id), l.customer_phone
   from leads l
   where l.crew_id = crew_me() and l.status in ('new','quoted','booked','done')
     and (l.crew_status is distinct from 'finished' or l.crew_finished_at > now() - interval '3 days')

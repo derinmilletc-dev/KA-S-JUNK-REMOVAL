@@ -73,3 +73,8 @@ Komisyon varsayılanı %20 (ortak başına admin panelinden değişir). Ortak pa
 - **Ortak paneli**: Basarilar (rozetler + aylik siralama, sadece ad ve soyad bas harfi), Egitim.
 - **E-posta**: `supabase/functions/notify` (anlik) ve `daily-brief` (sabah ozeti). Kurulum `KURULUM.md`.
 - **Kurulum kontrolu**: `portal/setup-check.html`.
+
+## Telefon numarasi
+- Formda "Mobile number (optional)". Sadece admin ve isi yapan ekip gorur; ortaklar goremez.
+- Admin is satirinda numara (tikla ara), mesaj sablonlari numara varsa dogrudan musterinin WhatsApp'ini acar. Aramada numara ile de bulunur.
+- Ekip panelinde "ara" baglantisi.

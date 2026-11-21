@@ -37,7 +37,7 @@ function load(){sb.rpc('crew_jobs').then(function(r){
  el.innerHTML=L.map(function(j){var cs=j.crew_status;
   return '<div class="j" data-id="'+j.id+'"><div class="tm">'+esc(when(j.scheduled_at))+'</div><h3>'+esc(j.customer_name||'Customer')+' <small class="muted">#'+esc(j.ref)+'</small></h3>'
   +'<a class="adr" target="_blank" rel="noopener" href="'+map(j.address||'')+'">📍 '+esc(j.address||'')+'</a>'
-  +(j.summary?'<div>'+esc(j.summary)+'</div>':'')+(j.access?'<div class="nt"><b>Access:</b> '+esc(j.access)+'</div>':'')+(j.note?'<div class="nt"><b>Note:</b> '+esc(j.note)+'</div>':'')
+  +(j.phone?'<a class="adr" href="tel:'+esc(j.phone)+'">📞 '+esc(j.phone)+'</a>':'')+(j.summary?'<div>'+esc(j.summary)+'</div>':'')+(j.access?'<div class="nt"><b>Access:</b> '+esc(j.access)+'</div>':'')+(j.note?'<div class="nt"><b>Note:</b> '+esc(j.note)+'</div>':'')
   +'<div class="st"><button data-s="enroute" class="'+(cs==='enroute'?'on':'')+'">🚚 On my way</button><button data-s="working" class="'+(cs==='working'?'on':'')+'">🛠 Working</button><button data-s="finished" class="fin '+(cs==='finished'?'on':'')+'">✅ Done</button></div>'
   +'<div class="ph"><label class="up">📷 Before<input type="file" accept="image/*" capture="environment" multiple data-k="before"></label><label class="up">📷 After<input type="file" accept="image/*" capture="environment" multiple data-k="after"></label></div>'
   +'<div class="muted">Photos: <b>'+(j.photos||0)+'</b> · Done needs at least one After photo</div></div>'}).join('')}).catch(function(){})}
