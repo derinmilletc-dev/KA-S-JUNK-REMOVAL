@@ -1,6 +1,20 @@
 // Ortak paneli cevirileri (kaynak: Turkce). Sira: [Turkce, English, Espanol]
 (function(){
 KJI.add([
+['Ilk musterini getir','Bring your first customer','Trae a tu primer cliente'],
+['Linkini veya QR kodunu paylas. Hazir metinler Metinler bolumunde seni bekliyor.','Share your link or QR code. Ready-made messages are waiting in the Messages section.','Comparte tu enlace o código QR. Los mensajes listos te esperan en la sección Mensajes.'],
+['Metinleri ac','Open messages','Abrir mensajes'],
+['Odeme bilgini ekle','Add your payout details','Agrega tus datos de pago'],
+['Komisyonunu alabilmek icin Profil bolumune Zelle veya telefon bilgini yaz.','To receive your commission, add your Zelle or phone details in the Profile section.','Para recibir tu comisión, agrega tu Zelle o teléfono en la sección Perfil.'],
+['Profile git','Go to Profile','Ir a Perfil'],
+['Odeme bekleyen komisyonun var','You have commission awaiting payout','Tienes comisión pendiente de pago'],
+['Ekip is bitince komisyonunu odeyecek. Odeme bilgini Profil bolumunden kontrol edebilirsin.','The team pays your commission once the job is done. You can check your payout details in the Profile section.','El equipo te paga la comisión al terminar el trabajo. Puedes revisar tus datos de pago en la sección Perfil.'],
+['Odemeleri gor','View payouts','Ver pagos'],
+['Devam eden islerin var','You have jobs in progress','Tienes trabajos en curso'],
+['Her isin durumunu asagidaki kartlardan canli takip edebilirsin.','Follow each job live from the cards below.','Sigue cada trabajo en vivo desde las tarjetas de abajo.'],
+['Islere git','Go to jobs','Ir a trabajos'],
+['Her sey yolunda','All good','Todo en orden'],
+['Linkini bu hafta bir kisiye daha gonder. Her yeni is komisyonuna yazilir.','Send your link to one more person this week. Every new job counts toward your commission.','Envía tu enlace a una persona más esta semana. Cada trabajo nuevo suma a tu comisión.'],
 ['Cikis','Log out','Salir'],['Partner','Partner','Socio'],
 ['Ortak girisi','Partner login','Acceso de socios'],
 ['Kayitli e-postani yaz, sana giris baglantisi gonderelim.','Enter your registered email and we will send you a login link.','Escribe tu correo registrado y te enviamos un enlace de acceso.'],
