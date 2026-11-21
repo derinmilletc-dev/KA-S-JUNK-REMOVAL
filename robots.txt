@@ -1,2 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /portal/
+Disallow: /track.html
+Disallow: /receipt.html
+Sitemap: https://kaisremoval.com/sitemap.xml

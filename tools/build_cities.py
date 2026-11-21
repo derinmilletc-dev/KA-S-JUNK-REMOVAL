@@ -27,7 +27,7 @@ CITIES = [
 def slug(c): return re.sub(r"[^a-z]+", "-", c.lower()).strip("-")
 def e(s): return html.escape(s, quote=True)
 
-PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><style>html{{touch-action:manipulation}}</style><script>document.addEventListener("gesturestart",function(e){{e.preventDefault()}},{{passive:false}})</script>
 <title>Junk Removal in {city}, FL | Kais Junk Remove</title>
 <meta name="description" content="Junk removal in {city}, Florida. Send photos, get a quote on WhatsApp. Furniture, appliances, garage and yard clean-outs. Open 24/7.">
 {canonical}<meta property="og:title" content="Junk Removal in {city}, FL | Kais Junk Remove"><meta property="og:description" content="Photos in, quote back. Junk removal in {city} and nearby. Open 24/7."><meta property="og:image" content="{og}">
@@ -48,7 +48,7 @@ ol.steps{{padding-left:20px;margin:0}}.card ul{{margin:0;padding-left:20px}}
 .bar{{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:8px;padding:10px 14px;background:#fffffff2;border-top:1px solid var(--line);backdrop-filter:blur(8px)}}.bar a{{flex:1;text-align:center;text-decoration:none;font-weight:600;border-radius:12px;padding:13px 8px}}.bar .c{{background:var(--ink);color:#fff}}.bar .w{{background:var(--green);color:#fff}}
 body{{padding-bottom:76px}}@media(min-width:800px){{.bar{{display:none}}body{{padding-bottom:0}}}}ol.steps li{{margin:6px 0}}
 details{{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:8px 0}}summary{{cursor:pointer;font-weight:600}}details p{{margin:8px 0 0;color:var(--muted)}}
-.more a{{color:var(--deep);text-decoration:none;margin-right:12px;white-space:nowrap}}footer{{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 30px}}
+.more a{{color:var(--deep);text-decoration:none;margin-right:10px;white-space:nowrap;display:inline-block;padding:11px 4px}}footer{{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 30px}}footer a{{display:inline-block;padding:11px 6px}}
 </style></head><body>
 <header><a class="l" href="index.html">Kais <span>Junk Remove</span></a><a class="p" href="tel:{tel}">📞 Call</a></header>
 <main>
