@@ -1030,6 +1030,17 @@ end $$;
 drop trigger if exists leads_events on leads;
 create trigger leads_events after insert or update on leads for each row execute function lead_events_log();
 
+-- Admin: gecmise elle kayit (ornek: kapanis mesaji gonderildi)
+create or replace function log_event(p_lead uuid, p_kind text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not is_admin() then raise exception 'not admin'; end if;
+  if p_kind not in ('closing_sent') then raise exception 'bad kind'; end if;
+  insert into lead_events(lead_id, kind, who) values (p_lead, p_kind, 'admin');
+end $$;
+revoke all on function log_event(uuid, text) from public, anon;
+grant execute on function log_event(uuid, text) to authenticated;
+
 -- Musteri: kendi isinin gecmisi (admin ici notlar yok)
 create or replace function track_events(p_token text)
 returns table(at timestamptz, kind text, detail text)
