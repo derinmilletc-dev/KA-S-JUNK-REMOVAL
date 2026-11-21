@@ -22,6 +22,26 @@ li small{display:block;font-weight:400;color:var(--muted)}
 .btn:hover{background:var(--deep)}.err{color:#B42318}
 .stp{display:flex;gap:4px;margin:16px 0 4px}.stp span{flex:1;text-align:center;font-weight:700;font-size:13px;color:#789;background:#eef1f4;border-radius:10px;padding:7px 0 4px}.stp small{display:block;font-weight:500;font-size:10px;margin-top:2px}.stp .d{background:#d9f5e3;color:#0a7a3b}.stp .c{background:var(--orange);color:#fff}
 .act .ev{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.act .ev i{font-style:normal;font-size:20px}.act .ev small{display:block;color:#789;font-size:12px;font-weight:400}
+/* v2 */
+header{position:sticky;top:0;z-index:5;background:#1F2421e8;backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);padding:15px 20px;letter-spacing:-.01em;box-shadow:0 1px 0 #ffffff14}
+body{background:radial-gradient(900px 300px at 50% -80px,#F26B1D14,transparent),var(--paper);-webkit-text-size-adjust:100%}
+main{padding:18px 16px 40px}
+.card,.share,.rev{border-radius:22px;box-shadow:0 1px 2px #1f24210d,0 12px 30px -16px #1f242133;animation:up .4s both}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.card,.share,.rev{animation:none}}
+h1{font-size:28px}
+.price{background:linear-gradient(180deg,#fff,#F9F6F0);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.price b{font-size:30px;letter-spacing:-.02em}
+.btn{border-radius:14px;padding:15px;font-size:16px;box-shadow:0 8px 18px -10px #F26B1D;transition:transform .12s,background .15s}.btn:active{transform:scale(.98)}
+.btn.ok{padding:15px;box-shadow:0 8px 18px -10px #1E8E4E}.btn:disabled{opacity:.6}
+.stp{gap:5px;margin:18px 0 6px}.stp span{border-radius:12px;padding:8px 0 6px}
+.stp .c{box-shadow:0 6px 14px -8px #F26B1D}
+.nx{display:flex;gap:12px;align-items:flex-start;background:var(--tint);border-radius:16px;padding:13px 14px;margin:14px 0 0;color:#5a2a0a}
+.nx i{font-style:normal;font-size:22px;line-height:1.2}.nx b{display:block;font:700 16px 'Bricolage Grotesque',sans-serif}.nx span{font-size:14px}
+.act .ev{padding:10px 0}.act .ev:last-child{border-bottom:0}
+#wa{background:#1E8E4E;box-shadow:0 8px 18px -10px #1E8E4E;margin-top:4px}
+.btn,.share .row a,.share .row button{min-height:48px;display:flex;align-items:center;justify-content:center}
+.btn.ok{width:100%}
 </style></head><body>
 <header>Kais <span>Junk Remove</span></header>
 <main><div class="card" id="box"><p class="muted" id="state">Loading…</p></div>
@@ -61,6 +81,16 @@ function msg(t,bad){box.innerHTML='<p class="muted'+(bad?' err':'')+'">'+esc(t)+
 var EVT={created:['📥','Request received'],quoted:['💬','Quote ready'],quote_accepted:['👍','You accepted the quote'],scheduled:['📅','Pickup scheduled'],deposit_paid:['💵','Deposit received'],enroute:['🚚','Crew is on the way'],working:['🛠','Crew started the work'],finished:['✅','Work finished'],done:['🏁','Job completed'],confirmed:['🙌','You confirmed the service'],paid:['🧾','Payment received']};
 function stepper(l){var s=[['Request',1],['Quote',l.price!=null],['Scheduled',l.status==='booked'||l.status==='done'],['On the way',!!l.crew_status&&l.status!=='quoted'],['Done',l.status==='done'],['Paid',!!l.paid]],n=0;s.forEach(function(x,i){if(x[1])n=i});return '<div class="stp">'+s.map(function(x,i){return '<span class="'+(i<n||(i===n&&n===5)?'d':i===n?'c':'')+'">'+(i<n||(i===n&&n===5)?'✓':i+1)+'<small>'+x[0]+'</small></span>'}).join('')+'</div>'}
 function acts(ev){var el=document.getElementById('act');if(!el)return;el.innerHTML=(ev||[]).slice().reverse().map(function(e){var m=EVT[e.kind];if(!m)return '';var x=e.kind==='quoted'&&e.detail?': $'+Number(e.detail).toFixed(2).replace(/\.00$/,''):e.kind==='scheduled'&&e.detail?': '+pick(e.detail):'';return '<div class="ev"><i>'+m[0]+'</i><span><b>'+m[1]+x+'</b><small>'+fmt(e.at)+'</small></span></div>'}).join('')||'<p class="muted">Nothing yet.</p>'}
+function nextHint(l){var h=null;
+ if(l.status==='new')h=['⏳','We are checking your photos','You get your quote here and on WhatsApp, usually within minutes.'];
+ else if(l.status==='quoted'&&!l.quote_accepted)h=['💬','Your quote is ready','Tap Accept this quote and we will book your pickup time.'];
+ else if(l.status==='quoted')h=['👍','Quote accepted','We are confirming your pickup time now.'];
+ else if(l.status==='booked'&&l.crew_status==='enroute')h=['🚚','Crew on the way','Please be there or leave access ready.'];
+ else if(l.status==='booked'&&l.crew_status==='working')h=['🛠','Work in progress','Almost done. We will update this page.'];
+ else if(l.status==='booked')h=['📅','Pickup scheduled','Make sure the items are reachable. Message us if anything changes.'];
+ else if(l.status==='done'&&l.can_confirm)h=['✅','Work finished','Please confirm below that the service was completed.'];
+ else if(l.status==='done'&&l.amount_due!=null&&!l.paid_claimed)h=['💳','Last step: payment','Pay the amount due, then tell us below.'];
+ return h?'<div class="nx"><i>'+h[0]+'</i><div><b>'+h[1]+'</b><span>'+h[2]+'</span></div></div>':''}
 function draw(l){
  if(l.closed){box.innerHTML='<h1>All done</h1><p class="muted">#'+esc(l.ref)+'. Service confirmed and payment received. This tracking link is now closed. Thank you for choosing Kais Junk Remove!</p>'+(l.paid?'<a class="btn" target="_blank" href="receipt.html?t='+tok+'">View receipt</a>':'');document.getElementById('wa').hidden=true;review(l);share(l);return}
  if(l.status==='lost'){box.innerHTML='<h1>Request closed</h1><p class="muted">#'+esc(l.ref)+'. This request is closed. Message us if you would like to start again.</p>';return}
@@ -72,7 +102,7 @@ function draw(l){
  +(l.deposit_amount>0?'<div class="price" style="margin-top:8px"><span class="muted">Deposit</span><br><b style="font-size:20px">$'+Number(l.deposit_amount).toFixed(2).replace(/\.00$/,'')+'</b> '+(l.deposit_paid?'<span style="color:var(--green);font-weight:600">✓ received</span>':'<span class="muted">due to confirm your slot</span>')+(!l.deposit_paid&&l.deposit_note?'<br><span class="muted">'+esc(l.deposit_note)+'</span>':'')+'</div>':'')
  +(l.amount_due!=null?'<div class="price" style="margin-top:8px;border:2px solid var(--green)"><span class="muted">Amount due</span><br><b style="font-size:26px">$'+Number(l.amount_due).toFixed(2).replace(/\.00$/,'')+'</b>'+(l.pay_note?'<br><span class="muted">'+esc(l.pay_note)+'</span>':'')+(l.paid_claimed?'<p style="margin:8px 0 0;color:var(--green);font-weight:600">✓ Thanks! We will confirm your payment shortly.</p>':'<button class="btn ok" id="cp" type="button" style="margin-top:10px">I have paid</button>')+'</div>':'')
  +(l.status==='quoted'&&l.price!=null&&!l.quote_accepted?'<button class="btn ok" id="aq" type="button" style="margin-top:10px">Accept this quote</button>':'')+(l.status==='quoted'&&l.quote_accepted?'<p style="margin:10px 0 0;color:var(--green);font-weight:600">✓ Quote accepted. We will confirm a pickup time shortly.</p>':'')
- +(l.confirmed?'<p class="muted" style="margin-top:12px">✓ You confirmed the service. Waiting for payment confirmation from us.</p>':'')+(l.can_confirm?'<button class="btn ok" id="cf" type="button">Confirm the service was completed</button>':'')+stepper(l)+'<h3 style="margin:18px 0 6px;font-size:16px">Activity</h3><div id="act" class="act"></div><p class="muted" style="font-size:13px">This private link closes automatically after you confirm the service and payment is received (or 3 days after payment).</p>';
+ +(l.confirmed?'<p class="muted" style="margin-top:12px">✓ You confirmed the service. Waiting for payment confirmation from us.</p>':'')+(l.can_confirm?'<button class="btn ok" id="cf" type="button">Confirm the service was completed</button>':'')+nextHint(l)+stepper(l)+'<h3 style="margin:18px 0 6px;font-size:16px">Activity</h3><div id="act" class="act"></div><p class="muted" style="font-size:13px">This private link closes automatically after you confirm the service and payment is received (or 3 days after payment).</p>';
 }
 function load(first){
  if(!K.SUPABASE_URL||tok.length<24){if(first)msg('This tracking link is not valid.',true);return}

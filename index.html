@@ -147,7 +147,7 @@ button{font:inherit;color:inherit}
 .label{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-weight:600;font-size:16px;margin-bottom:8px}
 .label small{font-weight:500;font-size:14px;color:var(--muted)}
 .req{color:var(--danger);font-weight:600;font-size:14px}
-input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:2px solid transparent;border-radius:16px;padding:15px 18px;min-height:54px}
+input[type=text],input[type=tel],textarea{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:2px solid transparent;border-radius:16px;padding:15px 18px;min-height:54px}
 textarea{resize:vertical;min-height:92px}
 input::placeholder,textarea::placeholder{color:#6B726D}
 input:focus,textarea:focus{outline:none;border-color:var(--ink);background:var(--card)}
@@ -303,7 +303,7 @@ body.inq .dock,body.s4 .dock{transform:translateY(140%)}
 .qchips button{flex:none;scroll-snap-align:start;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:9px 15px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
 .qchips button:active{transform:scale(.96)}
 .qchips button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.field.ok input[type=text],.field.ok textarea{border-color:#17803F}
+.field.ok input[type=text],.field.ok input[type=tel],.field.ok textarea{border-color:#17803F}
 .field.ok .label>span:first-child::after{content:' ✓';color:#17803F;font-weight:800}
 .nav{position:sticky;bottom:0;z-index:5;margin:28px -22px -26px;padding:14px 22px calc(18px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(255,255,255,0),var(--card) 28%);border-radius:0 0 32px 32px}
 .floorbox{margin-top:12px;padding:14px;border-radius:20px;background:var(--paper);animation:rise .25s ease both}
@@ -626,7 +626,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
 .opt input:checked + .box,.days .opt input:checked + .box,.qchips button.on{background:#F3EFE7;color:#1F2421;border-color:#F3EFE7}
 .opt input:checked + .box svg{color:#C2500F}
 .nav{background:linear-gradient(180deg,rgba(0,0,0,0),var(--card) 28%)}
-.field.ok input[type=text],.field.ok textarea{border-color:#3DBB73}
+.field.ok input[type=text],.field.ok input[type=tel],.field.ok textarea{border-color:#3DBB73}
 .floorbox{background:var(--paper)}
 .seg.fl .box{background:var(--card);border-color:var(--line)}
 .seg.fl .opt input:checked + .box{background:#F3EFE7;color:#1F2421;border-color:#F3EFE7}
@@ -899,7 +899,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
         <div class="field" id="f-address">
           <label class="label" for="address"><span>Full address <span class="req">*</span></span><small>Where we collect from</small></label>
           <textarea autocomplete="off" id="address" placeholder="Street, number, city, ZIP code"></textarea>
-          <p class="err" id="e-address">Enter the full address where the items are.</p>
+          <p class="err" id="e-address">Enter the full address with the street number, like 123 Main St, Orlando FL 32801.</p>
           <p class="note" id="zipNote" hidden>That ZIP code looks outside Florida. We serve Florida. You can still send it and we will confirm.</p>
         </div>
         <div class="field" id="f-name">
@@ -907,9 +907,10 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
           <input autocomplete="off" id="name" type="text" placeholder="First and last name">
           <p class="err" id="e-name">Enter your name.</p>
         </div>
-        <div class="field">
+        <div class="field" id="f-phone">
           <label class="label" for="cphone"><span>Mobile number (optional)</span></label>
           <input autocomplete="tel" id="cphone" type="tel" inputmode="tel" maxlength="20" placeholder="So we can text you updates">
+          <p class="err" id="e-phone">Enter a full 10-digit mobile number, or leave it empty.</p>
         </div>
         <div class="field">
           <div class="label"><span>I am a</span></div>
@@ -1188,7 +1189,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     'About 1/4 of a truck':'Cerca de 1/4 de camión','About 1/2 of a truck':'Cerca de 1/2 camión','About 3/4 of a truck':'Cerca de 3/4 de camión',
     'Back':'Atrás','Where and who':'Dónde y quién','So we know where to go and who to reply to.':'Para saber adónde ir y a quién responder.',
     'Full address':'Dirección completa','Where we collect from':'Donde recogemos',
-    'Enter the full address where the items are.':'Escribe la dirección completa donde están los artículos.',
+    'Enter the full address with the street number, like 123 Main St, Orlando FL 32801.':'Escribe la dirección completa con el número de calle, como 123 Main St, Orlando FL 32801.','Enter a full 10-digit mobile number, or leave it empty.':'Escribe un número móvil de 10 dígitos, o déjalo vacío.',
     'That ZIP code looks outside Florida. We serve Florida. You can still send it and we will confirm.':'Ese código postal parece estar fuera de Florida. Atendemos en Florida. Aun así puedes enviarlo y lo confirmamos.',
     'Your name':'Tu nombre','Enter your name.':'Escribe tu nombre.','I am a':'Soy',
     'Homeowner':'Propietario','Realtor':'Agente inmobiliario','Property manager':'Administrador de propiedades','Business':'Negocio',
@@ -1218,7 +1219,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     'Today':'Hoy','Tomorrow':'Mañana','Copied':'Copiado','Copy failed':'No se pudo copiar','Before':'Antes','After':'Después',
     'Photo':'Foto','Remove photo':'Quitar foto','Fewer':'Menos','More':'Más',
     'Street, number, city, ZIP code':'Calle, número, ciudad, código postal','First and last name':'Nombre y apellido','Mobile number (optional)':'Número de celular (opcional)','So we can text you updates':'Para enviarte avisos',
-    'Your budget':'Tu presupuesto','Budget':'Presupuesto','For example $200, or not sure':'Por ejemplo $200, o no estoy seguro',
+    'Phone':'Teléfono','Your budget':'Tu presupuesto','Budget':'Presupuesto','For example $200, or not sure':'Por ejemplo $200, o no estoy seguro',
     'Parking, gate code, best time of day':'Estacionamiento, código de acceso, mejor hora del día',
     'Kais Junk Remove, back to top':'Kais Junk Remove, volver arriba','Progress':'Progreso','Sections':'Secciones',
     'Quick actions':'Acciones rápidas','Language':'Idioma','Choose a day':'Elige un día'
@@ -1536,16 +1537,21 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     window.__cur = n; if (window.__stepNo) window.__stepNo(n);
     if (!quiet) toQuote();
   }
+  function addrOk(v){ v = (v || '').trim(); return v.length >= 6 && /\d/.test(v); }
+  function nameOk(v){ return (v || '').trim().replace(/[^A-Za-z\u00C0-\u024F]/g, '').length >= 2; }
+  function phoneDigits(v){ var d = (v || '').replace(/\D/g, ''); if (d.length === 11 && d.charAt(0) === '1') d = d.slice(1); return d; }
+  function phoneOk(v){ return !(v || '').trim() || phoneDigits(v).length === 10; }
+  function phoneFmt(v){ var d = phoneDigits(v); return d.length === 10 ? '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6) : (v || '').trim(); }
   function valid(n){
     if (n === 1){ var ok = photos.length > 0; $('f-photos').classList.toggle('invalid', !ok); return ok; }
     if (n === 3){
-      var a = $('address').value.trim().length >= 6, nm = $('name').value.trim().length >= 2;
+      var a = addrOk($('address').value), nm = nameOk($('name').value), phOk = phoneOk($('cphone').value);
       var dayOk = !(val('when') === 'Pick a day' && !document.querySelector('input[name="day"]:checked'));
       var flOk = !(val('access') === 'Stairs' && !(parseInt($('floorNum').value, 10) >= 1));
       $('f-floor').classList.toggle('invalid', !flOk);
-      $('f-address').classList.toggle('invalid', !a); $('f-name').classList.toggle('invalid', !nm); $('f-day').classList.toggle('invalid', !dayOk);
-      if (!a) $('address').focus(); else if (!nm) $('name').focus(); else if (!flOk) $('floorBox').scrollIntoView({ block: 'center' }); else if (!dayOk) $('days').scrollIntoView({ block: 'center' });
-      return a && nm && dayOk && flOk;
+      $('f-address').classList.toggle('invalid', !a); $('f-name').classList.toggle('invalid', !nm); $('f-day').classList.toggle('invalid', !dayOk); $('f-phone').classList.toggle('invalid', !phOk);
+      if (!a) $('address').focus(); else if (!nm) $('name').focus(); else if (!phOk) $('cphone').focus(); else if (!flOk) $('floorBox').scrollIntoView({ block: 'center' }); else if (!dayOk) $('days').scrollIntoView({ block: 'center' });
+      return a && nm && phOk && dayOk && flOk;
     }
     return true;
   }
@@ -1555,7 +1561,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
   function newTok(){ var a = new Uint8Array(12); (window.crypto || window.msCrypto).getRandomValues(a); return Array.prototype.map.call(a, function(x){ return ('0' + x.toString(16)).slice(-2); }).join(''); }
   function build(keep){
     var es = LANG === 'es';
-    var ref = keep && curRef ? curRef : 'KJ-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+    var ref = curRef ? curRef : 'KJ-' + Math.random().toString(36).slice(2, 6).toUpperCase();
     curRef = ref;
     var who = val('who'), size = val('size'), note = $('note').value.trim(), budget = $('budget').value.trim(), access = val('access'), accessLoc = t(access);
     var fnum = parseInt($('floorNum').value, 10);
@@ -1585,16 +1591,17 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     if (lastEst) lines.push('💰 Website estimate: ' + lastEst);
     if (budget) lines.push('💵 Budget: ' + budget);
     if (discount) lines.push('🎁 *10% OFF* (cleared the room on the website)');
+    var phn = phoneFmt($('cphone').value); if (phn) lines.push('📞 Phone: ' + phn);
     if (note) lines.push('📝 Notes: ' + note);
     if (es) lines.push('🌐 Customer prefers Spanish');
     if (PARTNER) lines.push('🤝 Partner: ' + PARTNER);
     if (RC) lines.push('🎁 Referred by customer: ' + RC);
-    if (!keep || !curTok) curTok = newTok();
+    if (!curTok) curTok = newTok();
     var trackUrl = new URL('track.html?t=' + curTok, location.href).href;
     if (window.KJ && window.KJ.SUPABASE_URL) lines.push('🔎 Track: ' + trackUrl);
     lines.push('', '📷 ' + photos.length + ' photo' + (photos.length === 1 ? '' : 's') + ' coming right after this message (#' + ref + ')');
     message = lines.join('\n');
-    if (!keep) sendLead(ref, curTok, $('name').value.trim(), addr, (list.map(function(c){ return c + ' x' + counts[c]; }).join(', ') || size || 'See photos'), message, whenText(false), ($('cphone') ? $('cphone').value.trim() : ''));
+    if (!keep) sendLead(ref, curTok, $('name').value.trim(), addr, (list.map(function(c){ return c + ' x' + counts[c]; }).join(', ') || size || 'See photos'), message, whenText(false), phn);
 
     var rows = [
       ['Name', $('name').value.trim(), 3],
@@ -1605,6 +1612,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
       ['Location', accessLoc, 3],
       ['When', whenText(true), 3],
       ['Offer', discount ? '10% off' : '', 1],
+      ['Phone', phn, 3],
       ['Budget', budget, 3],
       ['Notes', note, 3]
     ];
@@ -1853,7 +1861,12 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
       var v = this.value; Array.prototype.forEach.call(document.querySelectorAll('.qchips[data-for="budget"] button'), function(c){ c.classList.toggle('on', c.getAttribute('data-v') === v); });
     });
     function tick(id, fn){ var f = $(id), i = f.querySelector('input,textarea'); i.addEventListener('input', function(){ f.classList.toggle('ok', fn(i.value.trim())); }); }
-    tick('f-address', function(v){ return v.length >= 6; }); tick('f-name', function(v){ return v.length >= 2; });
+    tick('f-address', addrOk); tick('f-name', nameOk);
+    var ph = $('cphone');
+    ph.addEventListener('input', function(){ $('f-phone').classList.remove('invalid'); $('f-phone').classList.toggle('ok', phoneDigits(ph.value).length === 10); });
+    ph.addEventListener('blur', function(){ if (phoneDigits(ph.value).length === 10) ph.value = phoneFmt(ph.value); $('f-phone').classList.toggle('invalid', !phoneOk(ph.value)); });
+    $('address').addEventListener('input', function(){ $('f-address').classList.remove('invalid'); });
+    $('name').addEventListener('input', function(){ $('f-name').classList.remove('invalid'); });
   })();
 
   // stairs -> ask which floor
