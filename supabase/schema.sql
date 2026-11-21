@@ -46,15 +46,24 @@ alter table leads add column if not exists commission_paid_at timestamptz;
 alter table partners add column if not exists payout_info text;
 update leads set completed_at = updated_at where status = 'done' and completed_at is null;
 
+-- Komisyon dondurma: is tamamlaninca o gunun yuzdeleri ve ust ortak sabitlenir; sonradan yapilan degisiklikler eski isleri etkilemez
+alter table leads add column if not exists frozen_at timestamptz;
+alter table leads add column if not exists frozen_pct numeric(5,2);
+alter table leads add column if not exists frozen_bonus numeric(5,2);
+alter table leads add column if not exists frozen_ov_pct numeric(5,2);
+alter table leads add column if not exists frozen_sponsor uuid;
+alter table leads add column if not exists paid_comm_amt numeric(10,2);
+alter table leads add column if not exists paid_ov_amt numeric(10,2);
+
 create or replace function touch_lead() returns trigger language plpgsql as $$
 begin
   new.updated_at = now();
   if new.status = 'done' and old.status is distinct from 'done' then new.completed_at = now();
-  elsif new.status <> 'done' then new.completed_at = null; end if;
+  elsif new.status <> 'done' then new.completed_at = null; new.frozen_at = null; new.frozen_pct = null; new.frozen_bonus = null; new.frozen_ov_pct = null; new.frozen_sponsor = null; end if;
   if new.commission_paid and not old.commission_paid then new.commission_paid_at = now();
-  elsif not new.commission_paid then new.commission_paid_at = null; end if;
+  elsif not new.commission_paid then new.commission_paid_at = null; new.paid_comm_amt = null; end if;
   if new.override_paid and not old.override_paid then new.override_paid_at = now();
-  elsif not new.override_paid then new.override_paid_at = null; end if;
+  elsif not new.override_paid then new.override_paid_at = null; new.paid_ov_amt = null; end if;
   return new;
 end $$;
 drop trigger if exists leads_touch on leads;
@@ -156,18 +165,21 @@ alter table settings enable row level security;
 drop view if exists lead_calc;
 create view lead_calc as
 with d as (
-  select l.id, l.partner_id, l.price, l.completed_at, l.repeat_of,
+  select l.id, l.partner_id, l.price, l.completed_at, l.repeat_of, l.frozen_at, l.frozen_pct, l.frozen_bonus, l.frozen_ov_pct, l.frozen_sponsor, l.paid_comm_amt, l.paid_ov_amt,
          count(*) over (partition by l.partner_id order by l.completed_at range between interval '30 days' preceding and current row) as pos
   from leads l where l.status = 'done' and l.partner_id is not null and l.completed_at is not null
 ), e as (
-  select d.*, p.parent_id, p.override_pct as ov_pct,
-         case when d.repeat_of is not null
+  select d.*, case when d.frozen_at is not null then d.frozen_sponsor else p.parent_id end as parent_id,
+         case when d.frozen_at is not null then d.frozen_ov_pct else p.override_pct end as ov_pct,
+         case when d.frozen_at is not null then d.frozen_pct
+              when d.repeat_of is not null
               then coalesce((select s.value::numeric from settings s where s.key = 'repeat_pct'), 10)
               else least(100,
                      greatest(p.commission_pct, coalesce((select max(t.pct) from tiers t where t.min_jobs <= d.pos), 0))
                      + coalesce((select sum(c.bonus_pct) from campaigns c where c.active and d.completed_at >= c.starts_at and d.completed_at <= c.ends_at), 0))
          end as eff_pct,
-         case when d.repeat_of is not null then 0
+         case when d.frozen_at is not null then d.frozen_bonus
+              when d.repeat_of is not null then 0
               else coalesce((select sum(c.bonus_pct) from campaigns c where c.active and d.completed_at >= c.starts_at and d.completed_at <= c.ends_at), 0)
          end as bonus_pct
   from d join partners p on p.id = d.partner_id
@@ -175,12 +187,45 @@ with d as (
 select e.id as lead_id, e.partner_id, e.pos,
        e.eff_pct as pct,
        e.bonus_pct,
-       case when e.price is not null then round(e.price * e.eff_pct / 100, 2) end as commission,
-       case when sp.active then e.parent_id end as sponsor_id,
-       case when sp.active then e.ov_pct end as override_pct,
-       case when sp.active and e.price is not null then round(e.price * e.ov_pct / 100, 2) end as override_amt
+       coalesce(e.paid_comm_amt, case when e.price is not null then round(e.price * e.eff_pct / 100, 2) end) as commission,
+       case when sp.active or e.paid_ov_amt is not null then e.parent_id end as sponsor_id,
+       case when sp.active or e.paid_ov_amt is not null then e.ov_pct end as override_pct,
+       coalesce(e.paid_ov_amt, case when sp.active and e.price is not null then round(e.price * e.ov_pct / 100, 2) end) as override_amt
 from e left join partners sp on sp.id = e.parent_id;
 revoke all on lead_calc from anon, authenticated, public;
+
+-- Is tamamlaninca yuzdeleri dondur; odeme isaretlenince tutari dondur
+create or replace function freeze_lead() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare c record; pr record;
+begin
+  if new.partner_id is null then return new; end if;
+  if new.status = 'done' and new.frozen_at is null then
+    select * into c from lead_calc where lead_id = new.id;
+    select parent_id, override_pct into pr from partners where id = new.partner_id;
+    if c.lead_id is not null then
+      update leads set frozen_at = now(), frozen_pct = c.pct, frozen_bonus = c.bonus_pct, frozen_ov_pct = pr.override_pct, frozen_sponsor = pr.parent_id where id = new.id and frozen_at is null;
+    end if;
+  end if;
+  if new.commission_paid and new.paid_comm_amt is null then
+    select * into c from lead_calc where lead_id = new.id;
+    if c.commission is not null then update leads set paid_comm_amt = c.commission where id = new.id and paid_comm_amt is null; end if;
+  end if;
+  if new.override_paid and new.paid_ov_amt is null then
+    select * into c from lead_calc where lead_id = new.id;
+    if c.override_amt is not null then update leads set paid_ov_amt = c.override_amt where id = new.id and paid_ov_amt is null; end if;
+  end if;
+  return new;
+end $$;
+drop trigger if exists leads_freeze on leads;
+create trigger leads_freeze after update on leads for each row execute function freeze_lead();
+
+-- Tek seferlik: mevcut biten islerin yuzdelerini bugunku haliyle dondur (tekrar calistirmak zararsiz)
+update leads l set frozen_at = now(), frozen_pct = c.pct, frozen_bonus = c.bonus_pct, frozen_ov_pct = p.override_pct, frozen_sponsor = p.parent_id
+  from lead_calc c join partners p on p.id = c.partner_id
+ where c.lead_id = l.id and l.status = 'done' and l.frozen_at is null;
+update leads l set paid_comm_amt = c.commission from lead_calc c where c.lead_id = l.id and l.commission_paid and l.paid_comm_amt is null and c.commission is not null;
+update leads l set paid_ov_amt = c.override_amt from lead_calc c where c.lead_id = l.id and l.override_paid and l.paid_ov_amt is null and c.override_amt is not null;
 
 create or replace function client_key() returns text
 language sql stable as $$
