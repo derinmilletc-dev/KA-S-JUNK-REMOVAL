@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Become a Kais Partner | Kais Junk Remove</title>
+<meta name="description" content="Refer customers to Kais Junk Remove and earn a commission on every completed job. Free to join.">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1F2421;--paper:#F6F3EE;--line:#E2DCD0;--muted:#565D58;--orange:#F26B1D;--deep:#C2500F;--tint:#FCE6D8;--green:#1E8E4E}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 'DM Sans',system-ui,sans-serif}
+header{background:var(--ink);color:#fff;padding:14px 20px;font:700 18px 'Bricolage Grotesque',sans-serif}header span{color:var(--orange)}
+main{max-width:520px;margin:0 auto;padding:20px}
+h1{font:700 34px/1.05 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em;margin:10px 0 10px}
+.lead{color:var(--muted);margin:0 0 18px}
+.steps{display:grid;gap:10px;margin:0 0 18px}.step{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.step i{flex:none;width:28px;height:28px;border-radius:50%;background:var(--tint);color:var(--deep);display:grid;place-items:center;font-style:normal;font-weight:700}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;font:inherit}input:focus{outline:2px solid var(--orange);border-color:var(--orange)}
+button{width:100%;margin-top:16px;background:var(--orange);color:#fff;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:600;cursor:pointer}button:hover{background:var(--deep)}button:disabled{opacity:.6}
+.msg{padding:12px;border-radius:10px;margin-top:14px;font-size:14px}.ok{background:#DDF3E6}.err{background:#F6DAD7}
+small{color:var(--muted);display:block;margin-top:14px;font-size:13px}
+</style></head><body>
+<header>Kais <span>Junk Remove</span></header>
+<main>
+<h1>Refer a customer.<br>Earn on every completed job.</h1>
+<p class="lead">Free to join. No fees, no inventory. You share your link; we do the work. You earn a commission on each real job that is completed and paid.</p>
+<div class="steps">
+<div class="step"><i>1</i><span><b>Apply</b><br>Fill in the form below. We review and approve you.</span></div>
+<div class="step"><i>2</i><span><b>Share your link or QR</b><br>Friends, neighbors, realtors, property managers.</span></div>
+<div class="step"><i>3</i><span><b>Track and get paid</b><br>See every job and your commission in your partner panel.</span></div>
+</div>
+<form class="card" id="f" novalidate>
+<label for="n">Full name</label><input id="n" autocomplete="name" required>
+<label for="e">Email</label><input id="e" type="email" autocomplete="email" required>
+<label for="p">Phone (optional)</label><input id="p" type="tel" autocomplete="tel">
+<button id="b">Apply to join</button><div id="m" class="msg" hidden></div>
+<small>Earnings depend on real customers and completed jobs and are not guaranteed. Commission is paid only on jobs that are completed and paid by the customer.</small>
+</form></main>
+<script src="portal/config.js"></script>
+<script>
+(function(){var K=window.KJ||{},sp=(new URLSearchParams(location.search).get('sp')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
+var f=document.getElementById('f'),m=document.getElementById('m'),b=document.getElementById('b');
+function say(t,bad){m.hidden=false;m.className='msg '+(bad?'err':'ok');m.textContent=t}
+f.addEventListener('submit',function(e){e.preventDefault();
+ var n=document.getElementById('n').value.trim(),em=document.getElementById('e').value.trim();
+ if(!n||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){say('Please enter your name and a valid email.',true);return}
+ if(!K.SUPABASE_URL){say('Applications are not open yet. Please check back soon.',true);return}
+ b.disabled=true;
+ fetch(K.SUPABASE_URL+'/rest/v1/rpc/apply_partner',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_name:n,p_email:em,p_phone:document.getElementById('p').value.trim(),p_sponsor:sp})})
+ .then(function(r){b.disabled=false;if(r.ok){f.reset();say('Thanks! We received your application. We will email you once you are approved. Then log in at the partner page with this email.')}else say('Could not send. Please try again.',true)})
+ .catch(function(){b.disabled=false;say('Could not send. Please try again.',true)})});
+})();
+</script></body></html>

@@ -20,3 +20,9 @@ Her talebin ozel takip linki var (`track.html?t=KOD`). Musteri sitede forma dold
 
 ### Ortak paneli ekleri
 Komisyon varsayılanı %20 (ortak başına admin panelinden değişir). Ortak panelinde: bildirimler, ödeme geçmişi, hazır paylaşım metinleri, profil (telefon, ödeme bilgisi) ve "bu müşteri benim" itirazı. Admin panelinde "İtirazlar" sekmesi: onaylarsan iş koduna göre iş ortağa bağlanır ve ortağa bildirim gider. Bildirimler şimdilik panel içi; e-posta bildirimi için ayrı bir mail servisi gerekir.
+
+### Büyüme programı (2 kademe, seviyeler, müşteri tavsiyesi)
+- **Kural:** Para yalnızca gerçek müşterinin ödediği işten çıkar. Katılım ücreti yok, kazanç garantisi verilmez, en fazla 2 kademe. Yayına almadan önce bir avukata (Florida) danış.
+- **2 kademe:** Ortak `join.html?sp=KOD` ile ortak davet eder. Başvuru admin panelinde "Başvurular" sekmesine düşer, onaylanınca davet edenin ekibine bağlanır. Davet eden, ekibin tamamlanan işlerinden "üst pay" alır (varsayılan %5, ortak başına değişir).
+- **Seviyeler:** Ortağın ayda N. işinden itibaren yüzde artar (varsayılan 5. iş %25, 10. iş %30). Admin > Ortaklar > Program ayarları'ndan değişir. Ortağın kendi yüzdesi daha yüksekse o kalır.
+- **Müşteri tavsiyesi:** İş tamamlanınca müşterinin takip sayfasında paylaşım linki çıkar (`?rc=KOD`). Gelen arkadaşın işi tamamlanınca müşteriye kredi ($20 varsayılan, ayarlardan değişir). Kredi ödemesi/indirimi şimdilik elle yapılır.

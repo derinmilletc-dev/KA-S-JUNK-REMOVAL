@@ -1078,10 +1078,14 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
 <script>
 (function(){
   var NUMBER = '14074462534', MAX = 10;
-  var PARTNER = '';
+  var PARTNER = '', RC = '';
   try {
     var qr = (new URLSearchParams(location.search).get('ref') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
     if (qr.length >= 3) localStorage.setItem('kj_ref', JSON.stringify({ c: qr, t: Date.now() }));
+    var rcq = (new URLSearchParams(location.search).get('rc') || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8);
+    if (rcq.length === 8) localStorage.setItem('kj_rc', JSON.stringify({ c: rcq, t: Date.now() }));
+    var rv = JSON.parse(localStorage.getItem('kj_rc') || 'null');
+    if (rv && Date.now() - rv.t < 30 * 864e5) RC = rv.c;
     var sv = JSON.parse(localStorage.getItem('kj_ref') || 'null');
     if (sv && Date.now() - sv.t < 30 * 864e5) PARTNER = sv.c;
   } catch(e){}
@@ -1092,7 +1096,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
       fetch(K.SUPABASE_URL + '/rest/v1/rpc/submit_lead', {
         method: 'POST', keepalive: true,
         headers: { 'Content-Type': 'application/json', apikey: K.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + K.SUPABASE_ANON_KEY },
-        body: JSON.stringify({ p_ref: ref, p_code: PARTNER, p_name: name, p_address: addr, p_summary: summary, p_message: msg, p_token: tok })
+        body: JSON.stringify({ p_ref: ref, p_code: PARTNER, p_name: name, p_address: addr, p_summary: summary, p_message: msg, p_token: tok, p_rc: RC })
       }).catch(function(){});
     } catch(e){}
   }
@@ -1482,6 +1486,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     if (note) lines.push('📝 Notes: ' + note);
     if (es) lines.push('🌐 Customer prefers Spanish');
     if (PARTNER) lines.push('🤝 Partner: ' + PARTNER);
+    if (RC) lines.push('🎁 Referred by customer: ' + RC);
     if (!keep || !curTok) curTok = newTok();
     var trackUrl = new URL('track.html?t=' + curTok, location.href).href;
     if (window.KJ && window.KJ.SUPABASE_URL) lines.push('🔎 Track: ' + trackUrl);
