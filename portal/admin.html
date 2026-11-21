@@ -63,16 +63,80 @@ header{background:#1F2421ec;-webkit-backdrop-filter:blur(12px);backdrop-filter:b
 @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.sm,.tl .card{animation:none}}
 @media(max-width:700px){.tl{gap:12px}}
+
+/* ===== v3: uygulama gorunumu ===== */
+:root{--r:20px;--sh:0 12px 28px -22px #1F2421aa}
+header{height:60px;padding:0 16px;gap:10px}
+header .brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
+header .brand svg{width:34px;height:34px;display:block}
+header .brand span{display:flex;flex-direction:column;line-height:1.05}
+header .brand b{font:800 17px 'Bricolage Grotesque',sans-serif;color:#fff}
+header .brand em{font-style:normal;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:700}
+.hright{display:flex;align-items:center;gap:6px}
+.hclock{font-size:12.5px;color:#ffffffb3;margin-right:4px;white-space:nowrap}
+header button{border-color:#ffffff2a;background:#ffffff12;border-radius:12px;padding:8px 11px;line-height:1;font-size:14px}
+header button:hover{background:#ffffff22}
+#hrefresh{font-size:18px;padding:6px 11px}#hrefresh.spin{animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.lbrand svg{width:56px;height:56px;display:block;margin:0 0 12px}
+.stick{top:60px;margin:0 -20px 12px;padding-top:10px}
+.stick .tabs{margin-bottom:6px}
+.tabs button{border-radius:12px;font-weight:600;font-size:14px;padding:8px 14px}
+.tabs button.on{background:var(--orange);border-color:var(--orange);color:#fff;box-shadow:0 8px 16px -8px #C2500Fcc}
+/* alt menu (telefon) / yan menu (bilgisayar) */
+.gnav{position:fixed;z-index:40;display:flex;gap:4px;margin:0;overflow:visible}
+.gnav button{border:0;background:none;box-shadow:none;color:#565D58;border-radius:16px;padding:8px 4px;font-weight:600;flex-direction:column;gap:3px;position:relative;flex:1}
+.gnav button i{font-style:normal;font-size:11.5px}
+.gnav button .ic{font-size:21px;line-height:1;filter:grayscale(.55);transition:transform .15s,filter .15s}
+.gnav button.on{background:var(--tint);color:var(--deep);box-shadow:none}
+.gnav button.on .ic{filter:none;transform:translateY(-1px) scale(1.1)}
+.gnav .n{position:absolute;top:2px;right:calc(50% - 26px);font-size:10.5px;padding:0 6px;box-shadow:0 0 0 2px #fff}
+@media(max-width:899px){
+ .gnav{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));background:#ffffffee;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:24px;padding:6px;box-shadow:0 18px 40px -14px #1F2421aa}
+ main{padding-bottom:110px}
+ #totop{bottom:96px}
+ .hclock{display:none}
+}
+@media(min-width:900px){
+ .gnav{left:max(16px,calc((100vw - 1320px)/2));top:84px;width:190px;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:22px;padding:10px;box-shadow:var(--sh)}
+ .gnav button{flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;font-size:15px;flex:none;text-align:left}
+ .gnav button i{font-size:15px}.gnav .n{position:static;margin-left:auto;box-shadow:none}
+ main{margin:0 0 0 max(224px,calc((100vw - 1320px)/2 + 208px));max-width:1000px}
+ .stick{margin-left:-20px}
+}
+/* para ozeti */
+#stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);animation:up .4s both}
+.kpi small{display:block;color:var(--muted);font-size:12.5px;font-weight:600}
+.kpi b{display:block;font:800 26px/1.15 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em;margin-top:4px}
+.kpi b em{font:600 13px 'DM Sans',sans-serif;color:var(--muted);font-style:normal;letter-spacing:0}
+.kpi.hero{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;color:#fff;border:0;background:radial-gradient(320px 180px at 100% 0,#F26B1D55,transparent 70%),linear-gradient(140deg,#1F2421,#2E3531);box-shadow:0 20px 40px -22px #1F2421dd}
+.kpi.hero small{color:#ffffffb0}.kpi.hero b{font-size:38px}
+.kpi .spark{width:46%;max-width:210px;height:54px;flex:none;fill:var(--orange)}
+.trend{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:700;background:#ffffff1c}
+.trend.up{color:#7BE0A4}.trend.down{color:#FFB4A8}
+@media(min-width:700px){#stats{grid-template-columns:repeat(4,1fr)}.kpi.hero{grid-column:1/-1}}
+/* hizli ara / whatsapp */
+.itr{display:flex;align-items:center;gap:6px;flex:none}
+.qa{display:grid;place-items:center;width:34px;height:34px;border-radius:12px;background:var(--paper);border:1px solid var(--line);text-decoration:none;font-size:16px}
+.qa:active{transform:scale(.92)}
+/* genel cila */
+.card{border-radius:var(--r)}
+.tl .card{border-radius:22px}
+.btn{border-radius:14px}
+input,select,textarea{border-radius:12px}
+.msg{position:sticky;top:70px;z-index:25;border-radius:14px;box-shadow:var(--sh)}
+@media(prefers-reduced-motion:reduce){.kpi{animation:none}#hrefresh.spin{animation:none}}
 </style><link rel="manifest" href="manifest-admin.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
-<header><b><a href="../index.html" aria-label="Kais Junk Remove, home" style="color:inherit;text-decoration:none;display:inline-block;padding:6px 0">Kais <span>Admin</span></a></b><span style="display:flex;gap:8px"><button id="setpw" type="button" style="display:none">Sifre</button><button id="logout">Cikis</button></span></header>
+<header><a class="brand" href="../index.html" aria-label="Kais Junk Remove, home"><svg viewBox="0 0 200 200" aria-hidden="true"><rect width="200" height="200" rx="44" fill="#2E3531"/><g transform="translate(-9,0)"><rect x="52" y="48" width="28" height="104" fill="#F6F3EE"/><polygon points="80,112 126,48 160,48 114,112" fill="#F6F3EE"/><polygon points="92,96 126,96 166,152 132,152" fill="#F26B1D"/></g></svg><span><b>Kais</b><em>Admin</em></span></a><div class="hright"><span class="hclock" id="hclock" title="Florida saati"></span><button id="hsearch" type="button" aria-label="Ara">🔍</button><button id="hrefresh" type="button" aria-label="Yenile">↻</button><button id="setpw" type="button" style="display:none">Sifre</button><button id="logout">Cikis</button></div></header>
 <main>
-<div id="loginBox" class="card login" hidden><h2>Yonetici girisi</h2>
+<div id="loginBox" class="card login" hidden><div class="lbrand"><svg viewBox="0 0 200 200" aria-hidden="true"><rect width="200" height="200" rx="44" fill="#1F2421"/><g transform="translate(-9,0)"><rect x="52" y="48" width="28" height="104" fill="#F6F3EE"/><polygon points="80,112 126,48 160,48 114,112" fill="#F6F3EE"/><polygon points="92,96 126,96 166,152 132,152" fill="#F26B1D"/></g></svg></div><h2>Yonetici girisi</h2>
 <form id="lform"><label for="lemail">E-posta</label><input id="lemail" type="email" required autocomplete="email"><label for="lpw">Sifre</label><input id="lpw" type="password" autocomplete="current-password"><p><button class="btn" id="lbtn" style="width:100%">Giris yap</button></p><p class="muted" style="font-size:13px;margin:0">Sifreni bilmiyorsan bos birak: e-postana giris baglantisi gonderilir.</p></form><div id="lmsg" class="msg" hidden></div></div>
 <div id="app" hidden>
 <div id="deny" class="card" hidden><h3>Yetki yok</h3><p class="muted">Bu e-posta yonetici listesinde degil.</p></div>
 <div id="main" hidden>
-<div class="stick"><div class="gnav" id="gnav"><button data-g="today" class="on"><span class="ic">🏠</span>Bugun <span class="n" id="gb-today" hidden></span></button><button data-g="jobs"><span class="ic">🧰</span>Isler</button><button data-g="partners"><span class="ic">🤝</span>Ortaklar <span class="n" id="gb-partners" hidden></span></button><button data-g="money"><span class="ic">💰</span>Para</button><button data-g="set"><span class="ic">⚙️</span>Ayarlar</button></div>
-<div class="tabs sub" id="subtabs"><button data-t="today" data-g="today" class="on">Bugun</button><button data-t="leads" data-g="jobs">Is listesi</button><button data-t="cal" data-g="jobs">Takvim</button><button data-t="partners" data-g="partners">Ortaklar</button><button data-t="apps" data-g="partners">Basvurular <span class="tag" id="ab" hidden></span></button><button data-t="claims" data-g="partners">Itirazlar <span class="tag" id="cb" hidden></span></button><button data-t="sup" data-g="partners">Destek <span class="tag" id="sb" hidden></span></button><button data-t="rep" data-g="money">Rapor</button><button data-t="pay" data-g="money">Ortak odemeleri</button><button data-t="cpay" data-g="money">Ekip odemeleri</button><button data-t="price" data-g="set">Fiyatlar</button><button data-t="camp" data-g="set">Kampanyalar</button><button data-t="crew" data-g="set">Ekip</button><button data-t="gal" data-g="set">Galeri</button><button data-t="bk" data-g="set">Yedek</button><button data-t="log" data-g="set">Kayit</button></div></div>
+<div class="stick"><div class="tabs sub" id="subtabs"><button data-t="today" data-g="today" class="on">Bugun</button><button data-t="leads" data-g="jobs">Is listesi</button><button data-t="cal" data-g="jobs">Takvim</button><button data-t="partners" data-g="partners">Ortaklar</button><button data-t="apps" data-g="partners">Basvurular <span class="tag" id="ab" hidden></span></button><button data-t="claims" data-g="partners">Itirazlar <span class="tag" id="cb" hidden></span></button><button data-t="sup" data-g="partners">Destek <span class="tag" id="sb" hidden></span></button><button data-t="rep" data-g="money">Rapor</button><button data-t="pay" data-g="money">Ortak odemeleri</button><button data-t="cpay" data-g="money">Ekip odemeleri</button><button data-t="price" data-g="set">Fiyatlar</button><button data-t="camp" data-g="set">Kampanyalar</button><button data-t="crew" data-g="set">Ekip</button><button data-t="gal" data-g="set">Galeri</button><button data-t="bk" data-g="set">Yedek</button><button data-t="log" data-g="set">Kayit</button></div></div>
+<nav class="gnav" id="gnav" aria-label="Menu"><button data-g="today" class="on"><span class="ic">🏠</span><i>Bugun</i> <span class="n" id="gb-today" hidden></span></button><button data-g="jobs"><span class="ic">🧰</span><i>Isler</i></button><button data-g="partners"><span class="ic">🤝</span><i>Ortaklar</i> <span class="n" id="gb-partners" hidden></span></button><button data-g="money"><span class="ic">💰</span><i>Para</i></button><button data-g="set"><span class="ic">⚙️</span><i>Ayarlar</i></button></nav>
 <div id="msg" class="msg" hidden></div>
 <section id="t-today" class="tabsec">
 <div class="row" style="justify-content:space-between;margin-bottom:10px"><div><h2 id="tg" style="font-size:24px"></h2><p class="muted" id="td"></p></div><button class="btn sm ghost" id="notifbtn" hidden>🔔 Bildirimleri ac</button></div>
@@ -210,7 +274,14 @@ $('lrows').addEventListener('change',function(e){var t=e.target;if(!t.matches||!
 function render(){
  var open=L.filter(function(l){return l.status==='new'||l.status==='quoted'}).length,rev=0,owed=0;
  L.forEach(function(l){if(l.status==='done'&&l.price){rev+=Number(l.price);var c=comm(l);if(c&&!l.commission_paid)owed+=c;var o=ovr(l);if(o&&!l.override_paid)owed+=o}});
- $('stats').innerHTML=[['Toplam talep',L.length],['Bekleyen',open],['Ciro',K.money(rev)],['Ortaklara borc',K.money(owed)]].map(function(s){return '<div class="stat"><b>'+K.esc(s[1])+'</b><small>'+s[0]+'</small></div>'}).join('');
+ (function(){var DAY=864e5,now=Date.now(),dd=function(l){return new Date(l.paid_at||l.completed_at||l.created_at).getTime()},dn=L.filter(function(l){return l.status==='done'&&l.price}),
+  sum=function(f,t){return dn.reduce(function(s,l){var d=dd(l);return d>=now-t*DAY&&d<now-f*DAY?s+Number(l.price):s},0)},wk=sum(0,7),pw=sum(7,14),mo=sum(0,30),
+  days=[];for(var i=13;i>=0;i--)days.push(sum(i,i+1));var mx=Math.max.apply(null,days.concat([1])),
+  spark='<svg class="spark" viewBox="0 0 140 40" preserveAspectRatio="none" aria-hidden="true">'+days.map(function(v,i){var hh=Math.max(2,v/mx*38);return '<rect x="'+(i*10+1)+'" y="'+(40-hh)+'" width="8" height="'+hh+'" rx="3"'+(i>6?'':' opacity=".4"')+'/>'}).join('')+'</svg>',
+  pct=pw>0?Math.round((wk-pw)/pw*100):null,tr=pct==null?(wk>0?'<span class="trend up">Yeni baslangic</span>':''):'<span class="trend '+(pct>=0?'up':'down')+'">'+(pct>=0?'▲ ':'▼ ')+Math.abs(pct)+'% gecen haftaya gore</span>',
+  r30=L.filter(function(l){return now-new Date(l.created_at).getTime()<30*DAY}),ok=r30.filter(function(l){return l.status==='booked'||l.status==='done'||l.quote_accepted_at}).length,cv=r30.length?Math.round(ok/r30.length*100):0;
+  $('stats').innerHTML='<div class="kpi hero"><div><small>Son 7 gun ciro</small><b>'+K.esc(K.money(wk))+'</b>'+tr+'</div>'+spark+'</div>'
+   +[['Son 30 gun ciro',K.money(mo)],['Acik talep',open],['Donusum (30 gun)',cv+'% <em>'+ok+'/'+r30.length+'</em>'],['Ortaklara borc',K.money(owed)]].map(function(s){return '<div class="kpi"><small>'+s[0]+'</small><b>'+(typeof s[1]==='number'?s[1]:s[1].indexOf('<em>')>-1?s[1]:K.esc(s[1]))+'</b></div>'}).join('')})();
  drawLeadBar();
  $('lrows').innerHTML=VIS().map(function(l){var p=P.find(function(x){return x.id===l.partner_id}),c=comm(l);
   return '<tr data-st="'+l.status+'" data-id="'+l.id+'"><td>'+K.dt(l.created_at)+'<br><small class="muted">#'+K.esc(l.ref)+'</small>'+(l.track_token?'<br><button class="btn sm ghost" data-a="trk" style="margin-top:4px">Takip linki</button>':'')+'</td><td><b>'+K.esc(l.customer_name)+'</b>'+(l.customer_phone?' <a href="tel:'+K.esc(l.customer_phone)+'" style="font-size:13px">📞 '+K.esc(l.customer_phone)+'</a>':'')+'<br><small class="muted">'+K.esc(l.address)+'<br>'+K.esc(l.summary||'')+'</small>'+refNote(l)+repNote(l)+srcTag(l)+(l.quote_accepted_at?'<br><span class="tag done">Teklifi kabul etti</span>':'')+(l.track_token&&l.status!=='lost'?'<br><button class="btn sm ghost" data-a="cphotos" style="margin-top:4px">Musteri fotolari</button>':'')+(l.dup_of?'<br><span class="tag lost">Tekrar kayit</span> <small class="muted">ayni adres, ortak payi yok</small>':'')+(l.when_text&&!l.scheduled_at?'<br><small class="muted">Istedigi zaman: '+K.esc(l.when_text)+'</small>':'')+'</td><td>'+(p?K.esc(p.name):'<span class="muted">-</span>')+(cc(l)&&cc(l).sponsor_id?'<br><small class="muted">Ust: '+K.esc(pn(cc(l).sponsor_id))+'</small>':'')+'</td>'
@@ -350,7 +421,7 @@ function drawToday(){var h=new Date().toLocaleString('en-US',{timeZone:'America/
  var nw=L.filter(function(l){return l.status==='new'}),td=today(),tj=L.filter(function(l){return l.scheduled_at&&l.scheduled_at.slice(0,10)===td&&l.status!=='lost'}).sort(function(a,b){return a.scheduled_at<b.scheduled_at?-1:1}),
   un=L.filter(function(l){return l.status==='done'&&!l.paid_at}).sort(function(a,b){return (b.paid_claim_at?1:0)-(a.paid_claim_at?1:0)}),qt=L.filter(function(l){return l.status==='quoted'&&!l.quote_accepted_at}),qa=L.filter(function(l){return l.status==='quoted'&&l.quote_accepted_at}),rvw=ST.review_url?L.filter(function(l){return l.status==='done'&&l.paid_at&&!l.review_clicked_at}).slice(0,50):[],
   cp=CL.filter(function(c){return c.status==='pending'}).length,ap=AP.filter(function(a){return a.status==='pending'}).length,sp=SM.filter(function(m){return !m.from_admin&&!m.read_admin}).length,owed=owedAll();
- function it(l,sub){return '<div class="it" data-q="'+K.esc(l.ref)+'"><div><b>'+K.esc(l.customer_name||'-')+'</b><small>'+K.esc(sub)+'</small></div><span class="muted">'+K.esc(l.price!=null?K.money(l.price):'')+'</span></div>'}
+ function it(l,sub){var wd=waDigits(l),ph=String(l.customer_phone||'').replace(/[^\d+]/g,''),qa=(ph?'<a class="qa" href="tel:'+K.esc(ph)+'" onclick="event.stopPropagation()" aria-label="Ara">📞</a>':'')+(wd?'<a class="qa" href="https://wa.me/'+wd+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" aria-label="WhatsApp">💬</a>':'');return '<div class="it" data-q="'+K.esc(l.ref)+'"><div><b>'+K.esc(l.customer_name||'-')+'</b><small>'+K.esc(sub)+'</small></div><span class="itr"><span class="muted">'+K.esc(l.price!=null?K.money(l.price):'')+'</span>'+qa+'</span></div>'}
  function card(t,n,body,go,cls){if(!n&&go!==undefined&&go.indexOf('data-go')>-1&&t.indexOf('randevu')<0)return '<div class="card slim"><h3>'+t+'</h3><span class="tag">0 ✓</span></div>';return '<div class="card"><h3>'+t+' <span class="tag '+(cls||'')+'">'+n+'</span></h3>'+(body||'<p class="muted">Yok, temiz 🎉</p>')+(go?'<p style="margin:10px 0 0"><button class="btn sm ghost" '+go+'>Hepsini gor</button></p>':'')+'</div>'}
  var cards=[
   card('Cevap bekleyen yeni talepler',nw.length,nw.slice(0,5).map(function(l){return it(l,(l.summary||'')+' · '+K.dt(l.created_at))}).join(''),'data-go="leads" data-f="new"',nw.length?'new':''),
@@ -425,6 +496,9 @@ function showGroup(g){CURG=g;document.querySelectorAll('#gnav button').forEach(f
 $('gnav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;showGroup(b.dataset.g);var t=LASTT[b.dataset.g]||GT[b.dataset.g];document.querySelector('#subtabs [data-t="'+t+'"]').click()});
 document.querySelectorAll('#subtabs button').forEach(function(b){b.addEventListener('click',function(){showGroup(b.dataset.g);LASTT[b.dataset.g]=b.dataset.t})});
 showGroup('today');
+(function(){function tick(){try{$('hclock').textContent=new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit'})+' FL'}catch(e){}}tick();setInterval(tick,30000);
+ $('hsearch').onclick=function(){goTab('leads','all','');setTimeout(function(){var q=$('lq2');if(q){q.focus();q.select&&q.select()}},60)};
+ $('hrefresh').onclick=function(){var b=this;b.classList.add('spin');Promise.resolve(load()).then(function(){msg('Yenilendi');b.classList.remove('spin')},function(){b.classList.remove('spin')})}})();
 // ---- Yeni talep bildirimi
 var LASTN=null;
 function beep(){try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.08;o.start();setTimeout(function(){o.stop();a.close()},260)}catch(e){}}
