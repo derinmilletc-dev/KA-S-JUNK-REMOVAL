@@ -31,6 +31,7 @@ main{padding-bottom:90px}
 .menu button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 2px;font-size:11px;min-width:0;line-height:1.15;border-radius:14px;text-align:center}
 .menu button i{font-style:normal;font-size:22px;line-height:1}.menu .bd{position:absolute;top:4px;right:6px;margin:0}
 .job.fin{opacity:.8}
+.hx{margin:2px 0 6px;font-size:13px}.hx summary{cursor:pointer;color:var(--deep);font-weight:600}
 .prog{display:flex;gap:4px;margin:8px 0}.prog span{flex:1;text-align:center;font-size:10px;padding:5px 0;border-radius:6px;background:#eef1f4;color:#789}.prog .d{background:#d9f5e3;color:#0a7a3b}.prog .c{background:#0a7a3b;color:#fff;font-weight:700}
 </style><link rel="manifest" href="manifest-partner.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
 <header><b>Kais <span>Partner</span></b><button id="logout">Cikis</button></header>
@@ -82,7 +83,7 @@ function drawJobs(){var list=L.filter(function(l){return F==='all'||bucket(l)===
  $('empty').hidden=list.length>0;
  $('jobs').innerHTML=list.map(function(l){var b=bucket(l);
   return '<div class="job"><div class="top"><div class="av">'+K.esc((l.customer||'?').charAt(0))+'</div><div class="grow"><div class="sum">'+K.esc(l.summary||'Is')+'</div><div class="meta">'+K.dt(l.created_at)+' · #'+K.esc(l.ref)+(l.is_repeat?' · <b style="color:var(--deep)">Tekrar musteri</b>':'')+'</div></div><span class="tag '+(b==='paid'?'paid':K.esc(l.status))+'">'+(b==='paid'?'Odendi':K.esc(K.STATUS[l.status]||l.status))+'</span></div>'
-  +prog(l)+'<div class="amts"><div><small>Is tutari</small><b>'+K.money(l.price)+'</b></div><div><small>Komisyonun'+(l.pct!=null?' (%'+Number(l.pct)+')':'')+'</small><b>'+(l.commission!=null?K.money(l.commission):'-')+'</b></div></div>'
+  +prog(l)+hist(l)+'<div class="amts"><div><small>Is tutari</small><b>'+K.money(l.price)+'</b></div><div><small>Komisyonun'+(l.pct!=null?' (%'+Number(l.pct)+')':'')+'</small><b>'+(l.commission!=null?K.money(l.commission):'-')+'</b></div></div>'
   +'<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-t="'+K.esc(l.track_token)+'" data-n="'+K.esc(l.summary||'Is')+'">Musteri takip linki</button></div></div>'}).join('')}
 function drawAll(){drawStats();drawFilters();drawJobs()}
 
@@ -131,8 +132,11 @@ if(k==='ach'){var done=L.filter(function(l){return l.status==='done'}).length,re
 }
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-dl]');if(!b)return;var cv=document.querySelector('canvas[data-kit="'+b.dataset.dl+'"]');cv.toBlob(function(bl){var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='kais-'+b.dataset.dl+'-'+P.code+'.png';a.click()})});
 $('menu').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b)menuOpen(b.dataset.m)});
+var EVS=[];
+var EVN={created:['📥','Talep alindi'],quoted:['💬','Teklif verildi'],quote_accepted:['👍','Musteri teklifi kabul etti'],scheduled:['📅','Randevu verildi'],deposit_paid:['💵','Depozito alindi'],enroute:['🚚','Ekip yolda'],working:['🛠','Ekip calisiyor'],finished:['✅','Is bitti'],done:['🏁','Is tamamlandi'],confirmed:['🙌','Musteri onayladi'],paid:['🧾','Musteri odedi: komisyonun hak edildi']};
+function hist(l){var e=EVS.filter(function(x){return x.ref===l.ref&&EVN[x.kind]});if(!e.length)return '';return '<details class="hx"><summary>Gecmis</summary>'+e.slice().reverse().map(function(x){return '<div class="meta">'+EVN[x.kind][0]+' '+EVN[x.kind][1]+' · '+K.dt(x.at)+'</div>'}).join('')+'</details>'}
 function prog(l){var st=[['Talep',1],['Teklif',l.price!=null],['Randevu',!!l.scheduled_at||l.status==='booked'||l.status==='done'],['Yolda',l.crew_status==='enroute'||l.crew_status==='working'||l.crew_status==='finished'],['Bitti',l.status==='done'],['Odendi',!!l.paid]];var n=0;st.forEach(function(x,i){if(x[1])n=i});if(l.status==='lost')return '';return '<div class="prog">'+st.map(function(x,i){return '<span class="'+(i<n||(i===n&&n===5)?'d':i===n?'c':'')+'">'+x[0]+'</span>'}).join('')+'</div>'+(l.status==='done'&&!l.paid?'<div class="meta" style="margin:4px 0">Musteri odeyince komisyonun hak edilir.</div>':'')}
-function loadLeads(){return Promise.all([K.sb.rpc('my_leads'),K.sb.rpc('my_overrides'),K.sb.rpc('my_level'),K.sb.rpc('my_team'),K.sb.rpc('my_week'),K.sb.rpc('active_campaigns')]).then(function(r){L=r[0].data||[];OV=r[1].data||[];LV=r[2].data&&r[2].data[0]||null;TEAM=r[3].data||[];WEEK=r[4].data&&r[4].data[0]||null;CAMPS=r[5].data||[];drawAll();drawLevel();drawWeek();drawCamps()})}
+function loadLeads(){return Promise.all([K.sb.rpc('my_leads'),K.sb.rpc('my_overrides'),K.sb.rpc('my_level'),K.sb.rpc('my_team'),K.sb.rpc('my_week'),K.sb.rpc('active_campaigns'),K.sb.rpc('my_events')]).then(function(r){EVS=(r[6]&&r[6].data)||[];L=r[0].data||[];OV=r[1].data||[];LV=r[2].data&&r[2].data[0]||null;TEAM=r[3].data||[];WEEK=r[4].data&&r[4].data[0]||null;CAMPS=r[5].data||[];drawAll();drawLevel();drawWeek();drawCamps()})}
 $('filters').addEventListener('click',function(e){var b=e.target.closest('[data-f]');if(b){F=b.dataset.f;drawFilters();drawJobs()}});
 $('jobs').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(b)linkSheet(b.dataset.t,b.dataset.n)});
 $('newjob').onclick=function(){sheet('<h3>Yeni is olustur</h3><p class="muted">Musteriye ozel takip linki ve QR olusur.</p><form id="jf"><label>Musteri adi</label><input id="jn" required><label>Adres</label><input id="ja" required><label>Ne alinacak</label><input id="js" required placeholder="Kanepe, buzdolabi..."><div id="jm" class="msg" hidden></div><p class="row"><button class="btn grow">Olustur</button><button type="button" class="btn ghost" data-x>Vazgec</button></p></form>');

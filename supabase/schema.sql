@@ -313,7 +313,7 @@ language sql stable security definer set search_path = public as $$
               then greatest(l.price - coalesce(case when l.deposit_paid_at is not null then l.deposit_amount end, 0), 0) end,
          case when not l.closed and l.status = 'done' and l.paid_at is null then nullif((select value from settings where key = 'pay_note'), '') end,
          (l.paid_claim_at is not null)
-  from (select x.*, (x.customer_confirmed_at is not null and x.paid_at is not null) as closed
+  from (select x.*, (x.paid_at is not null and (x.customer_confirmed_at is not null or x.paid_at < now() - interval '3 days')) as closed
         from leads x where x.track_token = p_token and length(coalesce(p_token,'')) >= 24) l
   cross join lateral (select count(*)::int as n from leads y where y.referrer_code = l.share_code and y.status = 'done') f
   cross join lateral (select coalesce((select value::numeric from settings where key = 'customer_credit'), 0) as v) ce;
@@ -985,6 +985,76 @@ exception when others then
 end $$;
 
 
+
+-- ---------- Is gecmisi (tek kayit: musteri, ortak ve admin ayni akisi gorur) ----------
+create table if not exists lead_events (
+  id bigserial primary key,
+  lead_id uuid not null references leads(id) on delete cascade,
+  at timestamptz not null default now(),
+  kind text not null,
+  who text not null default 'system',
+  detail text
+);
+create index if not exists lead_events_lead on lead_events(lead_id, at);
+alter table lead_events enable row level security;
+drop policy if exists "le_admin" on lead_events;
+create policy "le_admin" on lead_events for select to authenticated using (is_admin());
+revoke all on lead_events from anon, authenticated;
+grant select on lead_events to authenticated;
+
+create or replace function lead_events_log() returns trigger language plpgsql security definer set search_path = public as $$
+declare w text;
+begin
+  w := case when coalesce(auth.jwt() ->> 'email','') = '' then 'customer'
+            when is_admin() then 'admin'
+            when crew_me() is not null then 'crew'
+            else 'partner' end;
+  if tg_op = 'INSERT' then
+    insert into lead_events(lead_id, kind, who) values (new.id, 'created', 'customer');
+    return new;
+  end if;
+  if new.status = 'quoted' and old.status is distinct from 'quoted' then insert into lead_events(lead_id, kind, who, detail) values (new.id, 'quoted', w, new.price::text); end if;
+  if new.quote_accepted_at is not null and old.quote_accepted_at is null then insert into lead_events(lead_id, kind, who) values (new.id, 'quote_accepted', 'customer'); end if;
+  if new.status = 'booked' and (old.status is distinct from 'booked' or new.scheduled_at is distinct from old.scheduled_at) then insert into lead_events(lead_id, kind, who, detail) values (new.id, 'scheduled', w, new.scheduled_at::text); end if;
+  if new.deposit_paid_at is not null and old.deposit_paid_at is null then insert into lead_events(lead_id, kind, who) values (new.id, 'deposit_paid', w); end if;
+  if new.crew_id is distinct from old.crew_id and new.crew_id is not null then insert into lead_events(lead_id, kind, who) values (new.id, 'crew_assigned', w); end if;
+  if new.crew_status is distinct from old.crew_status and new.crew_status in ('enroute','working','finished') then insert into lead_events(lead_id, kind, who) values (new.id, new.crew_status, w); end if;
+  if new.status = 'done' and old.status is distinct from 'done' then insert into lead_events(lead_id, kind, who) values (new.id, 'done', w); end if;
+  if new.status = 'lost' and old.status is distinct from 'lost' then insert into lead_events(lead_id, kind, who) values (new.id, 'lost', w); end if;
+  if new.paid_claim_at is not null and old.paid_claim_at is null then insert into lead_events(lead_id, kind, who) values (new.id, 'paid_claim', 'customer'); end if;
+  if new.customer_confirmed_at is not null and old.customer_confirmed_at is null then insert into lead_events(lead_id, kind, who) values (new.id, 'confirmed', 'customer'); end if;
+  if new.paid_at is not null and old.paid_at is null then insert into lead_events(lead_id, kind, who) values (new.id, 'paid', w); end if;
+  if new.paid_at is not null and new.customer_confirmed_at is not null and (old.paid_at is null or old.customer_confirmed_at is null) then insert into lead_events(lead_id, kind, who) values (new.id, 'link_closed', 'system'); end if;
+  return new;
+end $$;
+drop trigger if exists leads_events on leads;
+create trigger leads_events after insert or update on leads for each row execute function lead_events_log();
+
+-- Musteri: kendi isinin gecmisi (admin ici notlar yok)
+create or replace function track_events(p_token text)
+returns table(at timestamptz, kind text, detail text)
+language sql stable security definer set search_path = public as $$
+  select e.at, e.kind, e.detail
+  from leads l join lead_events e on e.lead_id = l.id
+  where l.track_token = p_token and length(coalesce(p_token,'')) >= 24
+    and not (l.paid_at is not null and (l.customer_confirmed_at is not null or l.paid_at < now() - interval '3 days'))
+    and e.kind in ('created','quoted','quote_accepted','scheduled','deposit_paid','enroute','working','finished','done','confirmed','paid')
+  order by e.at, e.id;
+$$;
+grant execute on function track_events(text) to anon, authenticated;
+
+-- Ortak: kendi islerinin gecmisi
+create or replace function my_events()
+returns table(ref text, at timestamptz, kind text, detail text)
+language sql stable security definer set search_path = public as $$
+  select l.ref, e.at, e.kind, e.detail
+  from leads l join partners p on p.id = l.partner_id join lead_events e on e.lead_id = l.id
+  where lower(p.email) = lower(coalesce(auth.jwt() ->> 'email',''))
+    and e.kind in ('created','quoted','quote_accepted','scheduled','deposit_paid','enroute','working','finished','done','confirmed','paid')
+  order by e.at, e.id;
+$$;
+grant execute on function my_events() to authenticated;
+
 -- Ekibin kendi kazanci (sadece kendi isleri)
 create or replace function crew_earnings()
 returns table(month_total numeric, unpaid_total numeric, unpaid_jobs int, month_jobs int)
@@ -1017,6 +1087,7 @@ language sql stable security definer set search_path = public as $$
     'gallery', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from gallery x),
     'reviews', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from reviews x),
     'job_photos', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from job_photos x),
+    'lead_events', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from lead_events x),
     'admins', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from admins x),
     'audit_log', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from (select * from audit_log order by id desc limit 5000) x));
 $$;
