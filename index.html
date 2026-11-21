@@ -678,6 +678,14 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
 .hero .btn:not(.ghost){background:#DE7133;box-shadow:0 10px 22px -12px rgba(222,113,51,.55)}
 .hero .btn.ghost{background:rgba(26,31,28,.6)}
 }
+/* form fixes: nav no longer covers fields; steppers fit; roomy slots */
+.nav{position:static!important;margin:26px 0 0!important;padding:0!important;background:none!important;border-radius:0!important}
+.row .nm{min-width:0;overflow-wrap:normal;hyphens:none;font-size:16px}.row{gap:10px;padding:12px}.stepper{flex:none;gap:2px}.stepper button{width:42px;height:42px}.stepper output{min-width:24px}
+.seg.g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+.seg.g4 .box{flex-direction:row;justify-content:flex-start;gap:10px;padding:12px 14px;min-height:56px;font-size:15px;text-align:left}
+.seg.g4 .box svg{display:block}
+@media(min-width:560px){.seg.g4{grid-template-columns:repeat(4,minmax(0,1fr))}.seg.g4 .box{flex-direction:column;justify-content:center;text-align:center;font-size:14px;padding:12px 6px;min-height:78px;gap:6px}}
+#quote,.step,#days,#floorBox{scroll-margin-top:84px}
 </style>
 </head>
 <body>
