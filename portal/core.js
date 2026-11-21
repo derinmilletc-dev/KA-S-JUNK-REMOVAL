@@ -5,7 +5,8 @@
   var $ = function(id){ return document.getElementById(id); };
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function money(n){ return n == null ? '-' : '$' + Number(n).toFixed(2).replace(/\.00$/, ''); }
-  function dt(s){ return new Date(s).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
+  function lc(){ try { return localStorage.getItem('kj_lang') === 'es' ? 'es-US' : 'en-US'; } catch(e){ return 'en-US'; } }
+  function dt(s){ return new Date(s).toLocaleDateString(lc(), { month:'short', day:'numeric', year:'numeric' }); }
   var STATUS = { 'new':'Yeni', quoted:'Teklif verildi', booked:'Randevu', done:'Tamamlandi', lost:'Olmadi' };
   function flash(el, text, bad){ el.className = 'msg ' + (bad ? 'err' : 'ok'); el.textContent = text; el.hidden = false; }
   function siteBase(){ return location.origin + location.pathname.replace(/\/portal\/[^/]*$/, '/').replace(/\/$/, '') + '/'; }

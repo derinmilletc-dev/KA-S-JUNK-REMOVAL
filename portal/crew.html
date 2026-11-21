@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><title>Kais Crew</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><style>html{touch-action:manipulation}</style><script>document.addEventListener("gesturestart",function(e){e.preventDefault()},{passive:false})</script><meta name="robots" content="noindex">
+<!doctype html><html lang="en"><head><title>Kais Crew</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><style>.j a{display:inline-block;padding:6px 0}html{touch-action:manipulation}</style><script>document.addEventListener("gesturestart",function(e){e.preventDefault()},{passive:false})</script><meta name="robots" content="noindex">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="portal.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -27,7 +27,7 @@ main{max-width:560px;padding-bottom:40px}
 <script>
 (function(){
 var K=KJC,sb=K.sb,esc=K.esc,PH={};
-function when(s){if(!s)return 'Time TBD';var d=new Date(String(s).replace(' ','T')+'Z');return d.toLocaleString('en-US',{timeZone:'UTC',weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
+function when(s){if(!s)return 'Time TBD';var d=new Date(String(s).replace(' ','T')+'Z');var lg='en-US';try{if(localStorage.getItem('kj_lang')==='es')lg='es-US'}catch(e){}return d.toLocaleString(lg,{timeZone:'UTC',weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
 function map(a){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(a)}
 function note(t,bad){var m=K.$('msg');K.flash(m,t,bad);setTimeout(function(){m.hidden=true},4000)}
 function resize(file){return new Promise(function(ok,no){var im=new Image(),u=URL.createObjectURL(file);im.onload=function(){var m=1280,r=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*r);c.height=Math.round(im.height*r);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?ok(b):no(new Error('image'))},'image/jpeg',.82)};im.onerror=function(){no(new Error('Not an image'))};im.src=u})}
