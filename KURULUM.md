@@ -35,8 +35,16 @@ Vercel > Domains > alan adini ekle, DNS kayitlarini alan adi saglayicina gir. So
 1. resend.com hesabi, API anahtari al (ucretsiz paket yeter). Kendi alan adini dogrula (yoksa test adresi sadece kendi mailine gonderir).
 2. Supabase CLI ile: `supabase functions deploy notify` ve `supabase functions deploy daily-brief`.
 3. Supabase > Edge Functions > Secrets: `RESEND_API_KEY`, `WEBHOOK_SECRET` (uydur), `CRON_SECRET` (uydur), `FROM_EMAIL`, `PANEL_URL` (site adresi, sonunda / yok).
-4. Supabase > Database > Webhooks > yeni: tablo `leads` (Insert + Update) ve tablo `support_msgs` (Insert), tur "Supabase Edge Functions" > `notify`, HTTP header: `x-webhook-secret` = WEBHOOK_SECRET.
+4. Supabase > Database > Webhooks > yeni: tablo `leads` (Insert + Update) tablo `support_msgs` (Insert) ve tablo `partners` (Insert: yeni ortaga otomatik hos geldin e-postasi, Ingilizce + Ispanyolca), tur "Supabase Edge Functions" > `notify`, HTTP header: `x-webhook-secret` = WEBHOOK_SECRET.
 5. Sabah ozeti ve ortak haftalik ozeti: Database > Cron (pg_cron) ile `daily-brief` ve `weekly-digest` fonksiyonlarini `x-cron-secret` basligiyla zamanla.
 
 Gonderilen e-postalar: yeni talep (admin), teklif kabul (admin), ekip bitirdi (admin), is bitti / odeme alindi (ortak), destek mesaji, sabah ozeti.
 Musteriye e-posta gitmez, cunku musteri e-postasi toplanmiyor; musteri takip sayfasindan haberdar olur.
+
+## 7. Yedek
+- Elle: Admin > Ayarlar > Yedek > "Tam yedek indir". Haftada bir yap. Bugun ekraninda 7 gunden fazla yedek almadiysan uyari cikar.
+- Otomatik (istege bagli): `supabase functions deploy backup`, sonra pg_cron ile haftada bir `x-cron-secret` basligiyla cagir. Yedekler ozel "backups" kovasina yazilir, son 8 tanesi tutulur, Admin > Yedek sekmesinden indirilir.
+- Fotograflar yedege dahil degildir (Supabase kendi gunluk yedegini tutar).
+
+## 8. Telefona kurma (PWA)
+Ortak, ekip ve admin sayfalari telefonda "ana ekrana ekle" teklif eder (Android: Kur butonu, iPhone: Safari Paylas > Ana Ekrana Ekle). Uygulama acikken yeni bildirimde telefon bildirimi cikar. Uygulama kapaliyken anlik bildirim (push) icin ayri sunucu kurulumu gerekir; simdilik e-posta bildirimleri bunu karsilar.

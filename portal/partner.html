@@ -31,7 +31,8 @@ main{padding-bottom:90px}
 .menu button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 2px;font-size:11px;min-width:0;line-height:1.15;border-radius:14px;text-align:center}
 .menu button i{font-style:normal;font-size:22px;line-height:1}.menu .bd{position:absolute;top:4px;right:6px;margin:0}
 .job.fin{opacity:.8}
-</style></head><body>
+.prog{display:flex;gap:4px;margin:8px 0}.prog span{flex:1;text-align:center;font-size:10px;padding:5px 0;border-radius:6px;background:#eef1f4;color:#789}.prog .d{background:#d9f5e3;color:#0a7a3b}.prog .c{background:#0a7a3b;color:#fff;font-weight:700}
+</style><link rel="manifest" href="manifest-partner.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
 <header><b>Kais <span>Partner</span></b><button id="logout">Cikis</button></header>
 <main>
 <div id="loginBox" class="card login" hidden><h2>Ortak girisi</h2><p class="muted">Kayitli e-postani yaz, sana giris baglantisi gonderelim.</p>
@@ -54,7 +55,7 @@ main{padding-bottom:90px}
 <div class="empty" id="empty" hidden><p><b>Burada gosterilecek is yok.</b></p><p>Linkini paylas ya da "Yeni is" ile bir musteri ekle.</p></div>
 </div></div></main>
 <button class="btn fab" id="newjob" hidden>+ Yeni is</button>
-<div class="sheet" id="sheet" hidden><div id="sheetbox"></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="kit.js"></script><script src="config.js"></script><script src="core.js"></script><script>
+<div class="sheet" id="sheet" hidden><div id="sheetbox"></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="kit.js"></script><script src="config.js"></script><script src="core.js"></script><script src="i18n.js"></script><script src="i18n-partner.js"></script><script>
 (function(){var K=KJC,$=K.$,P=null,L=[],F='all';
 function wa(text){return 'https://wa.me/?text='+encodeURIComponent(text)}
 function bucket(l){if(l.status==='done')return l.commission_paid?'paid':'done';if(l.status==='lost')return 'lost';return 'open'}
@@ -62,7 +63,7 @@ function sheet(html){$('sheetbox').innerHTML=html;$('sheet').hidden=false;docume
 function closeSheet(){$('sheet').hidden=true;document.body.classList.remove('noscroll')}
 $('sheet').addEventListener('click',function(e){if(e.target===$('sheet')||e.target.closest('[data-x]'))closeSheet()});
 function linkSheet(t,title){var u=K.trackLink(t);
- sheet('<h3>'+K.esc(title)+'</h3><p class="muted">Bu ozel link ile musteri isin durumunu takip eder.</p><div class="qr" style="margin:10px 0">'+K.qrSvg(u)+'</div><div class="link">'+K.esc(u)+'</div><p class="row"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa('Kais Junk Remove isinizi buradan takip edebilirsiniz: '+u)+'">WhatsApp ile gonder</a><button class="btn sm ghost" data-copy="'+K.esc(u)+'">Kopyala</button><button class="btn sm ghost" data-x>Kapat</button></p>')}
+ sheet('<h3>'+K.esc(title)+'</h3><p class="muted">Bu ozel link ile musteri isin durumunu takip eder.</p><div class="qr" style="margin:10px 0">'+K.qrSvg(u)+'</div><div class="link">'+K.esc(u)+'</div><p class="row"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa('Track your Kais Junk Remove job here / Sigue tu trabajo de Kais Junk Remove aqui: '+u)+'">WhatsApp ile gonder</a><button class="btn sm ghost" data-copy="'+K.esc(u)+'">Kopyala</button><button class="btn sm ghost" data-x>Kapat</button></p>')}
 document.addEventListener('click',function(e){var c=e.target.closest('[data-copy]');if(c)navigator.clipboard.writeText(c.dataset.copy).then(function(){c.textContent='Kopyalandi'})});
 function drawStats(){var now=new Date(),m=0,tot=0,pend=0,done=0;
  function inMonth(x){var d=new Date(x);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()}
@@ -81,13 +82,16 @@ function drawJobs(){var list=L.filter(function(l){return F==='all'||bucket(l)===
  $('empty').hidden=list.length>0;
  $('jobs').innerHTML=list.map(function(l){var b=bucket(l);
   return '<div class="job"><div class="top"><div class="av">'+K.esc((l.customer||'?').charAt(0))+'</div><div class="grow"><div class="sum">'+K.esc(l.summary||'Is')+'</div><div class="meta">'+K.dt(l.created_at)+' · #'+K.esc(l.ref)+(l.is_repeat?' · <b style="color:var(--deep)">Tekrar musteri</b>':'')+'</div></div><span class="tag '+(b==='paid'?'paid':K.esc(l.status))+'">'+(b==='paid'?'Odendi':K.esc(K.STATUS[l.status]||l.status))+'</span></div>'
-  +'<div class="amts"><div><small>Is tutari</small><b>'+K.money(l.price)+'</b></div><div><small>Komisyonun'+(l.pct!=null?' (%'+Number(l.pct)+')':'')+'</small><b>'+(l.commission!=null?K.money(l.commission):'-')+'</b></div></div>'
+  +prog(l)+'<div class="amts"><div><small>Is tutari</small><b>'+K.money(l.price)+'</b></div><div><small>Komisyonun'+(l.pct!=null?' (%'+Number(l.pct)+')':'')+'</small><b>'+(l.commission!=null?K.money(l.commission):'-')+'</b></div></div>'
   +'<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-t="'+K.esc(l.track_token)+'" data-n="'+K.esc(l.summary||'Is')+'">Musteri takip linki</button></div></div>'}).join('')}
 function drawAll(){drawStats();drawFilters();drawJobs()}
 
 var OV=[],TEAM=[],LV=null,NOTES=[],WEEK=null,CAMPS=[];
 function drawBell(){var n=NOTES.filter(function(x){return !x.read}).length;$('bd').hidden=!n;$('bd').textContent=n}
-function loadNotes(){return K.sb.rpc('my_notes').then(function(r){NOTES=r.data||[];drawBell()})}
+var SEEN=null;
+function loadNotes(){return K.sb.rpc('my_notes').then(function(r){NOTES=r.data||[];var n=NOTES.filter(function(x){return !x.read});if(SEEN!==null&&n.length>SEEN&&window.Notification&&Notification.permission==='granted'&&document.hidden){try{new Notification('Kais Partner',{body:KJI.tx(n[0].text),icon:'icon-192.png'})}catch(e){}}SEEN=n.length;drawBell()})}
+setInterval(function(){if(K.sb)loadNotes()},60000);
+if(window.Notification&&Notification.permission==='default'){document.addEventListener('click',function f(){document.removeEventListener('click',f);Notification.requestPermission()},{once:true})}
 var TPL=[['English',"Got stuff you need gone? Kais Junk Remove hauls it away anywhere in Florida. Send photos, get your quote on WhatsApp.\n{L}"],
 ['English (short)',"Need junk removed in Florida? Quote by photo, open 24/7: {L}"],
 ['Espanol',"Tienes cosas que quieres sacar de casa? Kais Junk Remove las retira en todo Florida. Manda fotos y recibe tu cotizacion por WhatsApp: {L}"],
@@ -98,7 +102,7 @@ function menuOpen(k){
   NOTES.forEach(function(x){x.read=true});return}
  if(k==='team'){var jl=new URL('../join.html?sp='+encodeURIComponent(P.code),location.href).href,earned=0,pend=0;TEAM.forEach(function(t){earned+=Number(t.earned);pend+=Number(t.pending)});
   sheet('<h3>Ekibim</h3><p class="muted">Davet ettigin ortaklarin tamamlanan islerinden sana ek pay (%'+Number(P.override_pct)+') gelir. Katilim ucreti yoktur; pay sadece gercek musteri islerinden cikar.</p><div class="grid" style="margin:10px 0"><div class="stat"><b>'+TEAM.length+'</b><small>Ekip uyesi</small></div><div class="stat"><b>'+K.money(earned)+'</b><small>Odenen ekip payi</small></div><div class="stat hot"><b>'+K.money(pend)+'</b><small>Bekleyen ekip payi</small></div></div>'
-  +'<div class="qr" style="margin:6px 0">'+K.qrSvg(jl)+'</div><div class="link">'+K.esc(jl)+'</div><p class="row"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa('Kais Junk Remove ile ortak ol, getirdigin musterilerden komisyon kazan. Katilim ucretsiz: '+jl)+'">WhatsApp ile davet et</a><button class="btn sm ghost" data-copy="'+K.esc(jl)+'">Kopyala</button></p>'
+  +'<div class="qr" style="margin:6px 0">'+K.qrSvg(jl)+'</div><div class="link">'+K.esc(jl)+'</div><p class="row"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa('Earn commission with Kais Junk Remove. Free to join / Gana comisiones con Kais Junk Remove. Es gratis: '+jl)+'">WhatsApp ile davet et</a><button class="btn sm ghost" data-copy="'+K.esc(jl)+'">Kopyala</button></p>'
   +(TEAM.length?TEAM.map(function(t){return '<div class="li"><b>'+K.esc(t.name)+'</b>'+(t.active?'':' <span class="tag lost">Pasif</span>')+'<small>'+t.jobs_done+' tamamlanan is &middot; odenen '+K.money(t.earned)+' &middot; bekleyen '+K.money(t.pending)+'</small></div>'}).join(''):'<p class="muted">Henuz ekip uyen yok. Linkini paylas.</p>')+'<p><button class="btn ghost sm" data-x>Kapat</button></p>');return}
  if(k==='pay'){var paid=L.filter(function(l){return l.commission_paid&&l.commission!=null}).map(function(l){return {amt:Number(l.commission),t:l.commission_paid_at,txt:l.summary||'Is',ref:l.ref,tag:''}}).concat(OV.filter(function(o){return o.paid}).map(function(o){return {amt:Number(o.amount),t:o.paid_at,txt:(o.who||'Ekip')+' - '+(o.summary||'is'),ref:o.ref,tag:'Ekip payi'}})).sort(function(a,b){return new Date(b.t||0)-new Date(a.t||0)}),tot=0;paid.forEach(function(l){tot+=l.amt});
   var wait=0;L.forEach(function(l){if(l.status==='done'&&!l.commission_paid&&l.commission!=null)wait+=Number(l.commission)});OV.forEach(function(o){if(!o.paid)wait+=Number(o.amount||0)});
@@ -127,6 +131,7 @@ if(k==='ach'){var done=L.filter(function(l){return l.status==='done'}).length,re
 }
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-dl]');if(!b)return;var cv=document.querySelector('canvas[data-kit="'+b.dataset.dl+'"]');cv.toBlob(function(bl){var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='kais-'+b.dataset.dl+'-'+P.code+'.png';a.click()})});
 $('menu').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b)menuOpen(b.dataset.m)});
+function prog(l){var st=[['Talep',1],['Teklif',l.price!=null],['Randevu',!!l.scheduled_at||l.status==='booked'||l.status==='done'],['Yolda',l.crew_status==='enroute'||l.crew_status==='working'||l.crew_status==='finished'],['Bitti',l.status==='done'],['Odendi',!!l.paid]];var n=0;st.forEach(function(x,i){if(x[1])n=i});if(l.status==='lost')return '';return '<div class="prog">'+st.map(function(x,i){return '<span class="'+(i<n||(i===n&&n===5)?'d':i===n?'c':'')+'">'+x[0]+'</span>'}).join('')+'</div>'+(l.status==='done'&&!l.paid?'<div class="meta" style="margin:4px 0">Musteri odeyince komisyonun hak edilir.</div>':'')}
 function loadLeads(){return Promise.all([K.sb.rpc('my_leads'),K.sb.rpc('my_overrides'),K.sb.rpc('my_level'),K.sb.rpc('my_team'),K.sb.rpc('my_week'),K.sb.rpc('active_campaigns')]).then(function(r){L=r[0].data||[];OV=r[1].data||[];LV=r[2].data&&r[2].data[0]||null;TEAM=r[3].data||[];WEEK=r[4].data&&r[4].data[0]||null;CAMPS=r[5].data||[];drawAll();drawLevel();drawWeek();drawCamps()})}
 $('filters').addEventListener('click',function(e){var b=e.target.closest('[data-f]');if(b){F=b.dataset.f;drawFilters();drawJobs()}});
 $('jobs').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(b)linkSheet(b.dataset.t,b.dataset.n)});
@@ -146,4 +151,4 @@ K.start(function(){
   loadLeads();loadNotes();
  });
 });})();
-</script></body></html>
+</script><script src="pwa.js"></script></body></html>

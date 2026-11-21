@@ -2,7 +2,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="portal.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script><script src="core.js"></script>
+<script src="config.js"></script><script src="core.js"></script><script src="i18n.js"></script><script src="i18n-crew.js"></script>
 <style>
 main{max-width:560px;padding-bottom:40px}
 .j{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
@@ -13,13 +13,14 @@ main{max-width:560px;padding-bottom:40px}
 .st button.on{background:var(--orange);border-color:var(--orange);color:#fff}.st button.fin.on{background:var(--green);border-color:var(--green)}
 .ph{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.ph label{margin:0}.ph .up{display:inline-block;border:1px dashed var(--orange);color:var(--deep);border-radius:10px;padding:9px 12px;font-weight:600;cursor:pointer;font-size:14px}
 .ph input{display:none}
-</style></head><body>
+</style><link rel="manifest" href="manifest-crew.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
 <header><b>Kais <span>Crew</span></b><button id="logout">Log out</button></header>
 <main>
 <div id="loginBox" class="card login" hidden><h2>Crew login</h2><p class="muted">Enter your email. We send you a login link.</p>
 <form id="lform"><label for="lemail">Email</label><input id="lemail" type="email" required autocomplete="email"><p><button class="btn" id="lbtn" style="width:100%">Send login link</button></p></form><div id="lmsg" class="msg" hidden></div></div>
 <div id="app" hidden>
 <div id="none" class="card" hidden><h3>No crew account</h3><p class="muted">This email is not linked to a crew. Ask Kais.</p></div>
+<div id="earn"></div>
 <div id="list"></div>
 <div id="msg" class="msg" hidden></div>
 </div></main>
@@ -30,7 +31,8 @@ function when(s){if(!s)return 'Time TBD';var d=new Date(String(s).replace(' ','T
 function map(a){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(a)}
 function note(t,bad){var m=K.$('msg');K.flash(m,t,bad);setTimeout(function(){m.hidden=true},4000)}
 function resize(file){return new Promise(function(ok,no){var im=new Image(),u=URL.createObjectURL(file);im.onload=function(){var m=1280,r=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*r);c.height=Math.round(im.height*r);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?ok(b):no(new Error('image'))},'image/jpeg',.82)};im.onerror=function(){no(new Error('Not an image'))};im.src=u})}
-function load(){sb.rpc('crew_jobs').then(function(r){
+function earn(){sb.rpc('crew_earnings').then(function(r){var e=r.data&&r.data[0];if(!e||(!(+e.month_total)&&!(+e.unpaid_total))){K.$('earn').innerHTML='';return}K.$('earn').innerHTML='<div class="card"><h3>My earnings</h3><div style="display:flex;gap:10px"><div style="flex:1"><small class="muted">This month</small><br><b style="font-size:22px">'+K.money(e.month_total)+'</b></div><div style="flex:1"><small class="muted">Unpaid</small><br><b style="font-size:22px;color:var(--deep)">'+K.money(e.unpaid_total)+'</b></div><div style="flex:1"><small class="muted">Jobs done</small><br><b style="font-size:22px">'+(e.month_jobs||0)+'</b></div></div></div>'})}
+function load(){earn();sb.rpc('crew_jobs').then(function(r){
  if(r.error){K.$('none').hidden=false;return}
  var L=r.data||[],el=K.$('list');
  if(!L.length){el.innerHTML='<div class="card"><p class="muted">No jobs assigned yet. Check back later.</p></div>';return}
@@ -49,4 +51,4 @@ document.addEventListener('change',function(e){var f=e.target;if(!f.matches||!f.
  .then(function(){note('Photos saved');load()}).catch(function(er){note('Upload failed: '+(er.message||er),true)})});
 K.start(function(){sb.rpc('crew_me').then(function(r){if(!r.data){K.$('none').hidden=false;return}load();setInterval(function(){if(!document.hidden)load()},60000)})});
 })();
-</script></body></html>
+</script><script src="pwa.js"></script></body></html>

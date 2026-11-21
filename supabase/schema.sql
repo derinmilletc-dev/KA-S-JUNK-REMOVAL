@@ -94,6 +94,9 @@ alter table leads add column if not exists deposit_amount numeric(10,2);
 alter table leads add column if not exists deposit_paid_at timestamptz;
 alter table leads add column if not exists quote_accepted_at timestamptz;
 alter table leads add column if not exists customer_phone text;
+alter table leads add column if not exists paid_claim_at timestamptz;
+alter table leads add column if not exists crew_pay numeric(10,2);
+alter table leads add column if not exists crew_paid_at timestamptz;
 create table if not exists crews (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -103,6 +106,7 @@ create table if not exists crews (
   created_at timestamptz not null default now()
 );
 alter table crews enable row level security;
+alter table crews add column if not exists default_pay numeric(10,2) not null default 0;
 alter table leads add column if not exists crew_id uuid references crews(id) on delete set null;
 create index if not exists leads_crew_idx on leads(crew_id, scheduled_at);
 update leads set addr_key = lower(regexp_replace(coalesce(address,''),'[^a-zA-Z0-9]','','g')) where addr_key is null;
@@ -141,7 +145,7 @@ create table if not exists tiers (min_jobs int primary key check (min_jobs > 0),
 insert into tiers values (5, 25), (10, 30) on conflict do nothing;
 create table if not exists settings (key text primary key, value text not null);
 insert into settings values ('customer_credit', '20') on conflict do nothing;
-insert into settings values ('deposit_note', ''), ('repeat_pct', '10'), ('range_pct', '20'), ('min_charge', '0'), ('pricing_on', 'false'), ('review_url', '') on conflict do nothing;
+insert into settings values ('pay_note', ''), ('deposit_note', ''), ('repeat_pct', '10'), ('range_pct', '20'), ('min_charge', '0'), ('pricing_on', 'false'), ('review_url', '') on conflict do nothing;
 create table if not exists price_list (key text primary key, price numeric(10,2) not null check (price >= 0));
 alter table price_list enable row level security;
 alter table tiers enable row level security;
@@ -281,7 +285,7 @@ grant execute on function partner_create_lead(text,text,text,text,text) to authe
 -- Hizmet onayi (musteri) + odeme onayi (admin) tamamlaninca link kapanir: detay donmez.
 drop function if exists track_lead(text);
 create or replace function track_lead(p_token text)
-returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric, can_confirm boolean, confirmed boolean, closed boolean, share_code text, friends_done int, credit numeric, credit_each numeric, scheduled_at timestamp, review_url text, crew_status text, deposit_amount numeric, deposit_paid boolean, deposit_note text, paid boolean, quote_accepted boolean)
+returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric, can_confirm boolean, confirmed boolean, closed boolean, share_code text, friends_done int, credit numeric, credit_each numeric, scheduled_at timestamp, review_url text, crew_status text, deposit_amount numeric, deposit_paid boolean, deposit_note text, paid boolean, quote_accepted boolean, amount_due numeric, pay_note text, paid_claimed boolean)
 language sql stable security definer set search_path = public as $$
   select l.ref,
          case when l.closed then null else l.created_at end,
@@ -304,7 +308,11 @@ language sql stable security definer set search_path = public as $$
          (l.deposit_paid_at is not null),
          case when not l.closed and l.deposit_amount > 0 and l.deposit_paid_at is null then nullif((select value from settings where key = 'deposit_note'), '') end,
          (l.paid_at is not null),
-         (l.quote_accepted_at is not null)
+         (l.quote_accepted_at is not null),
+         case when not l.closed and l.status = 'done' and l.paid_at is null and l.price is not null
+              then greatest(l.price - coalesce(case when l.deposit_paid_at is not null then l.deposit_amount end, 0), 0) end,
+         case when not l.closed and l.status = 'done' and l.paid_at is null then nullif((select value from settings where key = 'pay_note'), '') end,
+         (l.paid_claim_at is not null)
   from (select x.*, (x.customer_confirmed_at is not null and x.paid_at is not null) as closed
         from leads x where x.track_token = p_token and length(coalesce(p_token,'')) >= 24) l
   cross join lateral (select count(*)::int as n from leads y where y.referrer_code = l.share_code and y.status = 'done') f
@@ -338,6 +346,17 @@ begin
 end $$;
 grant execute on function accept_quote(text) to anon, authenticated;
 
+-- Musteri "odedim" der (admin dogrular ve "odeme alindi" isaretler)
+create or replace function claim_paid(p_token text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if length(coalesce(p_token,'')) < 24 then return; end if;
+  if not rate_ok('cp:' || client_key(), 20, interval '1 hour') then return; end if;
+  update leads set paid_claim_at = now()
+   where track_token = p_token and status = 'done' and paid_at is null and paid_claim_at is null;
+end $$;
+grant execute on function claim_paid(text) to anon, authenticated;
+
 -- Aylik siralama: sadece ad + soyad bas harfi gorunur, ilk 10
 create or replace function partner_leaderboard()
 returns table(rank int, name text, jobs int, is_me boolean)
@@ -360,11 +379,11 @@ grant execute on function partner_leaderboard() to authenticated;
 -- Ortak kendi islerini gorur (musteri adresi/telefonu gizli: sadece ad bas harfi + ozet)
 drop function if exists my_leads();
 create or replace function my_leads()
-returns table(track_token text, ref text, created_at timestamptz, completed_at timestamptz, customer text, summary text, status text, price numeric, commission numeric, commission_paid boolean, commission_paid_at timestamptz, pct numeric, is_repeat boolean)
+returns table(track_token text, ref text, created_at timestamptz, completed_at timestamptz, customer text, summary text, status text, price numeric, commission numeric, commission_paid boolean, commission_paid_at timestamptz, pct numeric, is_repeat boolean, paid boolean, crew_status text, scheduled_at timestamp)
 language sql stable security definer set search_path = public as $$
   select l.track_token, l.ref, l.created_at, l.completed_at,
          left(coalesce(l.customer_name,''),1) || '.' as customer,
-         l.summary, l.status, l.price, c.commission, l.commission_paid, l.commission_paid_at, c.pct, (l.repeat_of is not null)
+         l.summary, l.status, l.price, c.commission, l.commission_paid, l.commission_paid_at, c.pct, (l.repeat_of is not null), (l.paid_at is not null), l.crew_status, l.scheduled_at
   from leads l join partners p on p.id = l.partner_id
   left join lead_calc c on c.lead_id = l.id
   where lower(p.email) = lower(coalesce(auth.jwt() ->> 'email',''))
@@ -663,11 +682,11 @@ begin
   lbl := coalesce(r ->> 'ref', r ->> 'name', r ->> 'title', r ->> 'key', r ->> 'min_jobs', r ->> 'customer_name', '');
   rid := coalesce(r ->> 'id', r ->> 'min_jobs', r ->> 'key', '');
   watch := case tg_table_name
-    when 'leads' then array['status','price','commission_paid','override_paid','paid_at','customer_confirmed_at','partner_id','scheduled_at','dup_of','repeat_of','crew_id','crew_status','deposit_amount','deposit_paid_at']
+    when 'leads' then array['status','price','commission_paid','override_paid','paid_at','customer_confirmed_at','partner_id','scheduled_at','dup_of','repeat_of','crew_id','crew_status','deposit_amount','deposit_paid_at','crew_pay','crew_paid_at','paid_claim_at']
     when 'partners' then array['commission_pct','override_pct','active','parent_id','email','name','payout_info']
     when 'tiers' then array['pct']
     when 'price_list' then array['price']
-    when 'crews' then array['name','email','active']
+    when 'crews' then array['name','email','active','default_pay']
     when 'settings' then array['value']
     when 'campaigns' then array['title','bonus_pct','starts_at','ends_at','active']
     when 'claims' then array['status','admin_note']
@@ -898,7 +917,9 @@ begin
   update leads set crew_status = p_status,
          crew_started_at = case when p_status = 'enroute' and crew_started_at is null then now() else crew_started_at end,
          crew_finished_at = case when p_status = 'finished' then now() else crew_finished_at end,
-         crew_note = coalesce(left(p_note, 500), crew_note)
+         crew_note = coalesce(left(p_note, 500), crew_note),
+         status = case when p_status = 'finished' and status = 'booked' then 'done' else status end,
+         crew_pay = case when p_status = 'finished' and crew_pay is null then nullif((select default_pay from crews where id = c), 0) else crew_pay end
    where id = p_lead and crew_id = c;
   if not found then raise exception 'not your job'; end if;
 end $$;
@@ -961,6 +982,67 @@ do $$ begin
   end if;
 exception when others then
   raise notice 'Musteri foto ayari atlandi: %', sqlerrm;
+end $$;
+
+
+-- Ekibin kendi kazanci (sadece kendi isleri)
+create or replace function crew_earnings()
+returns table(month_total numeric, unpaid_total numeric, unpaid_jobs int, month_jobs int)
+language sql stable security definer set search_path = public as $$
+  select coalesce(sum(case when l.crew_finished_at >= m.ms then l.crew_pay end), 0),
+         coalesce(sum(case when l.crew_paid_at is null then l.crew_pay end), 0),
+         (count(*) filter (where l.crew_paid_at is null and l.crew_pay > 0))::int,
+         (count(*) filter (where l.crew_finished_at >= m.ms))::int
+  from leads l
+  cross join (select (date_trunc('month', now() at time zone 'America/New_York')) at time zone 'America/New_York' as ms) m
+  where l.crew_id = crew_me() and l.crew_status = 'finished';
+$$;
+grant execute on function crew_earnings() to authenticated;
+
+-- Yedek: tum veriyi tek JSON olarak verir. Sadece admin (veya sunucu yedek fonksiyonu) kullanabilir.
+create or replace function _backup_all() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'exported_at', now(), 'version', 1,
+    'leads', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from leads x),
+    'partners', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from partners x),
+    'crews', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from crews x),
+    'tiers', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from tiers x),
+    'settings', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from settings x),
+    'price_list', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from price_list x),
+    'campaigns', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from campaigns x),
+    'claims', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from claims x),
+    'partner_applications', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from partner_applications x),
+    'support_msgs', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from support_msgs x),
+    'gallery', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from gallery x),
+    'reviews', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from reviews x),
+    'job_photos', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from job_photos x),
+    'admins', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from admins x),
+    'audit_log', (select coalesce(jsonb_agg(to_jsonb(x)), '[]') from (select * from audit_log order by id desc limit 5000) x));
+$$;
+revoke all on function _backup_all() from public, anon, authenticated;
+do $$ begin
+  if exists (select 1 from pg_roles where rolname = 'service_role') then grant execute on function _backup_all() to service_role; end if;
+end $$;
+create or replace function backup_export() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not is_admin() then raise exception 'not admin'; end if;
+  return _backup_all();
+end $$;
+revoke all on function backup_export() from public, anon;
+grant execute on function backup_export() to authenticated;
+
+-- Otomatik yedekler icin ozel kova (sadece admin okur; yazmayi sunucu fonksiyonu yapar)
+do $$ begin
+  if exists (select 1 from information_schema.schemata where schema_name = 'storage') then
+    insert into storage.buckets (id, name, public) values ('backups', 'backups', false) on conflict (id) do nothing;
+    drop policy if exists "bk_admin_read" on storage.objects;
+    create policy "bk_admin_read" on storage.objects for select to authenticated
+      using (bucket_id = 'backups' and public.is_admin());
+  end if;
+exception when others then
+  raise notice 'Yedek kovasi ayari atlandi: %', sqlerrm;
 end $$;
 
 -- Yonetici (e-postani degistir!)
