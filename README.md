@@ -17,3 +17,6 @@ Customer web page for Kais Junk Remove (Florida, USA). Static single page: `inde
 
 ### Musteri takibi
 Her talebin ozel takip linki var (`track.html?t=KOD`). Musteri sitede forma doldurunca link ekranda ve WhatsApp mesajinda gelir. Ortak da kendi musterisi icin portaldan is acip link/QR alir. Durumu admin panelden degistirdikce musterinin sayfasi 30 sn icinde guncellenir.
+
+### Ortak paneli ekleri
+Komisyon varsayılanı %20 (ortak başına admin panelinden değişir). Ortak panelinde: bildirimler, ödeme geçmişi, hazır paylaşım metinleri, profil (telefon, ödeme bilgisi) ve "bu müşteri benim" itirazı. Admin panelinde "İtirazlar" sekmesi: onaylarsan iş koduna göre iş ortağa bağlanır ve ortağa bildirim gider. Bildirimler şimdilik panel içi; e-posta bildirimi için ayrı bir mail servisi gerekir.

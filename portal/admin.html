@@ -7,12 +7,13 @@
 <div id="deny" class="card" hidden><h3>Yetki yok</h3><p class="muted">Bu e-posta yonetici listesinde degil.</p></div>
 <div id="main" hidden>
 <div class="grid" id="stats" style="margin-bottom:16px"></div>
-<div class="tabs"><button data-t="leads" class="on">Isler</button><button data-t="partners">Ortaklar</button></div>
+<div class="tabs"><button data-t="leads" class="on">Isler</button><button data-t="partners">Ortaklar</button><button data-t="claims">Itirazlar <span class="tag" id="cb" hidden></span></button></div>
 <div id="msg" class="msg" hidden></div>
 <section id="t-leads" class="card"><div class="tbl"><table><thead><tr><th>Tarih</th><th>Musteri / Adres</th><th>Ortak</th><th>Durum</th><th>Tutar $</th><th>Komisyon</th></tr></thead><tbody id="lrows"></tbody></table></div><p class="muted" id="lempty" hidden>Henuz talep yok.</p></section>
 <section id="t-partners" hidden>
-<div class="card"><h3>Yeni ortak</h3><form id="pform" class="row"><div class="grow"><label>Ad</label><input id="pn" required></div><div class="grow"><label>E-posta</label><input id="pe" type="email" required></div><div class="grow"><label>Telefon</label><input id="pp"></div><div style="width:110px"><label>Komisyon %</label><input id="pc" type="number" min="0" max="100" step="0.5" value="10"></div><div style="align-self:flex-end"><button class="btn">Ekle</button></div></form></div>
+<div class="card"><h3>Yeni ortak</h3><form id="pform" class="row"><div class="grow"><label>Ad</label><input id="pn" required></div><div class="grow"><label>E-posta</label><input id="pe" type="email" required></div><div class="grow"><label>Telefon</label><input id="pp"></div><div style="width:110px"><label>Komisyon %</label><input id="pc" type="number" min="0" max="100" step="0.5" value="20"></div><div style="align-self:flex-end"><button class="btn">Ekle</button></div></form></div>
 <div class="card"><div class="tbl"><table><thead><tr><th>Ortak</th><th>Kod / Baglanti</th><th>Komisyon</th><th>Is</th><th>Odenecek</th><th></th></tr></thead><tbody id="prows"></tbody></table></div></div></section>
+<section id="t-claims" class="card" hidden><div id="crows"></div><p class="muted" id="cempty" hidden>Itiraz yok.</p></section>
 <div id="qrm" class="card" hidden><div class="row" style="align-items:flex-start;gap:20px"><div class="qr" id="qr"></div><div class="grow"><b id="qn"></b><div class="link" id="ql" style="margin:8px 0"></div><button class="btn sm ghost" id="qc">Kopyala</button> <button class="btn sm ghost" id="qx">Kapat</button></div></div></div>
 </div></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="config.js"></script><script src="core.js"></script>
 <script>
@@ -31,22 +32,29 @@ function render(){
   +'<td><input data-f="price" type="number" min="0" step="1" value="'+(l.price==null?'':l.price)+'" style="width:90px"></td>'
   +'<td>'+(c!=null?K.money(c)+'<br><label style="margin:2px 0;font-weight:400"><input data-f="paid" type="checkbox" style="width:auto"'+(l.commission_paid?' checked':'')+'> odendi</label>':'<span class="muted">-</span>')+'</td></tr>'}).join('');
  $('prows').innerHTML=P.map(function(p){var mine=L.filter(function(l){return l.partner_id===p.id}),owe=0;mine.forEach(function(l){var c=comm(l);if(c&&!l.commission_paid)owe+=c});
-  return '<tr data-id="'+p.id+'"><td><b>'+K.esc(p.name)+'</b><br><small class="muted">'+K.esc(p.email)+(p.phone?' &middot; '+K.esc(p.phone):'')+'</small></td><td><b>'+K.esc(p.code)+'</b><br><button class="btn sm ghost" data-a="qr">QR / baglanti</button></td><td><input data-f="pct" type="number" min="0" max="100" step="0.5" value="'+Number(p.commission_pct)+'" style="width:80px"> %</td><td>'+mine.length+'</td><td>'+K.money(owe)+'</td><td><button class="btn sm ghost" data-a="tog">'+(p.active?'Durdur':'Aktif et')+'</button></td></tr>'}).join('');
+  return '<tr data-id="'+p.id+'"><td><b>'+K.esc(p.name)+'</b><br><small class="muted">'+K.esc(p.email)+(p.phone?' &middot; '+K.esc(p.phone):'')+(p.payout_info?'<br>Odeme: '+K.esc(p.payout_info):'')+'</small></td><td><b>'+K.esc(p.code)+'</b><br><button class="btn sm ghost" data-a="qr">QR / baglanti</button></td><td><input data-f="pct" type="number" min="0" max="100" step="0.5" value="'+Number(p.commission_pct)+'" style="width:80px"> %</td><td>'+mine.length+'</td><td>'+K.money(owe)+'</td><td><button class="btn sm ghost" data-a="tog">'+(p.active?'Durdur':'Aktif et')+'</button></td></tr>'}).join('');
 }
-function load(){return Promise.all([sb.from('partners').select('*').order('created_at',{ascending:false}),sb.from('leads').select('*').order('created_at',{ascending:false}).limit(500)]).then(function(r){
- if(r[0].error||r[1].error){msg('Yuklenemedi: '+(r[0].error||r[1].error).message,true);return}P=r[0].data;L=r[1].data;render()})}
+var CL=[];
+function drawClaims(){var pend=CL.filter(function(c){return c.status==='pending'}).length;$('cb').hidden=!pend;$('cb').textContent=pend;$('cempty').hidden=CL.length>0;
+ $('crows').innerHTML=CL.map(function(c){var p=P.find(function(x){return x.id===c.partner_id});
+  return '<div style="border-bottom:1px solid var(--line);padding:12px 0" data-id="'+c.id+'"><b>'+K.esc(c.customer_name)+'</b> '+(c.customer_phone?'&middot; '+K.esc(c.customer_phone):'')+' <span class="tag '+(c.status==='approved'?'done':c.status==='rejected'?'lost':'')+'">'+K.esc({pending:'Bekliyor',approved:'Onaylandi',rejected:'Reddedildi'}[c.status])+'</span><br><small class="muted">Ortak: '+(p?K.esc(p.name):'-')+(c.lead_ref?' &middot; Is: '+K.esc(c.lead_ref):'')+' &middot; '+K.dt(c.created_at)+'</small>'+(c.note?'<br><small>'+K.esc(c.note)+'</small>':'')
+  +(c.status==='pending'?'<div class="row" style="margin-top:8px"><input class="grow" data-n placeholder="Not (istege bagli)"><button class="btn sm" data-r="1">Onayla</button><button class="btn sm ghost" data-r="0">Reddet</button></div>':(c.admin_note?'<br><small class="muted">Not: '+K.esc(c.admin_note)+'</small>':''))+'</div>'}).join('')}
+function load(){return Promise.all([sb.from('partners').select('*').order('created_at',{ascending:false}),sb.from('leads').select('*').order('created_at',{ascending:false}).limit(500),sb.from('claims').select('*').order('created_at',{ascending:false}).limit(200)]).then(function(r){
+ if(r[0].error||r[1].error||r[2].error){msg('Yuklenemedi: '+(r[0].error||r[1].error||r[2].error).message,true);return}P=r[0].data;L=r[1].data;CL=r[2].data;render();drawClaims()})}
 K.start(function(s){
  sb.from('admins').select('email').then(function(r){
   if(!r.data||!r.data.length){$('deny').hidden=false;return}
   $('main').hidden=false;load();
  });
 });
-document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b)});$('t-leads').hidden=b.dataset.t!=='leads';$('t-partners').hidden=b.dataset.t!=='partners'}});
+document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b)});$('t-leads').hidden=b.dataset.t!=='leads';$('t-partners').hidden=b.dataset.t!=='partners';$('t-claims').hidden=b.dataset.t!=='claims'}});
+$('crows').addEventListener('click',function(e){var b=e.target.closest('[data-r]');if(!b)return;var d=b.closest('[data-id]');
+ sb.rpc('resolve_claim',{p_id:d.dataset.id,p_approve:b.dataset.r==='1',p_note:d.querySelector('[data-n]').value}).then(function(r){if(r.error)msg('Hata: '+r.error.message,true);else{msg('Karar kaydedildi');load()}})});
 $('lrows').addEventListener('change',function(e){var tr=e.target.closest('tr'),f=e.target.dataset.f;if(!tr||!f)return;var l=L.find(function(x){return x.id===tr.dataset.id}),u={};
  if(f==='status')u.status=e.target.value;if(f==='price')u.price=e.target.value===''?null:Number(e.target.value);if(f==='paid')u.commission_paid=e.target.checked;if(f==='pay')u.paid_at=e.target.checked?new Date().toISOString():null;
  sb.from('leads').update(u).eq('id',l.id).then(function(r){if(r.error)msg('Kaydedilemedi: '+r.error.message,true);else{Object.assign(l,u);msg('Kaydedildi');render()}})});
 $('pform').onsubmit=function(e){e.preventDefault();var row={name:$('pn').value.trim(),email:$('pe').value.trim().toLowerCase(),phone:$('pp').value.trim()||null,commission_pct:Number($('pc').value),code:code()};
- sb.from('partners').insert(row).select().then(function(r){if(r.error)msg('Eklenemedi: '+r.error.message,true);else{P.unshift(r.data[0]);$('pform').reset();$('pc').value=10;msg('Ortak eklendi. Artik bu e-postayla portal/partner.html uzerinden girebilir.');render()}})};
+ sb.from('partners').insert(row).select().then(function(r){if(r.error)msg('Eklenemedi: '+r.error.message,true);else{P.unshift(r.data[0]);$('pform').reset();$('pc').value=20;msg('Ortak eklendi. Artik bu e-postayla portal/partner.html uzerinden girebilir.');render()}})};
 $('prows').addEventListener('change',function(e){if(e.target.dataset.f!=='pct')return;var p=P.find(function(x){return x.id===e.target.closest('tr').dataset.id}),v=Number(e.target.value);
  if(!(v>=0&&v<=100)){msg('Yuzde 0-100 arasi olmali',true);render();return}
  sb.from('partners').update({commission_pct:v}).eq('id',p.id).then(function(r){if(r.error)msg('Kaydedilemedi: '+r.error.message,true);else{p.commission_pct=v;msg(p.name+' icin komisyon %'+v+' yapildi. Tamamlanan islerin komisyonu da bu yuzdeye gore hesaplanir.');render()}})});

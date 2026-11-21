@@ -18,6 +18,10 @@
 .sheet{position:fixed;inset:0;background:#1F242199;z-index:10;display:flex;align-items:flex-end;justify-content:center}
 .sheet>div{background:#fff;width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:20px;max-height:92vh;overflow:auto}
 @media(min-width:600px){.sheet{align-items:center}.sheet>div{border-radius:22px}}
+.menu{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px}.menu button{flex:none;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.bd{background:var(--orange);color:#fff;border-radius:99px;padding:0 7px;font-size:12px;margin-left:4px}
+.li{border-bottom:1px solid var(--line);padding:10px 0;font-size:14px}.li.un{font-weight:600}.li small{display:block;color:var(--muted);font-weight:400}
+.tpl{background:var(--paper);border-radius:12px;padding:12px;margin:10px 0;font-size:14px}.tpl p{margin:0 0 8px;white-space:pre-wrap}
 main{padding-bottom:90px}
 </style></head><body>
 <header><b>Kais <span>Partner</span></b><button id="logout">Cikis</button></header>
@@ -31,6 +35,7 @@ main{padding-bottom:90px}
 <div class="chips"><span class="chip">Kodun: <b id="code"></b></span><span class="chip">Komisyon: <b id="pct"></b></span></div>
 <div class="row" style="align-items:center;gap:18px;margin-top:14px"><div class="qr" id="qr"></div>
 <div class="grow"><div class="link" id="rl"></div><div class="row"><button class="btn wa sm" id="wa">WhatsApp ile paylas</button><button class="btn sm ghost" id="copy">Kopyala</button><button class="btn sm ghost" id="dl">QR indir</button></div></div></div></section>
+<div class="menu" id="menu"><button data-m="notes">Bildirimler <span class="bd" id="bd" hidden></span></button><button data-m="pay">Odeme gecmisi</button><button data-m="share">Paylasim metinleri</button><button data-m="claim">Itiraz</button><button data-m="prof">Profil</button></div>
 <div class="grid" id="stats" style="margin-bottom:8px"></div>
 <h3 style="margin:18px 0 0">Islerin</h3>
 <div class="filters" id="filters"></div>
@@ -59,6 +64,31 @@ function drawJobs(){var list=L.filter(function(l){return F==='all'||bucket(l)===
   +'<div class="amts"><div><small>Is tutari</small><b>'+K.money(l.price)+'</b></div><div><small>Komisyonun</small><b>'+(l.commission!=null?K.money(l.commission):'-')+'</b></div></div>'
   +'<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-t="'+K.esc(l.track_token)+'" data-n="'+K.esc(l.summary||'Is')+'">Musteri takip linki</button></div></div>'}).join('')}
 function drawAll(){drawStats();drawFilters();drawJobs()}
+
+var NOTES=[];
+function drawBell(){var n=NOTES.filter(function(x){return !x.read}).length;$('bd').hidden=!n;$('bd').textContent=n}
+function loadNotes(){return K.sb.rpc('my_notes').then(function(r){NOTES=r.data||[];drawBell()})}
+var TPL=[['English',"Got stuff you need gone? Kais Junk Remove hauls it away anywhere in Florida. Send photos, get your quote on WhatsApp.\n{L}"],
+['English (short)',"Need junk removed in Florida? Quote by photo, open 24/7: {L}"],
+['Espanol',"Tienes cosas que quieres sacar de casa? Kais Junk Remove las retira en todo Florida. Manda fotos y recibe tu cotizacion por WhatsApp: {L}"],
+['Sosyal medya',"Moving out? Garage full? Old furniture in the way? Kais Junk Remove clears it fast, all across Florida. Photos in, quote back. 10% off when the room is cleared!\n{L}"]];
+function menuOpen(k){
+ if(k==='notes'){K.sb.rpc('mark_notes_read').then(function(){NOTES.forEach(function(x){x.read=true});drawBell()});
+  var un=NOTES.slice();sheet('<h3>Bildirimler</h3>'+(un.length?un.map(function(n){return '<div class="li'+(n.read?'':' un')+'">'+K.esc(n.text)+'<small>'+K.dt(n.created_at)+'</small></div>'}).join(''):'<p class="muted">Henuz bildirim yok.</p>')+'<p><button class="btn ghost sm" data-x>Kapat</button></p>');
+  NOTES.forEach(function(x){x.read=true});return}
+ if(k==='pay'){var paid=L.filter(function(l){return l.commission_paid&&l.commission!=null}).sort(function(a,b){return new Date(b.commission_paid_at||0)-new Date(a.commission_paid_at||0)}),tot=0;paid.forEach(function(l){tot+=Number(l.commission)});
+  var wait=0;L.forEach(function(l){if(l.status==='done'&&!l.commission_paid&&l.commission!=null)wait+=Number(l.commission)});
+  sheet('<h3>Odeme gecmisi</h3><div class="grid" style="margin:10px 0"><div class="stat"><b>'+K.money(tot)+'</b><small>Toplam odenen</small></div><div class="stat hot"><b>'+K.money(wait)+'</b><small>Bekleyen</small></div></div>'+(paid.length?paid.map(function(l){return '<div class="li"><b>'+K.money(l.commission)+'</b> &middot; '+K.esc(l.summary||'Is')+'<small>'+(l.commission_paid_at?K.dt(l.commission_paid_at):'')+' &middot; #'+K.esc(l.ref)+'</small></div>'}).join(''):'<p class="muted">Henuz odeme yok.</p>')+'<p><button class="btn ghost sm" data-x>Kapat</button></p>');return}
+ if(k==='share'){var link=K.refLink(P.code);
+  sheet('<h3>Hazir paylasim metinleri</h3><p class="muted">Linkin otomatik eklenir. Tek tusla gonder.</p>'+TPL.map(function(t,i){var txt=t[1].replace('{L}',link);return '<div class="tpl"><b>'+t[0]+'</b><p>'+K.esc(txt)+'</p><div class="row"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa(txt)+'">WhatsApp</a><button class="btn sm ghost" data-copy="'+K.esc(txt)+'">Kopyala</button></div></div>'}).join('')+'<p><button class="btn ghost sm" data-x>Kapat</button></p>');return}
+ if(k==='prof'){sheet('<h3>Profil</h3><form id="pf"><label>Ad</label><input id="pfn" required value="'+K.esc(P.name)+'"><label>Telefon</label><input id="pfp" value="'+K.esc(P.phone||'')+'" autocomplete="tel"><label>Odeme bilgisi</label><input id="pfo" value="'+K.esc(P.payout_info||'')+'" placeholder="Zelle: mail veya telefon / PayPal"><p class="muted">E-posta: '+K.esc(P.email)+' (degistirmek icin Kais ekibine yaz)</p><div id="pfm" class="msg" hidden></div><p class="row"><button class="btn grow">Kaydet</button><button type="button" class="btn ghost" data-x>Kapat</button></p></form>');
+  $('pf').onsubmit=function(e){e.preventDefault();K.sb.rpc('update_my_profile',{p_name:$('pfn').value,p_phone:$('pfp').value,p_payout:$('pfo').value}).then(function(r){if(r.error){K.flash($('pfm'),'Kaydedilemedi: '+r.error.message,true);return}P.name=$('pfn').value.trim()||P.name;P.phone=$('pfp').value;P.payout_info=$('pfo').value;$('hello').textContent='Merhaba, '+P.name;K.flash($('pfm'),'Kaydedildi')})};return}
+ if(k==='claim'){K.sb.rpc('my_claims').then(function(r){var C=r.data||[];
+  sheet('<h3>Itiraz: bu musteri benim</h3><p class="muted">Musteri senin linkinden gelmediyse ama seninse bilgilerini yaz, ekip kontrol eder.</p><form id="cf"><label>Musteri adi</label><input id="cn" required><label>Telefon</label><input id="cp"><label>Is kodu (biliyorsan, KJ-XXXX)</label><input id="cr"><label>Not</label><input id="cx" placeholder="Nasil tanistiniz, ne zaman?"><div id="cm" class="msg" hidden></div><p class="row"><button class="btn grow">Gonder</button><button type="button" class="btn ghost" data-x>Kapat</button></p></form>'
+  +(C.length?'<h3 style="margin-top:16px;font-size:16px">Itirazlarin</h3>'+C.map(function(c){var st={pending:'Bekliyor',approved:'Onaylandi',rejected:'Reddedildi'}[c.status];return '<div class="li"><b>'+K.esc(c.customer_name)+'</b> &middot; '+st+'<small>'+K.dt(c.created_at)+(c.admin_note?' &middot; '+K.esc(c.admin_note):'')+'</small></div>'}).join(''):''));
+  $('cf').onsubmit=function(e){e.preventDefault();K.sb.rpc('partner_create_claim',{p_name:$('cn').value.trim(),p_phone:$('cp').value.trim(),p_ref:$('cr').value.trim(),p_note:$('cx').value.trim()}).then(function(r){if(r.error){K.flash($('cm'),'Gonderilemedi: '+r.error.message,true);return}$('cf').reset();K.flash($('cm'),'Itirazin gonderildi. Sonucu bildirimlerde goreceksin.')})}})}
+}
+$('menu').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b)menuOpen(b.dataset.m)});
 function loadLeads(){return K.sb.rpc('my_leads').then(function(x){L=x.data||[];drawAll()})}
 $('filters').addEventListener('click',function(e){var b=e.target.closest('[data-f]');if(b){F=b.dataset.f;drawFilters();drawJobs()}});
 $('jobs').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(b)linkSheet(b.dataset.t,b.dataset.n)});
@@ -75,7 +105,7 @@ K.start(function(){
   $('wa').onclick=function(){window.open(wa('Kais Junk Remove ile hurda ve esya cikarma isi icin: '+link),'_blank')};
   $('copy').onclick=function(){navigator.clipboard.writeText(link).then(function(){$('copy').textContent='Kopyalandi'})};
   $('dl').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('qr').innerHTML],{type:'image/svg+xml'}));a.download='kais-'+P.code+'-qr.svg';a.click()};
-  loadLeads();
+  loadLeads();loadNotes();
  });
 });})();
 </script></body></html>
