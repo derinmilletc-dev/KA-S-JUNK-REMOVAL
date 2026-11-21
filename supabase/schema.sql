@@ -1064,6 +1064,7 @@ language sql stable security definer set search_path = public as $$
     and e.kind in ('created','quoted','quote_accepted','scheduled','deposit_paid','enroute','working','finished','done','confirmed','paid')
   order by e.at, e.id;
 $$;
+revoke all on function my_events() from public, anon;
 grant execute on function my_events() to authenticated;
 
 -- Ekibin kendi kazanci (sadece kendi isleri)
@@ -1078,6 +1079,7 @@ language sql stable security definer set search_path = public as $$
   cross join (select (date_trunc('month', now() at time zone 'America/New_York')) at time zone 'America/New_York' as ms) m
   where l.crew_id = crew_me() and l.crew_status = 'finished';
 $$;
+revoke all on function crew_earnings() from public, anon;
 grant execute on function crew_earnings() to authenticated;
 
 -- Yedek: tum veriyi tek JSON olarak verir. Sadece admin (veya sunucu yedek fonksiyonu) kullanabilir.
