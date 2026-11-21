@@ -1,4 +1,25 @@
-<!doctype html><html lang="en"><head><title>Kais Partner Portal</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="portal.css"></head><body>
+<!doctype html><html lang="en"><head><title>Kais Partner Portal</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="portal.css"><style>
+.hero{background:linear-gradient(135deg,#1F2421,#2E3531);color:#fff;border-radius:20px;padding:20px;margin-bottom:16px}
+.hero h2{font-size:22px}.hero p{color:#ffffffb3;margin:4px 0 0;font-size:14px}
+.hero .qr{border:0;padding:8px;flex:none}.hero .qr svg{width:128px;height:128px}
+.hero .link{background:#ffffff14;color:#fff;font-size:13px;margin:12px 0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.chip{background:#ffffff1f;border-radius:99px;padding:3px 11px;font-size:13px}
+.btn.wa{background:#1E8E4E}.btn.wa:hover{background:#17703d}
+.stat.hot{background:var(--tint)}.stat.hot b{color:var(--deep)}
+.filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin:6px 0 12px}.filters button{flex:none;border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+.filters button.on{background:var(--ink);color:#fff;border-color:var(--ink)}.filters small{opacity:.7}
+.job{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+.job .top{display:flex;gap:12px;align-items:center}.av{flex:none;width:40px;height:40px;border-radius:50%;background:var(--tint);color:var(--deep);display:grid;place-items:center;font:700 17px 'Bricolage Grotesque',sans-serif}
+.job .sum{font-weight:600}.job .meta{color:var(--muted);font-size:13px}
+.job .amts{display:flex;gap:18px;margin:12px 0 4px;font-size:14px}.job .amts b{display:block;font:700 18px 'Bricolage Grotesque',sans-serif}
+.job .amts small{color:var(--muted)}.tag.paid{background:#DDF3E6;color:var(--green)}
+.empty{text-align:center;padding:34px 10px;color:var(--muted)}
+.fab{position:fixed;right:18px;bottom:18px;z-index:5;box-shadow:0 8px 24px #1F24213a;border-radius:99px;padding:14px 22px}
+.sheet{position:fixed;inset:0;background:#1F242199;z-index:10;display:flex;align-items:flex-end;justify-content:center}
+.sheet>div{background:#fff;width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:20px;max-height:92vh;overflow:auto}
+@media(min-width:600px){.sheet{align-items:center}.sheet>div{border-radius:22px}}
+main{padding-bottom:90px}
+</style></head><body>
 <header><b>Kais <span>Partner</span></b><button id="logout">Cikis</button></header>
 <main>
 <div id="loginBox" class="card login" hidden><h2>Ortak girisi</h2><p class="muted">Kayitli e-postani yaz, sana giris baglantisi gonderelim.</p>
@@ -6,40 +27,55 @@
 <div id="app" hidden>
 <div id="none" class="card" hidden><h3>Ortak kaydi bulunamadi</h3><p class="muted">Bu e-posta bir ortak hesabina bagli degil. Kais ekibiyle iletisime gec.</p></div>
 <div id="main" hidden>
-<div class="card"><h2 id="hello"></h2><p class="muted">Bu baglanti veya QR ile gelen her musteri senin adina kaydedilir.</p>
-<div class="row" style="align-items:flex-start;gap:20px"><div class="qr" id="qr"></div>
-<div class="grow"><div class="link" id="rl"></div><p class="row"><button class="btn sm" id="copy">Baglantiyi kopyala</button><button class="btn sm ghost" id="dl">QR indir</button></p>
-<p class="muted">Kodun: <b id="code"></b> &middot; Komisyon: <b id="pct"></b></p></div></div></div>
-<div class="grid" id="stats" style="margin-bottom:16px"></div>
-<div class="card"><h3>Musterin icin is olustur</h3><p class="muted">Musteriye ozel takip linki ve QR olusur. Musteri islemi bu linkten izler.</p>
-<form id="jf" class="row"><div class="grow"><label>Musteri adi</label><input id="jn" required></div><div class="grow"><label>Adres</label><input id="ja" required></div><div class="grow"><label>Ne alinacak</label><input id="js" required placeholder="Kanepe, buzdolabi..."></div><div style="align-self:flex-end"><button class="btn">Olustur</button></div></form>
-<div id="jr" hidden style="margin-top:14px"><div class="row" style="align-items:flex-start;gap:20px"><div class="qr" id="jqr"></div><div class="grow"><b>Musteri takip linki</b><div class="link" id="jl" style="margin:8px 0"></div><button class="btn sm ghost" id="jc">Kopyala</button></div></div></div><div id="jm" class="msg" hidden></div></div>
-<div class="card"><h3 style="margin-bottom:8px">Islerin</h3><div class="tbl"><table><thead><tr><th>Tarih</th><th>Musteri</th><th>Is</th><th>Durum</th><th>Tutar</th><th>Komisyon</th><th></th></tr></thead><tbody id="rows"></tbody></table></div><p class="muted" id="empty" hidden>Henuz is yok. Baglantini paylas!</p></div>
-</div></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="config.js"></script><script src="core.js"></script>
-<script>
-(function(){var K=KJC,$=K.$;
+<section class="hero"><h2 id="hello"></h2><p>Bu link veya QR ile gelen her musteri senin adina kaydedilir.</p>
+<div class="chips"><span class="chip">Kodun: <b id="code"></b></span><span class="chip">Komisyon: <b id="pct"></b></span></div>
+<div class="row" style="align-items:center;gap:18px;margin-top:14px"><div class="qr" id="qr"></div>
+<div class="grow"><div class="link" id="rl"></div><div class="row"><button class="btn wa sm" id="wa">WhatsApp ile paylas</button><button class="btn sm ghost" id="copy">Kopyala</button><button class="btn sm ghost" id="dl">QR indir</button></div></div></div></section>
+<div class="grid" id="stats" style="margin-bottom:8px"></div>
+<h3 style="margin:18px 0 0">Islerin</h3>
+<div class="filters" id="filters"></div>
+<div id="jobs"></div><div class="empty" id="empty" hidden><p><b>Burada gosterilecek is yok.</b></p><p>Linkini paylas ya da "Yeni is" ile bir musteri ekle.</p></div>
+</div></div></main>
+<button class="btn fab" id="newjob" hidden>+ Yeni is</button>
+<div class="sheet" id="sheet" hidden><div id="sheetbox"></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="config.js"></script><script src="core.js"></script><script>
+(function(){var K=KJC,$=K.$,P=null,L=[],F='all';
+function wa(text){return 'https://wa.me/?text='+encodeURIComponent(text)}
+function bucket(l){if(l.status==='done')return l.commission_paid?'paid':'done';if(l.status==='lost')return 'lost';return 'open'}
+function sheet(html){$('sheetbox').innerHTML=html;$('sheet').hidden=false}
+function closeSheet(){$('sheet').hidden=true}
+$('sheet').addEventListener('click',function(e){if(e.target===$('sheet')||e.target.closest('[data-x]'))closeSheet()});
+function linkSheet(t,title){var u=K.trackLink(t);
+ sheet('<h3>'+K.esc(title)+'</h3><p class="muted">Bu ozel link ile musteri isin durumunu takip eder.</p><div class="qr" style="margin:10px 0">'+K.qrSvg(u)+'</div><div class="link">'+K.esc(u)+'</div><p class="row"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa('Kais Junk Remove isinizi buradan takip edebilirsiniz: '+u)+'">WhatsApp ile gonder</a><button class="btn sm ghost" data-copy="'+K.esc(u)+'">Kopyala</button><button class="btn sm ghost" data-x>Kapat</button></p>')}
+document.addEventListener('click',function(e){var c=e.target.closest('[data-copy]');if(c)navigator.clipboard.writeText(c.dataset.copy).then(function(){c.textContent='Kopyalandi'})});
+function drawStats(){var now=new Date(),m=0,tot=0,pend=0,done=0;
+ L.forEach(function(l){if(l.status==='done'){done++;var c=Number(l.commission||0);tot+=c;if(!l.commission_paid)pend+=c;var d=new Date(l.created_at);if(d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear())m+=c}});
+ $('stats').innerHTML=[['Bu ay kazanc',K.money(m),''],['Toplam kazanc',K.money(tot),''],['Odeme bekleyen',K.money(pend),'hot'],['Tamamlanan is',done,'']].map(function(s){return '<div class="stat '+s[2]+'"><b>'+K.esc(s[1])+'</b><small>'+s[0]+'</small></div>'}).join('')}
+function drawFilters(){var defs=[['all','Hepsi'],['open','Bekleyen'],['done','Tamamlanan'],['paid','Odenen']];
+ $('filters').innerHTML=defs.map(function(d){var n=d[0]==='all'?L.length:L.filter(function(l){return bucket(l)===d[0]}).length;return '<button data-f="'+d[0]+'" class="'+(F===d[0]?'on':'')+'">'+d[1]+' <small>'+n+'</small></button>'}).join('')}
+function drawJobs(){var list=L.filter(function(l){return F==='all'||bucket(l)===F});
+ $('empty').hidden=list.length>0;
+ $('jobs').innerHTML=list.map(function(l){var b=bucket(l);
+  return '<div class="job"><div class="top"><div class="av">'+K.esc((l.customer||'?').charAt(0))+'</div><div class="grow"><div class="sum">'+K.esc(l.summary||'Is')+'</div><div class="meta">'+K.dt(l.created_at)+' · #'+K.esc(l.ref)+'</div></div><span class="tag '+(b==='paid'?'paid':K.esc(l.status))+'">'+(b==='paid'?'Odendi':K.esc(K.STATUS[l.status]||l.status))+'</span></div>'
+  +'<div class="amts"><div><small>Is tutari</small><b>'+K.money(l.price)+'</b></div><div><small>Komisyonun</small><b>'+(l.commission!=null?K.money(l.commission):'-')+'</b></div></div>'
+  +'<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-t="'+K.esc(l.track_token)+'" data-n="'+K.esc(l.summary||'Is')+'">Musteri takip linki</button></div></div>'}).join('')}
+function drawAll(){drawStats();drawFilters();drawJobs()}
+function loadLeads(){return K.sb.rpc('my_leads').then(function(x){L=x.data||[];drawAll()})}
+$('filters').addEventListener('click',function(e){var b=e.target.closest('[data-f]');if(b){F=b.dataset.f;drawFilters();drawJobs()}});
+$('jobs').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(b)linkSheet(b.dataset.t,b.dataset.n)});
+$('newjob').onclick=function(){sheet('<h3>Yeni is olustur</h3><p class="muted">Musteriye ozel takip linki ve QR olusur.</p><form id="jf"><label>Musteri adi</label><input id="jn" required><label>Adres</label><input id="ja" required><label>Ne alinacak</label><input id="js" required placeholder="Kanepe, buzdolabi..."><div id="jm" class="msg" hidden></div><p class="row"><button class="btn grow">Olustur</button><button type="button" class="btn ghost" data-x>Vazgec</button></p></form>');
+ $('jf').onsubmit=function(e){e.preventDefault();var t=K.newTok(),ref='KJ-'+Math.random().toString(36).slice(2,6).toUpperCase(),n=$('jn').value.trim();
+  K.sb.rpc('partner_create_lead',{p_ref:ref,p_name:n,p_address:$('ja').value.trim(),p_summary:$('js').value.trim(),p_token:t}).then(function(r){
+   if(r.error){K.flash($('jm'),'Olusturulamadi: '+r.error.message,true);return}
+   linkSheet(t,n+' icin link hazir');loadLeads()})}};
 K.start(function(){
  K.sb.from('partners').select('*').limit(1).then(function(r){
-  var p=r.data&&r.data[0]; if(!p){$('none').hidden=false;return;}
-  $('main').hidden=false; $('hello').textContent='Merhaba, '+p.name;
-  var link=K.refLink(p.code); $('rl').textContent=link; $('code').textContent=p.code; $('pct').textContent='%'+Number(p.commission_pct);
-  $('qr').innerHTML=K.qrSvg(link);
+  P=r.data&&r.data[0]; if(!P){$('none').hidden=false;return}
+  $('main').hidden=false;$('newjob').hidden=false;$('hello').textContent='Merhaba, '+P.name;
+  var link=K.refLink(P.code);$('rl').textContent=link;$('code').textContent=P.code;$('pct').textContent='%'+Number(P.commission_pct);$('qr').innerHTML=K.qrSvg(link);
+  $('wa').onclick=function(){window.open(wa('Kais Junk Remove ile hurda ve esya cikarma isi icin: '+link),'_blank')};
   $('copy').onclick=function(){navigator.clipboard.writeText(link).then(function(){$('copy').textContent='Kopyalandi'})};
-  $('dl').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('qr').innerHTML],{type:'image/svg+xml'}));a.download='kais-'+p.code+'-qr.svg';a.click()};
-
-  function showLink(t){var u=K.trackLink(t);$('jqr').innerHTML=K.qrSvg(u);$('jl').textContent=u;$('jr').hidden=false;$('jc').onclick=function(){navigator.clipboard.writeText(u)};$('jr').scrollIntoView()}
-  $('rows').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(b)showLink(b.dataset.t)});
-  $('jf').onsubmit=function(e){e.preventDefault();var t=K.newTok(),ref='KJ-'+Math.random().toString(36).slice(2,6).toUpperCase();
-   K.sb.rpc('partner_create_lead',{p_ref:ref,p_name:$('jn').value.trim(),p_address:$('ja').value.trim(),p_summary:$('js').value.trim(),p_token:t}).then(function(r){
-    if(r.error){K.flash($('jm'),'Olusturulamadi: '+r.error.message,true);return}
-    $('jm').hidden=true;$('jf').reset();showLink(t);setTimeout(function(){location.reload()},60000)})};
-  K.sb.rpc('my_leads').then(function(x){
-   var L=x.data||[],done=L.filter(function(l){return l.status==='done'}),earn=0,unpaid=0;
-   done.forEach(function(l){var c=Number(l.commission||0);earn+=c;if(!l.commission_paid)unpaid+=c});
-   $('stats').innerHTML=[['Toplam talep',L.length],['Tamamlanan',done.length],['Toplam kazanc',K.money(earn)],['Odenmeyi bekleyen',K.money(unpaid)]].map(function(s){return '<div class="stat"><b>'+K.esc(s[1])+'</b><small>'+s[0]+'</small></div>'}).join('');
-   $('empty').hidden=L.length>0;
-   $('rows').innerHTML=L.map(function(l){return '<tr><td>'+K.dt(l.created_at)+'</td><td>'+K.esc(l.customer)+'</td><td>'+K.esc(l.summary||'')+'</td><td><span class="tag '+K.esc(l.status)+'">'+K.esc(K.STATUS[l.status]||l.status)+'</span></td><td>'+K.money(l.price)+'</td><td>'+(l.commission!=null?K.money(l.commission)+(l.commission_paid?' (odendi)':''):'-')+'</td><td><button class="btn sm ghost" data-t="'+K.esc(l.track_token)+'">Link</button></td></tr>'}).join('');
-  });
+  $('dl').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('qr').innerHTML],{type:'image/svg+xml'}));a.download='kais-'+P.code+'-qr.svg';a.click()};
+  loadLeads();
  });
 });})();
 </script></body></html>
