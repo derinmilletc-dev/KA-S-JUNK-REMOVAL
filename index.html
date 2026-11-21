@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover,maximum-scale=1,user-scalable=no"><style>html{touch-action:manipulation}</style><script>document.addEventListener("gesturestart",function(e){e.preventDefault()},{passive:false})</script>
 <title>Kais Junk Remove | Junk gone. Space back.</title>
 <meta name="description" content="Junk removal across Florida. Send photos and your address, get your quote on WhatsApp. Open 24/7.">
 <meta name="theme-color" content="#1F2421">
@@ -1273,7 +1273,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
       if (t) t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     });
   });
-  $('toTop').addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
+  $('toTop').addEventListener('click', function(){ if (location.hash){ location.href = location.pathname + location.search; return; } window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
 
   /* hero: drag to clear the room */
   var range = $('clear'), clip = $('clipRect'), line = $('hLine'), knob = $('hKnob'), hint = $('hint'), goneTag = $('goneTag');
