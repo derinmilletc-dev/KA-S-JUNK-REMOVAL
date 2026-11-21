@@ -1,3 +1,3 @@
-// Supabase > Project Settings > API: "Project URL" ve "anon public" anahtari.
-// Anon anahtar herkese acik olabilir (guvenlik RLS ile saglanir). service_role ASLA buraya yazilmaz.
-window.KJ = { SUPABASE_URL: '', SUPABASE_ANON_KEY: '' };
+// Supabase > Project Settings > API: "Project URL" ve "publishable (anon)" anahtari.
+// Bu anahtar herkese acik olabilir (guvenlik RLS ile saglanir). secret / service_role ASLA buraya yazilmaz.
+window.KJ = { SUPABASE_URL: 'https://veqrjpjwedenqoknfolh.supabase.co', SUPABASE_ANON_KEY: 'sb_publishable_3sfrR3GlrrZoI01X6uXsCw_rJn6VMnK' };
