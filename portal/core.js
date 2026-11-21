@@ -17,13 +17,21 @@
     var q = window.qrcode(0, 'M'); q.addData(text); q.make();
     return q.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
   }
-  // Giris: e-posta ile tek kullanimlik baglanti (sifre yok)
+  // Giris: e-posta + sifre, ya da sifre bos birakilirsa tek kullanimlik baglanti
   function loginUI(onSession){
     $('loginBox').hidden = false; $('app').hidden = true;
     if (!sb){ flash($('lmsg'), 'Sistem henuz baglanmadi (portal/config.js bos).', true); $('lbtn').disabled = true; return; }
     $('lform').onsubmit = function(e){
       e.preventDefault();
       var email = $('lemail').value.trim(); $('lbtn').disabled = true;
+      var pw = $('lpw') ? $('lpw').value : '';
+      if (pw){
+        sb.auth.signInWithPassword({ email: email, password: pw }).then(function(r){
+          $('lbtn').disabled = false;
+          if (r.error) flash($('lmsg'), 'E-posta veya sifre yanlis.', true);
+        });
+        return;
+      }
       sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.href.split('#')[0] } }).then(function(r){
         $('lbtn').disabled = false;
         if (r.error) flash($('lmsg'), 'Gonderilemedi: ' + r.error.message, true);
@@ -32,13 +40,18 @@
     };
   }
   function start(onReady){
-    var lo0 = $('logout'); if (lo0) lo0.style.display = 'none';
+    var lo0 = $('logout'); if (lo0) lo0.style.display = 'none'; var sp1 = $('setpw'); if (sp1) sp1.style.display = 'none';
     if (!sb){ loginUI(); return; }
     sb.auth.getSession().then(function(r){
-      if (r.data.session) { $('loginBox').hidden = true; $('app').hidden = false; if (lo0) lo0.style.display = ''; onReady(r.data.session); }
+      if (r.data.session) { $('loginBox').hidden = true; $('app').hidden = false; if (lo0) lo0.style.display = ''; var sp0 = $('setpw'); if (sp0) sp0.style.display = ''; onReady(r.data.session); }
       else loginUI();
     });
     sb.auth.onAuthStateChange(function(ev){ if (ev === 'SIGNED_IN' && $('app').hidden) location.reload(); });
+    var sp = $('setpw'); if (sp) sp.onclick = function(){
+      var p = window.prompt('Yeni sifre (en az 8 karakter):'); if (!p) return;
+      if (p.length < 8){ window.alert('En az 8 karakter olmali.'); return; }
+      sb.auth.updateUser({ password: p }).then(function(r){ window.alert(r.error ? 'Olmadi: ' + r.error.message : 'Sifre kaydedildi. Artik e-posta ve sifreyle girebilirsin.'); });
+    };
     var lo = $('logout'); if (lo) lo.onclick = function(){ sb.auth.signOut().then(function(){ location.reload(); }); };
   }
   window.KJC = { sb: sb, $: $, esc: esc, money: money, dt: dt, STATUS: STATUS, flash: flash, refLink: refLink, trackLink: trackLink, newTok: newTok, qrSvg: qrSvg, start: start };

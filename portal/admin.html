@@ -64,10 +64,10 @@ header{background:#1F2421ec;-webkit-backdrop-filter:blur(12px);backdrop-filter:b
 @media(prefers-reduced-motion:reduce){.sm,.tl .card{animation:none}}
 @media(max-width:700px){.tl{gap:12px}}
 </style><link rel="manifest" href="manifest-admin.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
-<header><b><a href="../index.html" aria-label="Kais Junk Remove, home" style="color:inherit;text-decoration:none;display:inline-block;padding:6px 0">Kais <span>Admin</span></a></b><button id="logout">Cikis</button></header>
+<header><b><a href="../index.html" aria-label="Kais Junk Remove, home" style="color:inherit;text-decoration:none;display:inline-block;padding:6px 0">Kais <span>Admin</span></a></b><span style="display:flex;gap:8px"><button id="setpw" type="button" style="display:none">Sifre</button><button id="logout">Cikis</button></span></header>
 <main>
 <div id="loginBox" class="card login" hidden><h2>Yonetici girisi</h2>
-<form id="lform"><label for="lemail">E-posta</label><input id="lemail" type="email" required autocomplete="email"><p><button class="btn" id="lbtn" style="width:100%">Giris baglantisi gonder</button></p></form><div id="lmsg" class="msg" hidden></div></div>
+<form id="lform"><label for="lemail">E-posta</label><input id="lemail" type="email" required autocomplete="email"><label for="lpw">Sifre</label><input id="lpw" type="password" autocomplete="current-password"><p><button class="btn" id="lbtn" style="width:100%">Giris yap</button></p><p class="muted" style="font-size:13px;margin:0">Sifreni bilmiyorsan bos birak: e-postana giris baglantisi gonderilir.</p></form><div id="lmsg" class="msg" hidden></div></div>
 <div id="app" hidden>
 <div id="deny" class="card" hidden><h3>Yetki yok</h3><p class="muted">Bu e-posta yonetici listesinde degil.</p></div>
 <div id="main" hidden>
