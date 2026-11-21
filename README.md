@@ -66,3 +66,10 @@ Komisyon varsayılanı %20 (ortak başına admin panelinden değişir). Ortak pa
 - **Mesaj sablonlari**: teklif, randevu onayi, hatirlatma, ekip yolda, depozito, makbuz, yorum. Kopyalar ve WhatsApp acar (musteri numarasi saklanmadigi icin kisiyi sen secersin).
 - **Odemeler**: ortak basina bekleyen komisyon, tek tusla "Odendi yap" (sadece musteri odemesi alinmis isler).
 - **Yeni talep bildirimi**: panel acikken 45 sn'de bir kontrol, ses ve tarayici bildirimi, sekme basliginda sayi.
+
+## Musteri, ortak, bildirim eklemeleri
+- **Teklif kabul**: takip sayfasinda "Accept this quote"; admin ve ortak haberdar olur.
+- **Musteri foto yukleme**: takip sayfasindan en fazla 12 foto (5 MB'a kadar, sadece resim). Admin is satirinda "Musteri fotolari".
+- **Ortak paneli**: Basarilar (rozetler + aylik siralama, sadece ad ve soyad bas harfi), Egitim.
+- **E-posta**: `supabase/functions/notify` (anlik) ve `daily-brief` (sabah ozeti). Kurulum `KURULUM.md`.
+- **Kurulum kontrolu**: `portal/setup-check.html`.

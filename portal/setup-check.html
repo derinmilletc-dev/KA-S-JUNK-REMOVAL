@@ -1,0 +1,30 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Kurulum kontrolu</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="portal.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script>
+<style>.ck{display:flex;gap:10px;padding:12px 0;border-top:1px solid var(--line)}.ck i{font-style:normal;font-size:20px;flex:none}.ck small{display:block;color:var(--muted)}</style></head><body>
+<header><b>Kais <span>Kurulum kontrolu</span></b></header>
+<main style="max-width:640px"><div class="card"><h2>Sistem hazir mi?</h2><p class="muted">Bu sayfa her seyi tek tek dener ve sonucu sade dille soyler. Kurulumdan sonra ac. Kirmizi cikan satirdaki oneriyi uygula.</p><button class="btn" id="go">Kontrol et</button><div id="out"></div></div></main>
+<script>
+(function(){
+var K=window.KJ||{},out=document.getElementById('out');
+function row(ok,t,h){var d=document.createElement('div');d.className='ck';d.innerHTML='<i>'+(ok===null?'➖':ok?'✅':'❌')+'</i><div><b></b><small></small></div>';d.querySelector('b').textContent=t;d.querySelector('small').textContent=h||'';out.appendChild(d)}
+document.getElementById('go').onclick=function(){out.innerHTML='';
+ if(!K.SUPABASE_URL||!K.SUPABASE_ANON_KEY){row(false,'config.js bos','portal/config.js dosyasina Supabase adresini ve anon anahtarini yaz.');return}
+ row(true,'config.js dolu');
+ var sb=window.supabase.createClient(K.SUPABASE_URL,K.SUPABASE_ANON_KEY),tok='0'.repeat(24);
+ var T=[
+  ['Veritabani ve SQL kurulu (acik icerik)',function(){return sb.rpc('public_content')},function(r){return !r.error},'schema.sql calismamis olabilir. SQL Editor\'de tek parca calistir.'],
+  ['Fiyat hesaplayici fonksiyonu',function(){return sb.rpc('public_pricing')},function(r){return !r.error},'schema.sql eksik calismis.'],
+  ['Takip sayfasi fonksiyonu',function(){return sb.rpc('track_lead',{p_token:tok})},function(r){return !r.error&&Array.isArray(r.data)&&r.data.length===0},'schema.sql eksik calismis.'],
+  ['Gizli tablolar disaridan kapali (guvenlik)',function(){return sb.from('leads').select('id').limit(1)},function(r){return !r.error&&(r.data||[]).length===0},'KRITIK: giris yapmamis biri is listesini okuyabiliyor. RLS acik degil, schema.sql\'i yeniden calistir.'],
+  ['Fiyat/komisyon gorunumu kapali',function(){return sb.from('lead_calc').select('*').limit(1)},function(r){return !!r.error},'KRITIK: lead_calc disaridan okunabiliyor.'],
+  ['Musteri foto kovasi (storage)',function(){return sb.storage.from('lead-photos').list('x',{limit:1})},function(r){return !r.error||/not authorized|permission|row-level|unauthorized|forbidden/i.test(r.error.message||'')},'Storage kovasi yok. Supabase > Storage bolumunu kontrol et, schema.sql\'i yeniden calistir.']
+ ];
+ T.reduce(function(p,t){return p.then(function(){return t[1]().then(function(r){row(!!t[2](r),t[0],t[2](r)?'':t[3])}).catch(function(e){row(false,t[0],String(e))})})},Promise.resolve()).then(function(){
+  return sb.auth.getSession().then(function(s){var ses=s.data.session;if(!ses){row(null,'Giris yapilmamis','Rol kontrolu icin once admin.html, partner.html veya crew.html\'den giris yap, sonra bu sayfayi yenile.');return}
+   row(true,'Giris yapili: '+ses.user.email);
+   return Promise.all([sb.from('admins').select('email').limit(1),sb.rpc('crew_me'),sb.from('partners').select('id').limit(1)]).then(function(r){
+    row(r[0].data&&r[0].data.length>0,'Yonetici (admin) olarak taniniyor',r[0].data&&r[0].data.length?'':'Bu e-posta admins tablosunda yok. schema.sql son satirindaki e-postayi duzeltip tekrar calistir.');
+    row(null,'Ekip hesabi: '+(r[1].data?'evet':'hayir'),'Ekip girisi icin admin panelinden Ekip ekle.')})})})};
+})();
+</script></body></html>

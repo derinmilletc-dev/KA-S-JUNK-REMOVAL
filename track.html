@@ -23,6 +23,7 @@ li small{display:block;font-weight:400;color:var(--muted)}
 </style></head><body>
 <header>Kais <span>Junk Remove</span></header>
 <main><div class="card" id="box"><p class="muted" id="state">Loading…</p></div>
+<div id="photos"></div>
 <div id="review"></div>
 <div id="share"></div>
 <a class="btn" id="wa" href="https://wa.me/14074462534" target="_blank" rel="noopener">Message us on WhatsApp</a>
@@ -47,6 +48,13 @@ function share(l){var el=document.getElementById('share');
  +(each>0&&l.friends_done>0?'<p class="muted" style="margin:8px 0 0">Friends helped: <b>'+l.friends_done+'</b> · Credit earned: <b>$'+Number(l.credit)+'</b></p>':'')
  +'<div class="row"><a class="g" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent('Need junk removed in Florida? Kais Junk Remove did a great job for me. Quote by photo: '+u)+'">Share on WhatsApp</a><button type="button" id="cl">Copy link</button></div></div>';
  document.getElementById('cl').onclick=function(){navigator.clipboard.writeText(u).then(function(){document.getElementById('cl').textContent='Copied'})}}
+var upN=0;
+function resize(f){return new Promise(function(ok,no){var im=new Image(),u=URL.createObjectURL(f);im.onload=function(){var m=1400,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?ok(b):no()},'image/jpeg',.82)};im.onerror=no;im.src=u})}
+function photos(l){var el=document.getElementById('photos');if(l.closed||['new','quoted','booked'].indexOf(l.status)<0){el.innerHTML='';return}if(el.firstChild)return;
+ el.innerHTML='<div class="card"><h2 style="font:700 20px \'Bricolage Grotesque\',sans-serif;margin:0 0 4px">Add photos</h2><p class="muted" style="margin:0 0 10px">More photos help us give an accurate quote. Up to 12.</p><label class="btn" style="cursor:pointer">📷 Choose or take photos<input id="pf" type="file" accept="image/*" multiple hidden></label><p class="muted" id="pm" style="margin:10px 0 0"></p></div>';
+ document.getElementById('pf').onchange=function(){var fs=Array.prototype.slice.call(this.files||[]).slice(0,12),pm=document.getElementById('pm');if(!fs.length)return;pm.textContent='Uploading…';var bad=0;
+  fs.reduce(function(p,f,i){return p.then(function(){return resize(f).then(function(b){return fetch(K.SUPABASE_URL+'/storage/v1/object/lead-photos/'+tok+'/'+Date.now()+'-'+i+'.jpg',{method:'POST',headers:{apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY,'Content-Type':'image/jpeg'},body:b})}).then(function(r){if(r.ok)upN++;else bad++}).catch(function(){bad++})})},Promise.resolve())
+  .then(function(){pm.textContent=(upN?'✓ '+upN+' photo'+(upN>1?'s':'')+' sent. ':'')+(bad?bad+' could not be sent (limit reached or bad file).':'Thank you!')})}}
 function msg(t,bad){box.innerHTML='<p class="muted'+(bad?' err':'')+'">'+esc(t)+'</p>'}
 function draw(l){
  if(l.closed){box.innerHTML='<h1>All done</h1><p class="muted">#'+esc(l.ref)+'. Service confirmed and payment received. This tracking link is now closed. Thank you for choosing Kais Junk Remove!</p>'+(l.paid?'<a class="btn" target="_blank" href="receipt.html?t='+tok+'">View receipt</a>':'');document.getElementById('wa').hidden=true;review(l);share(l);return}
@@ -57,15 +65,16 @@ function draw(l){
  +(l.price!=null?'<div class="price"><span class="muted">Your quote</span><br><b>$'+Number(l.price).toFixed(2).replace(/\.00$/,'')+'</b></div>':'')
  +(l.crew_status&&l.status!=='done'?'<div class="price" style="margin-top:8px"><b style="font-size:18px">'+({enroute:'🚚 Our crew is on the way',working:'🛠 Our crew is working on it',finished:'✅ Job finished'}[l.crew_status]||'')+'</b></div>':'')
  +(l.deposit_amount>0?'<div class="price" style="margin-top:8px"><span class="muted">Deposit</span><br><b style="font-size:20px">$'+Number(l.deposit_amount).toFixed(2).replace(/\.00$/,'')+'</b> '+(l.deposit_paid?'<span style="color:var(--green);font-weight:600">✓ received</span>':'<span class="muted">due to confirm your slot</span>')+(!l.deposit_paid&&l.deposit_note?'<br><span class="muted">'+esc(l.deposit_note)+'</span>':'')+'</div>':'')
+ +(l.status==='quoted'&&l.price!=null&&!l.quote_accepted?'<button class="btn ok" id="aq" type="button" style="margin-top:10px">Accept this quote</button>':'')+(l.status==='quoted'&&l.quote_accepted?'<p style="margin:10px 0 0;color:var(--green);font-weight:600">✓ Quote accepted. We will confirm a pickup time shortly.</p>':'')
  +(l.confirmed?'<p class="muted" style="margin-top:12px">✓ You confirmed the service. Waiting for payment confirmation from us.</p>':'')+(l.can_confirm?'<button class="btn ok" id="cf" type="button">Confirm the service was completed</button>':'')+'<ol>'+STEPS.map(function(s,i){var c=i<at||(i===at&&l.status==='done')?'done':i===at?'now':'';return '<li class="'+c+'"><i>'+(c==='done'?'✓':i+1)+'</i><span>'+s[1]+'<small>'+(c?s[2]:'')+'</small></span></li>'}).join('')+'</ol>';
 }
 function load(first){
  if(!K.SUPABASE_URL||tok.length<24){if(first)msg('This tracking link is not valid.',true);return}
  fetch(K.SUPABASE_URL+'/rest/v1/rpc/track_lead',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_token:tok})})
- .then(function(r){return r.json()}).then(function(d){if(d&&d[0]){draw(d[0]);review(d[0]);share(d[0])}else if(first)msg('We could not find this request. Check the link or message us.',true)})
+ .then(function(r){return r.json()}).then(function(d){if(d&&d[0]){draw(d[0]);photos(d[0]);review(d[0]);share(d[0])}else if(first)msg('We could not find this request. Check the link or message us.',true)})
  .catch(function(){if(first)msg('Could not load. Try again in a moment.',true)});
 }
-document.addEventListener('click',function(e){if(!e.target||e.target.id!=='cf')return;e.target.disabled=true;
+document.addEventListener('click',function(e){if(e.target&&e.target.id==='aq'){e.target.disabled=true;fetch(K.SUPABASE_URL+'/rest/v1/rpc/accept_quote',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_token:tok})}).then(function(){load(false)});return}if(!e.target||e.target.id!=='cf')return;e.target.disabled=true;
  fetch(K.SUPABASE_URL+'/rest/v1/rpc/confirm_service',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_token:tok})}).then(function(){load(false)})});
 load(true);setInterval(function(){if(!document.hidden)load(false)},30000);
 })();

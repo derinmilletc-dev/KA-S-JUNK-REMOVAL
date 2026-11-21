@@ -92,6 +92,7 @@ alter table leads add column if not exists crew_finished_at timestamptz;
 alter table leads add column if not exists crew_note text;
 alter table leads add column if not exists deposit_amount numeric(10,2);
 alter table leads add column if not exists deposit_paid_at timestamptz;
+alter table leads add column if not exists quote_accepted_at timestamptz;
 create table if not exists crews (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -276,7 +277,7 @@ grant execute on function partner_create_lead(text,text,text,text,text) to authe
 -- Hizmet onayi (musteri) + odeme onayi (admin) tamamlaninca link kapanir: detay donmez.
 drop function if exists track_lead(text);
 create or replace function track_lead(p_token text)
-returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric, can_confirm boolean, confirmed boolean, closed boolean, share_code text, friends_done int, credit numeric, credit_each numeric, scheduled_at timestamp, review_url text, crew_status text, deposit_amount numeric, deposit_paid boolean, deposit_note text, paid boolean)
+returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric, can_confirm boolean, confirmed boolean, closed boolean, share_code text, friends_done int, credit numeric, credit_each numeric, scheduled_at timestamp, review_url text, crew_status text, deposit_amount numeric, deposit_paid boolean, deposit_note text, paid boolean, quote_accepted boolean)
 language sql stable security definer set search_path = public as $$
   select l.ref,
          case when l.closed then null else l.created_at end,
@@ -298,7 +299,8 @@ language sql stable security definer set search_path = public as $$
          case when not l.closed then l.deposit_amount end,
          (l.deposit_paid_at is not null),
          case when not l.closed and l.deposit_amount > 0 and l.deposit_paid_at is null then nullif((select value from settings where key = 'deposit_note'), '') end,
-         (l.paid_at is not null)
+         (l.paid_at is not null),
+         (l.quote_accepted_at is not null)
   from (select x.*, (x.customer_confirmed_at is not null and x.paid_at is not null) as closed
         from leads x where x.track_token = p_token and length(coalesce(p_token,'')) >= 24) l
   cross join lateral (select count(*)::int as n from leads y where y.referrer_code = l.share_code and y.status = 'done') f
@@ -315,6 +317,41 @@ begin
    where track_token = p_token and status = 'done' and customer_confirmed_at is null;
 end $$;
 grant execute on function confirm_service(text) to anon, authenticated;
+
+-- Musteri teklifi kabul eder (sadece 'teklif verildi' ve fiyat varsa). Admin ve ortak haberdar olur.
+create or replace function accept_quote(p_token text)
+returns void language plpgsql security definer set search_path = public as $$
+declare l leads;
+begin
+  if length(coalesce(p_token,'')) < 24 then return; end if;
+  if not rate_ok('aq:' || client_key(), 20, interval '1 hour') then return; end if;
+  update leads set quote_accepted_at = now()
+   where track_token = p_token and status = 'quoted' and price is not null and quote_accepted_at is null
+  returning * into l;
+  if l.id is not null and l.partner_id is not null and l.dup_of is null then
+    insert into notifications(partner_id, text) values (l.partner_id, 'Musteri teklifi kabul etti: ' || l.ref);
+  end if;
+end $$;
+grant execute on function accept_quote(text) to anon, authenticated;
+
+-- Aylik siralama: sadece ad + soyad bas harfi gorunur, ilk 10
+create or replace function partner_leaderboard()
+returns table(rank int, name text, jobs int, is_me boolean)
+language sql stable security definer set search_path = public as $$
+  with me as (select id from partners where lower(email) = lower(coalesce(auth.jwt() ->> 'email','')) and active),
+  m as (
+    select p.id, p.name, count(*)::int as n
+    from leads l join partners p on p.id = l.partner_id
+    where l.status = 'done' and l.dup_of is null and p.active
+      and (l.completed_at at time zone 'America/New_York') >= date_trunc('month', now() at time zone 'America/New_York')
+    group by p.id, p.name)
+  select (row_number() over (order by m.n desc, m.name))::int,
+         split_part(m.name, ' ', 1) || coalesce(' ' || left(nullif(split_part(m.name, ' ', 2), ''), 1) || '.', ''),
+         m.n, (m.id in (select id from me))
+  from m where exists (select 1 from me)
+  order by 1 limit 10;
+$$;
+grant execute on function partner_leaderboard() to authenticated;
 
 -- Ortak kendi islerini gorur (musteri adresi/telefonu gizli: sadece ad bas harfi + ozet)
 drop function if exists my_leads();
@@ -895,6 +932,30 @@ do $$ begin
   end if;
 exception when others then
   raise notice 'Storage ayari atlandi: %', sqlerrm;
+end $$;
+
+
+-- Musteri fotograflari (takip sayfasindan yuklenir). Sadece gecerli takip koduna ve en fazla 12 foto.
+do $$ begin
+  if exists (select 1 from information_schema.schemata where schema_name = 'storage') then
+    execute $f$create or replace function public.lead_photo_ok(t text) returns boolean
+      language sql stable security definer set search_path = public as $b$
+      select length(coalesce(t,'')) >= 24
+        and exists (select 1 from public.leads l where l.track_token = t and l.status in ('new','quoted','booked'))
+        and (select count(*) from storage.objects o where o.bucket_id = 'lead-photos' and o.name like t || '/%') < 12
+      $b$ $f$;
+    execute 'grant execute on function public.lead_photo_ok(text) to anon, authenticated';
+    insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+      values ('lead-photos', 'lead-photos', false, 5242880, array['image/jpeg','image/png','image/webp']) on conflict (id) do nothing;
+    drop policy if exists "lp_insert" on storage.objects;
+    create policy "lp_insert" on storage.objects for insert to anon, authenticated
+      with check (bucket_id = 'lead-photos' and public.lead_photo_ok((storage.foldername(name))[1]));
+    drop policy if exists "lp_admin_read" on storage.objects;
+    create policy "lp_admin_read" on storage.objects for select to authenticated
+      using (bucket_id = 'lead-photos' and public.is_admin());
+  end if;
+exception when others then
+  raise notice 'Musteri foto ayari atlandi: %', sqlerrm;
 end $$;
 
 -- Yonetici (e-postani degistir!)
