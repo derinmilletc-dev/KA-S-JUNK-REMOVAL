@@ -53,7 +53,7 @@ button{font:inherit;color:inherit}
 .ba .bar{position:absolute;top:0;bottom:0;left:50%;width:3px;margin-left:-1.5px;background:#fff;pointer-events:none;box-shadow:0 0 0 1px #0003}.ba .bar:after{content:"";position:absolute;top:50%;left:50%;width:34px;height:34px;margin:-17px;border-radius:50%;background:var(--orange);border:3px solid #fff}
 .ba .tg{position:absolute;top:10px;padding:3px 10px;border-radius:99px;background:#1F2421cc;color:#fff;font-size:12px;font-weight:600;pointer-events:none}.ba .tg.l{left:10px}.ba .tg.r{right:10px}
 .ba-cap{font-size:14px;color:var(--muted);margin:8px 2px 0}
-.rv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:26px}.rv{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}.rv .st{color:#F6B73C;letter-spacing:2px;font-size:18px}.rv p{margin:8px 0 10px}.rv small{color:var(--muted)}
+.rv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:26px}.revw{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}.revw .st{color:#F6B73C;letter-spacing:2px;font-size:18px}.revw p{margin:8px 0 10px}.revw small{color:var(--muted)}
 
 [hidden]{display:none !important}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
@@ -1402,7 +1402,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
             gridEl.appendChild(w);
           });
           rv.slice(0, 6).forEach(function(x){
-            var d = mk('div', 'rv'); d.appendChild(mk('div', 'st', '★★★★★'.slice(0, Math.max(1, Math.min(5, x.stars || 5)))));
+            var d = mk('div', 'revw'); d.appendChild(mk('div', 'st', '★★★★★'.slice(0, Math.max(1, Math.min(5, x.stars || 5)))));
             d.appendChild(mk('p', '', '“' + x.body + '”')); d.appendChild(mk('small', '', [x.name, x.city].filter(Boolean).join(' · '))); rvEl.appendChild(d);
           });
           document.getElementById('workh').textContent = g.length ? 'Before and after' : 'What customers say';

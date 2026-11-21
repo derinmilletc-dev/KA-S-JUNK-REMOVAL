@@ -41,3 +41,13 @@
   }
   window.KJC = { sb: sb, $: $, esc: esc, money: money, dt: dt, STATUS: STATUS, flash: flash, refLink: refLink, trackLink: trackLink, newTok: newTok, qrSvg: qrSvg, start: start };
 })();
+
+// Kaydirma yardimcilari: yatay listelerde "devami var" soluklugu, uzun sayfalarda yukari don dugmesi
+(function(){
+  function hint(){document.querySelectorAll('.tabs,.menu,.chipbar,.filters').forEach(function(e){e.classList.toggle('more',e.scrollWidth>e.clientWidth+4&&e.scrollLeft+e.clientWidth<e.scrollWidth-4)})}
+  document.addEventListener('scroll',hint,true);window.addEventListener('resize',hint);setInterval(hint,1200);
+  function mkTop(){var b=document.createElement('button');b.id='totop';b.type='button';b.setAttribute('aria-label','Yukari');b.textContent='\u2191';
+  b.onclick=function(){window.scrollTo({top:0,behavior:'smooth'})};document.body.appendChild(b);
+  window.addEventListener('scroll',function(){b.classList.toggle('show',window.scrollY>700)},{passive:true})}
+  if(document.body)mkTop();else document.addEventListener('DOMContentLoaded',mkTop);
+})();

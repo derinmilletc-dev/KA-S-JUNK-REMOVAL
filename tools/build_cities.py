@@ -44,11 +44,13 @@ h1{{font:700 38px/1.05 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em;ma
 .btn{{display:inline-block;background:var(--orange);color:#fff;text-decoration:none;border-radius:12px;padding:14px 20px;font-weight:600}}.btn:hover{{background:var(--deep)}}.btn.g{{background:#fff;color:var(--ink);border:1px solid var(--line)}}
 .card{{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px}}
 ul.chips{{list-style:none;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0}}ul.chips li{{background:#fff;border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-size:14px}}
-ol.steps{{padding-left:20px;margin:0}}ol.steps li{{margin:6px 0}}
+ol.steps{{padding-left:20px;margin:0}}.card ul{{margin:0;padding-left:20px}}
+.bar{{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:8px;padding:10px 14px;background:#fffffff2;border-top:1px solid var(--line);backdrop-filter:blur(8px)}}.bar a{{flex:1;text-align:center;text-decoration:none;font-weight:600;border-radius:12px;padding:13px 8px}}.bar .c{{background:var(--ink);color:#fff}}.bar .w{{background:var(--green);color:#fff}}
+body{{padding-bottom:76px}}@media(min-width:800px){{.bar{{display:none}}body{{padding-bottom:0}}}}ol.steps li{{margin:6px 0}}
 details{{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:8px 0}}summary{{cursor:pointer;font-weight:600}}details p{{margin:8px 0 0;color:var(--muted)}}
 .more a{{color:var(--deep);text-decoration:none;margin-right:12px;white-space:nowrap}}footer{{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 30px}}
 </style></head><body>
-<header><a class="l" href="index.html">Kais <span>Junk Remove</span></a><a class="p" href="tel:{tel}">Call {phone}</a></header>
+<header><a class="l" href="index.html">Kais <span>Junk Remove</span></a><a class="p" href="tel:{tel}">📞 Call</a></header>
 <main>
 <span class="pill">Serving {city} and nearby</span>
 <h1>Junk Removal in {city}, FL</h1>
@@ -80,6 +82,7 @@ details{{background:#fff;border:1px solid var(--line);border-radius:12px;padding
 <p class="more">{others}</p>
 </main>
 <footer>&copy; 2026 Kais Junk Remove. Serving all of Florida.</footer>
+<div class="bar"><a class="c" href="tel:{tel}">📞 Call</a><a class="w" href="https://wa.me/{wa}?text=Hi%20Kais%20Junk%20Remove%2C%20I%27m%20in%20{cityq}%20and%20need%20a%20quote." target="_blank" rel="noopener">WhatsApp quote</a></div>
 <script src="attr.js"></script>
 </body></html>
 """
