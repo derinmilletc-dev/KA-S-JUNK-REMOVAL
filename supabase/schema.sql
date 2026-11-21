@@ -1192,5 +1192,13 @@ exception when others then
   raise notice 'Yedek kovasi ayari atlandi: %', sqlerrm;
 end $$;
 
+-- Edge Function'lar (service_role) tablolari okuyabilsin: e-posta bildirimleri, sabah ozeti, yedek
+do $$ begin
+  if exists (select 1 from pg_roles where rolname = 'service_role') then
+    grant usage on schema public to service_role;
+    grant select on all tables in schema public to service_role;
+  end if;
+end $$;
+
 -- Yonetici (e-postani degistir!)
 insert into admins(email) values (lower('BURAYA_KENDI_EPOSTAN@ornek.com')) on conflict do nothing;
