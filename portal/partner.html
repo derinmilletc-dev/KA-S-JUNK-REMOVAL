@@ -23,6 +23,8 @@
 .li{border-bottom:1px solid var(--line);padding:10px 0;font-size:14px}.li.un{font-weight:600}.li small{display:block;color:var(--muted);font-weight:400}
 .tpl{background:var(--paper);border-radius:12px;padding:12px;margin:10px 0;font-size:14px}.tpl p{margin:0 0 8px;white-space:pre-wrap}
 .quote{background:var(--ink);color:#fff;border-radius:18px;padding:20px 22px;margin:22px 0 0;position:relative;overflow:hidden}.quote:before{content:'\201C';position:absolute;top:-18px;left:12px;font:700 110px/1 'Bricolage Grotesque',serif;color:var(--orange);opacity:.35}.quote p{margin:0;position:relative;font:600 19px/1.35 'Bricolage Grotesque',sans-serif}.quote cite{display:block;margin-top:10px;color:#ffffffb3;font-size:13px;font-style:normal;position:relative}
+.cmp{background:linear-gradient(120deg,#F26B1D,#C2500F);color:#fff;border-radius:18px;padding:16px 18px;margin-bottom:12px;display:flex;gap:14px;align-items:center}.cmp b{font:700 17px 'Bricolage Grotesque',sans-serif;display:block}.cmp small{opacity:.9;display:block;margin-top:2px}.cmp .pc{flex:none;background:#ffffff26;border-radius:12px;padding:8px 12px;font:700 20px 'Bricolage Grotesque',sans-serif}
+.week{display:flex;gap:8px;margin:0 0 12px}.week div{flex:1;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px}.week b{display:block;font:700 20px 'Bricolage Grotesque',sans-serif}.week small{color:var(--muted);font-size:12px}
 .bar{height:10px;background:var(--paper);border-radius:99px;overflow:hidden;margin:10px 0 0}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),var(--deep));border-radius:99px}
 main{padding-bottom:90px}
 </style></head><body>
@@ -37,7 +39,9 @@ main{padding-bottom:90px}
 <div class="chips"><span class="chip">Kodun: <b id="code"></b></span><span class="chip">Komisyon: <b id="pct"></b></span></div>
 <div class="row" style="align-items:center;gap:18px;margin-top:14px"><div class="qr" id="qr"></div>
 <div class="grow"><div class="link" id="rl"></div><div class="row"><button class="btn wa sm" id="wa">WhatsApp ile paylas</button><button class="btn sm ghost" id="copy">Kopyala</button><button class="btn sm ghost" id="dl">QR indir</button></div></div></div></section>
+<div id="camp"></div>
 <div class="menu" id="menu"><button data-m="notes">Bildirimler <span class="bd" id="bd" hidden></span></button><button data-m="team">Ekibim</button><button data-m="pay">Odeme gecmisi</button><button data-m="share">Paylasim metinleri</button><button data-m="claim">Itiraz</button><button data-m="prof">Profil</button></div>
+<div class="week" id="week" hidden></div>
 <div class="card" id="lvl" hidden></div>
 <div class="grid" id="stats" style="margin-bottom:8px"></div>
 <h3 style="margin:18px 0 0">Islerin</h3>
@@ -61,6 +65,9 @@ function drawStats(){var now=new Date(),m=0,tot=0,pend=0,done=0;
  L.forEach(function(l){if(l.status==='done'){done++;var c=Number(l.commission||0);tot+=c;if(!l.commission_paid)pend+=c;if(inMonth(l.completed_at||l.created_at))m+=c}});
  OV.forEach(function(o){var c=Number(o.amount||0);tot+=c;if(!o.paid)pend+=c;if(inMonth(o.completed_at))m+=c});
  $('stats').innerHTML=[['Bu ay kazanc',K.money(m),''],['Toplam kazanc',K.money(tot),''],['Odeme bekleyen',K.money(pend),'hot'],['Tamamlanan is',done,'']].map(function(s){return '<div class="stat '+s[2]+'"><b>'+K.esc(s[1])+'</b><small>'+s[0]+'</small></div>'}).join('')}
+function drawWeek(){if(!WEEK){$('week').hidden=true;return}$('week').hidden=false;
+ $('week').innerHTML=[['Son 7 gun talep',WEEK.requests],['Tamamlanan',WEEK.done],['Kazancin',K.money(WEEK.earned)]].map(function(x){return '<div><b>'+K.esc(x[1])+'</b><small>'+x[0]+'</small></div>'}).join('')}
+function drawCamps(){$('camp').innerHTML=CAMPS.map(function(c){var live=new Date(c.starts_at)<=new Date();return '<div class="cmp">'+(Number(c.bonus_pct)>0?'<div class="pc">+%'+Number(c.bonus_pct)+'</div>':'')+'<div><b>'+K.esc(c.title)+'</b>'+(c.body?'<small>'+K.esc(c.body)+'</small>':'')+'<small>'+(live?'Bitis: '+K.dt(c.ends_at):'Baslangic: '+K.dt(c.starts_at))+'</small></div></div>'}).join('')}
 function drawLevel(){if(!LV){$('lvl').hidden=true;return}var n=LV.jobs_month,nx=LV.to_next_jobs;
  var pct=nx?Math.round(n/(n+nx)*100):100;
  $('lvl').hidden=false;$('lvl').innerHTML='<div class="row" style="justify-content:space-between"><b>Seviyen: %'+Number(LV.next_pct)+' komisyon</b><span class="muted">Son 30 gun: '+n+' is</span></div><div class="bar"><i style="width:'+pct+'%"></i></div><p class="muted" style="margin:8px 0 0">'+(nx?'%'+Number(LV.next_tier_pct)+' komisyon icin '+nx+' is daha tamamla. Seviye son 30 gundeki islerine gore belirlenir; is azalirsa seviye de duser.':'En ust seviyedesin. Seviye son 30 gundeki islerine gore belirlenir; is azalirsa seviye de duser.')+'</p>'}
@@ -70,11 +77,11 @@ function drawJobs(){var list=L.filter(function(l){return F==='all'||bucket(l)===
  $('empty').hidden=list.length>0;
  $('jobs').innerHTML=list.map(function(l){var b=bucket(l);
   return '<div class="job"><div class="top"><div class="av">'+K.esc((l.customer||'?').charAt(0))+'</div><div class="grow"><div class="sum">'+K.esc(l.summary||'Is')+'</div><div class="meta">'+K.dt(l.created_at)+' · #'+K.esc(l.ref)+'</div></div><span class="tag '+(b==='paid'?'paid':K.esc(l.status))+'">'+(b==='paid'?'Odendi':K.esc(K.STATUS[l.status]||l.status))+'</span></div>'
-  +'<div class="amts"><div><small>Is tutari</small><b>'+K.money(l.price)+'</b></div><div><small>Komisyonun</small><b>'+(l.commission!=null?K.money(l.commission):'-')+'</b></div></div>'
+  +'<div class="amts"><div><small>Is tutari</small><b>'+K.money(l.price)+'</b></div><div><small>Komisyonun'+(l.pct!=null?' (%'+Number(l.pct)+')':'')+'</small><b>'+(l.commission!=null?K.money(l.commission):'-')+'</b></div></div>'
   +'<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-t="'+K.esc(l.track_token)+'" data-n="'+K.esc(l.summary||'Is')+'">Musteri takip linki</button></div></div>'}).join('')}
 function drawAll(){drawStats();drawFilters();drawJobs()}
 
-var OV=[],TEAM=[],LV=null,NOTES=[];
+var OV=[],TEAM=[],LV=null,NOTES=[],WEEK=null,CAMPS=[];
 function drawBell(){var n=NOTES.filter(function(x){return !x.read}).length;$('bd').hidden=!n;$('bd').textContent=n}
 function loadNotes(){return K.sb.rpc('my_notes').then(function(r){NOTES=r.data||[];drawBell()})}
 var TPL=[['English',"Got stuff you need gone? Kais Junk Remove hauls it away anywhere in Florida. Send photos, get your quote on WhatsApp.\n{L}"],
@@ -102,7 +109,7 @@ function menuOpen(k){
   $('cf').onsubmit=function(e){e.preventDefault();K.sb.rpc('partner_create_claim',{p_name:$('cn').value.trim(),p_phone:$('cp').value.trim(),p_ref:$('cr').value.trim(),p_note:$('cx').value.trim()}).then(function(r){if(r.error){K.flash($('cm'),'Gonderilemedi: '+r.error.message,true);return}$('cf').reset();K.flash($('cm'),'Itirazin gonderildi. Sonucu bildirimlerde goreceksin.')})}})}
 }
 $('menu').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b)menuOpen(b.dataset.m)});
-function loadLeads(){return Promise.all([K.sb.rpc('my_leads'),K.sb.rpc('my_overrides'),K.sb.rpc('my_level'),K.sb.rpc('my_team')]).then(function(r){L=r[0].data||[];OV=r[1].data||[];LV=r[2].data&&r[2].data[0]||null;TEAM=r[3].data||[];drawAll();drawLevel()})}
+function loadLeads(){return Promise.all([K.sb.rpc('my_leads'),K.sb.rpc('my_overrides'),K.sb.rpc('my_level'),K.sb.rpc('my_team'),K.sb.rpc('my_week'),K.sb.rpc('active_campaigns')]).then(function(r){L=r[0].data||[];OV=r[1].data||[];LV=r[2].data&&r[2].data[0]||null;TEAM=r[3].data||[];WEEK=r[4].data&&r[4].data[0]||null;CAMPS=r[5].data||[];drawAll();drawLevel();drawWeek();drawCamps()})}
 $('filters').addEventListener('click',function(e){var b=e.target.closest('[data-f]');if(b){F=b.dataset.f;drawFilters();drawJobs()}});
 $('jobs').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(b)linkSheet(b.dataset.t,b.dataset.n)});
 $('newjob').onclick=function(){sheet('<h3>Yeni is olustur</h3><p class="muted">Musteriye ozel takip linki ve QR olusur.</p><form id="jf"><label>Musteri adi</label><input id="jn" required><label>Adres</label><input id="ja" required><label>Ne alinacak</label><input id="js" required placeholder="Kanepe, buzdolabi..."><div id="jm" class="msg" hidden></div><p class="row"><button class="btn grow">Olustur</button><button type="button" class="btn ghost" data-x>Vazgec</button></p></form>');

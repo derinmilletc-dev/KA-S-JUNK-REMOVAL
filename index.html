@@ -820,6 +820,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     </div>
 
     <div class="card" id="quote">
+      <input type="text" id="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       <div class="dealnote" id="dealNote" hidden><b>10% off unlocked.</b> It is added to your request.</div>
       <div class="stepno" id="stepNo" aria-live="polite"></div>
       <ol class="prog" id="prog" aria-label="Progress">
@@ -1089,14 +1090,17 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     var sv = JSON.parse(localStorage.getItem('kj_ref') || 'null');
     if (sv && Date.now() - sv.t < 30 * 864e5) PARTNER = sv.c;
   } catch(e){}
-  function sendLead(ref, tok, name, addr, summary, msg){
+  var T0 = Date.now();
+  function sendLead(ref, tok, name, addr, summary, msg, when){
     var K = window.KJ || {};
     if (!K.SUPABASE_URL || !K.SUPABASE_ANON_KEY) return;
+    var hp = document.getElementById('hp');
+    if ((hp && hp.value) || Date.now() - T0 < 8000) return; // bot belirtisi: kayit gonderilmez (WhatsApp yine calisir)
     try {
       fetch(K.SUPABASE_URL + '/rest/v1/rpc/submit_lead', {
         method: 'POST', keepalive: true,
         headers: { 'Content-Type': 'application/json', apikey: K.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + K.SUPABASE_ANON_KEY },
-        body: JSON.stringify({ p_ref: ref, p_code: PARTNER, p_name: name, p_address: addr, p_summary: summary, p_message: msg, p_token: tok, p_rc: RC })
+        body: JSON.stringify({ p_ref: ref, p_code: PARTNER, p_name: name, p_address: addr, p_summary: summary, p_message: msg, p_token: tok, p_rc: RC, p_when: when || '' })
       }).catch(function(){});
     } catch(e){}
   }
@@ -1492,7 +1496,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     if (window.KJ && window.KJ.SUPABASE_URL) lines.push('🔎 Track: ' + trackUrl);
     lines.push('', '📷 ' + photos.length + ' photo' + (photos.length === 1 ? '' : 's') + ' coming right after this message (#' + ref + ')');
     message = lines.join('\n');
-    if (!keep) sendLead(ref, curTok, $('name').value.trim(), addr, (list.map(function(c){ return c + ' x' + counts[c]; }).join(', ') || size || 'See photos'), message);
+    if (!keep) sendLead(ref, curTok, $('name').value.trim(), addr, (list.map(function(c){ return c + ' x' + counts[c]; }).join(', ') || size || 'See photos'), message, whenText(false));
 
     var rows = [
       ['Name', $('name').value.trim(), 3],

@@ -32,6 +32,7 @@ var K=window.KJ||{},tok=(new URLSearchParams(location.search).get('t')||'').toLo
 var box=document.getElementById('box');
 var STEPS=[['new','Request received','We have your details and photos.'],['quoted','Quote ready','Your price is below.'],['booked','Pickup scheduled','We will see you on the day.'],['done','Completed','Space back. Thank you!']];
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function pick(s){if(!s)return '';try{var d=new Date(String(s).replace(' ','T').replace(/Z$/,'')+'Z');return d.toLocaleString('en-US',{timeZone:'UTC',weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}catch(e){return ''}}
 function fmt(d){return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
 function share(l){var el=document.getElementById('share');
  if(!l.share_code||!(l.closed||l.status==='booked'||l.status==='done')){el.innerHTML='';return}
@@ -46,7 +47,7 @@ function draw(l){
  if(l.status==='lost'){box.innerHTML='<h1>Request closed</h1><p class="muted">#'+esc(l.ref)+'. This request is closed. Message us if you would like to start again.</p>';return}
  var at=STEPS.findIndex(function(s){return s[0]===l.status});
  box.innerHTML='<h1>'+(l.first_name?'Hi '+esc(l.first_name)+'!':'Your request')+'</h1><p class="muted">Reference #'+esc(l.ref)+' · updated '+fmt(l.updated_at)+'</p>'
- +(l.summary?'<p class="muted">'+esc(l.summary)+'</p>':'')
+ +(l.summary?'<p class="muted">'+esc(l.summary)+'</p>':'')+(l.scheduled_at&&l.status!=='done'?'<div class="price" style="margin-top:8px"><span class="muted">Pickup</span><br><b style="font-size:20px">'+esc(pick(l.scheduled_at))+'</b><br><span class="muted">Florida time</span></div>':'')
  +(l.price!=null?'<div class="price"><span class="muted">Your quote</span><br><b>$'+Number(l.price).toFixed(2).replace(/\.00$/,'')+'</b></div>':'')
  +(l.confirmed?'<p class="muted" style="margin-top:12px">✓ You confirmed the service. Waiting for payment confirmation from us.</p>':'')+(l.can_confirm?'<button class="btn ok" id="cf" type="button">Confirm the service was completed</button>':'')+'<ol>'+STEPS.map(function(s,i){var c=i<at||(i===at&&l.status==='done')?'done':i===at?'now':'';return '<li class="'+c+'"><i>'+(c==='done'?'✓':i+1)+'</i><span>'+s[1]+'<small>'+(c?s[2]:'')+'</small></span></li>'}).join('')+'</ol>';
 }

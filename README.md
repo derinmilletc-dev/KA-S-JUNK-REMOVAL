@@ -26,3 +26,18 @@ Komisyon varsayılanı %20 (ortak başına admin panelinden değişir). Ortak pa
 - **2 kademe:** Ortak `join.html?sp=KOD` ile ortak davet eder. Başvuru admin panelinde "Başvurular" sekmesine düşer, onaylanınca davet edenin ekibine bağlanır. Davet eden, ekibin tamamlanan işlerinden "üst pay" alır (varsayılan %5, ortak başına değişir).
 - **Seviyeler:** Ortağın son 30 gündeki iş sayısına göre yüzde artar (varsayılan 5 iş %25, 10 iş %30). İş azalınca seviye de düşer. Admin > Ortaklar > Program ayarları'ndan değişir. Ortağın kendi yüzdesi daha yüksekse o kalır.
 - **Müşteri tavsiyesi:** İş tamamlanınca müşterinin takip sayfasında paylaşım linki çıkar (`?rc=KOD`). Gelen arkadaşın işi tamamlanınca müşteriye kredi ($20 varsayılan, ayarlardan değişir). Kredi ödemesi/indirimi şimdilik elle yapılır.
+
+### Spam koruması, kayıt defteri, kampanya, takvim, rapor
+- **Spam:** Sitede gizli tuzak alanı + 8 saniyeden hızlı doldurma = kayıt gönderilmez (WhatsApp yine çalışır). Sunucuda aynı IP'den saatte en fazla 6, günde 20 talep; ortak başvurusu saatte 3; ortak panelinden saatte 30 iş. Kısa ad/adres reddedilir.
+- **Tekrar kayıt:** Aynı adres 7 gün içinde (açık iş varken) tekrar gelirse "Tekrar kayıt" olarak işaretlenir, ortak payı yalnızca ilk kayda gider. Ortak aynı adresle ikinci iş açamaz.
+- **Kayıt defteri (admin > Kayıt):** İş durumu/tutar/ödeme, ortak yüzdeleri, seviyeler, ayarlar, kampanyalar, itirazlar ve başvurulardaki değişiklikler (kim, ne zaman, eski → yeni) otomatik tutulur. Silinemez/değiştirilemez.
+- **Kampanya (admin > Kampanyalar):** Ortak panelinde duyuru + bildirim. Ek komisyon girersen tarih aralığında TAMAMLANAN işlere eklenir (Florida saatiyle).
+- **Takvim (admin > Takvim):** İşlerde "Randevu (Florida)" alanı; randevu verince durum "Randevu" olur ve müşterinin takip sayfasında görünür.
+- **Rapor (admin > Rapor):** Ay seçimi, ciro, ortak komisyonu, üst pay, müşteri kredisi, sana kalan, operasyon maliyeti (kendin girersin, tarayıcıda saklanır), ortak bazında tablo, son 6 ay, CSV.
+- **Haftalık özet (ortak paneli):** Son 7 gün talep/tamamlanan/kazanç kartı hazır.
+
+#### Haftalık e-posta (isteğe bağlı, ayrı kurulum)
+`supabase/functions/weekly-digest` hazır ama kendiliğinden çalışmaz. Gerekenler: Resend hesabı + API anahtarı, doğrulanmış gönderici adresi.
+1. `supabase functions deploy weekly-digest --no-verify-jwt`
+2. `supabase secrets set RESEND_API_KEY=... FROM_EMAIL="Kais Junk Remove <info@alanadin.com>" CRON_SECRET=uzun-rastgele PANEL_URL=https://ADRES/portal/partner.html`
+3. Supabase > Integrations > Cron: haftada bir (ör. Pazartesi 14:00 UTC) bu fonksiyonu `x-cron-secret: <CRON_SECRET>` başlığıyla çağır.
