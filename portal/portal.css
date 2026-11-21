@@ -55,3 +55,19 @@ body.noscroll{overflow:hidden}
 @media(min-width:701px){.gnav button{gap:8px}}
 .tl .slim{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;opacity:.8}.tl .slim h3{margin:0;font-size:15px;font-weight:600}
 @media(max-width:700px){.tl{grid-template-columns:1fr;gap:10px}}
+
+/* modern giris ekrani (admin / ortak / ekip) */
+.login{max-width:400px;margin:0 auto;position:relative;top:10vh;padding:34px 28px 28px;text-align:center;border:0;border-radius:28px;background:#fff;box-shadow:0 30px 70px -30px #1F2421aa,0 0 0 1px #1F24210f}
+.login::before{content:"";display:block;width:64px;height:64px;margin:0 auto 18px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 rx=%2244%22 fill=%22%231F2421%22/%3E%3Cg transform=%22translate%28-9%2C0%29%22%3E%3Crect x=%2252%22 y=%2248%22 width=%2228%22 height=%22104%22 fill=%22%23F6F3EE%22/%3E%3Cpolygon points=%2280%2C112 126%2C48 160%2C48 114%2C112%22 fill=%22%23F6F3EE%22/%3E%3Cpolygon points=%2292%2C96 126%2C96 166%2C152 132%2C152%22 fill=%22%23F26B1D%22/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 10px 14px #1F242155)}
+.login .lbrand{display:none}
+.login h2{margin:0 0 6px;font-size:26px;letter-spacing:-.02em}
+.login>.muted,.login p.muted{font-size:14px;line-height:1.45}
+.login form{text-align:left;margin-top:18px}
+.login label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:14px 0 6px;letter-spacing:.02em}
+.login input{width:100%;box-sizing:border-box;padding:14px 16px;font-size:16px;border-radius:14px;background:#F6F3EE;border:1.5px solid transparent;transition:.15s}
+.login input:focus{outline:0;background:#fff;border-color:var(--orange);box-shadow:0 0 0 4px #F26B1D22}
+.login .btn{padding:15px;font-size:16px;font-weight:700;border-radius:14px;box-shadow:0 14px 24px -12px #C2500Fcc}
+.login form p{margin:18px 0 10px}
+.login form p.muted{text-align:center;margin:6px 0 0}
+body:has(#loginBox:not([hidden])){background:radial-gradient(600px 380px at 85% -5%,#F26B1D26,transparent 70%),radial-gradient(500px 340px at 0 100%,#1F242114,transparent 70%),#F6F3EE}
+body:has(#loginBox:not([hidden])) #hsearch,body:has(#loginBox:not([hidden])) #hrefresh,body:has(#loginBox:not([hidden])) .hclock{display:none}
