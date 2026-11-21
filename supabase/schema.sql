@@ -1192,6 +1192,14 @@ exception when others then
   raise notice 'Yedek kovasi ayari atlandi: %', sqlerrm;
 end $$;
 
+-- Giris yapmis kullanicilar (admin, ortak, ekip) tablolari okuyabilsin. Satir guvenligi (RLS) hangi satiri gorecegini belirler.
+do $$ begin
+  if exists (select 1 from pg_roles where rolname='authenticated') then
+    grant usage on schema public to anon, authenticated;
+    grant select, insert, update, delete on all tables in schema public to authenticated;
+    grant usage, select on all sequences in schema public to authenticated;
+  end if;
+end $$;
 -- Edge Function'lar (service_role) tablolari okuyabilsin: e-posta bildirimleri, sabah ozeti, yedek
 do $$ begin
   if exists (select 1 from pg_roles where rolname = 'service_role') then
