@@ -15,12 +15,14 @@ label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
 input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;font:inherit}input:focus{outline:2px solid var(--orange);border-color:var(--orange)}
 button{width:100%;margin-top:16px;background:var(--orange);color:#fff;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:600;cursor:pointer}button:hover{background:var(--deep)}button:disabled{opacity:.6}
 .msg{padding:12px;border-radius:10px;margin-top:14px;font-size:14px}.ok{background:#DDF3E6}.err{background:#F6DAD7}
+blockquote.q{margin:0 0 18px;background:var(--ink);color:#fff;border-radius:18px;padding:22px 22px 18px;position:relative;overflow:hidden}blockquote.q:before{content:'\201C';position:absolute;top:-20px;left:12px;font:700 120px/1 'Bricolage Grotesque',serif;color:var(--orange);opacity:.35}blockquote.q p{margin:0;position:relative;font:600 21px/1.3 'Bricolage Grotesque',sans-serif}blockquote.q cite{display:block;margin-top:10px;color:#ffffffb3;font-size:13px;font-style:normal;position:relative}
 small{color:var(--muted);display:block;margin-top:14px;font-size:13px}
 </style></head><body>
 <header>Kais <span>Junk Remove</span></header>
 <main>
 <h1>Refer a customer.<br>Earn on every completed job.</h1>
 <p class="lead">Free to join. No fees, no inventory. You share your link; we do the work. You earn a commission on each real job that is completed and paid.</p>
+<blockquote class="q"><p>You will be paid in direct proportion to the value you create.</p><cite>T. Harv Eker</cite></blockquote>
 <div class="steps">
 <div class="step"><i>1</i><span><b>Apply</b><br>Fill in the form below. We review and approve you.</span></div>
 <div class="step"><i>2</i><span><b>Share your link or QR</b><br>Friends, neighbors, realtors, property managers.</span></div>
@@ -31,7 +33,7 @@ small{color:var(--muted);display:block;margin-top:14px;font-size:13px}
 <label for="e">Email</label><input id="e" type="email" autocomplete="email" required>
 <label for="p">Phone (optional)</label><input id="p" type="tel" autocomplete="tel">
 <button id="b">Apply to join</button><div id="m" class="msg" hidden></div>
-<small>Earnings depend on real customers and completed jobs and are not guaranteed. Commission is paid only on jobs that are completed and paid by the customer.</small>
+<small>Commission is paid on jobs that are completed and paid by the customer.</small>
 </form></main>
 <script src="portal/config.js"></script>
 <script>

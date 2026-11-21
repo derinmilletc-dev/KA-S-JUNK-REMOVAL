@@ -78,11 +78,11 @@ insert into settings values ('customer_credit', '20') on conflict do nothing;
 alter table tiers enable row level security;
 alter table settings enable row level security;
 
--- Her tamamlanan is icin: komisyon yuzdesi (ayin kacinci isi ise ona gore seviye) ve ust ortak payi
+-- Her tamamlanan is icin: komisyon yuzdesi (son 30 gundeki is sayisina gore seviye; performans dusunce seviye de duser) ve ust ortak payi
 create or replace view lead_calc as
 with d as (
   select l.id, l.partner_id, l.price,
-         row_number() over (partition by l.partner_id, date_trunc('month', l.completed_at) order by l.completed_at, l.id) as pos
+         count(*) over (partition by l.partner_id order by l.completed_at range between interval '30 days' preceding and current row) as pos
   from leads l where l.status = 'done' and l.partner_id is not null and l.completed_at is not null
 )
 select d.id as lead_id, d.partner_id, d.pos,
@@ -337,7 +337,7 @@ create or replace function my_level()
 returns table(jobs_month int, next_pct numeric, to_next_jobs int, next_tier_pct numeric)
 language sql stable security definer set search_path = public as $$
   with me as (select id, commission_pct from partners where lower(email) = lower(coalesce(auth.jwt() ->> 'email',''))),
-  j as (select count(*)::int as n from leads l, me where l.partner_id = me.id and l.status = 'done' and date_trunc('month', l.completed_at) = date_trunc('month', now())),
+  j as (select count(*)::int as n from leads l, me where l.partner_id = me.id and l.status = 'done' and l.completed_at > now() - interval '30 days'),
   cur as (select j.n, greatest(me.commission_pct, coalesce((select max(t.pct) from tiers t where t.min_jobs <= j.n + 1), 0)) as pct from j, me)
   select cur.n, cur.pct,
          (select t.min_jobs - cur.n from tiers t where t.min_jobs > cur.n + 1 and t.pct > cur.pct order by t.min_jobs limit 1),
