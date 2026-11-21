@@ -1,0 +1,52 @@
+<!doctype html><html lang="en"><head><title>Kais Crew</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="portal.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script><script src="core.js"></script>
+<style>
+main{max-width:560px;padding-bottom:40px}
+.j{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.j h3{font-size:20px}.j .tm{color:var(--deep);font-weight:700}
+.j .adr{display:block;margin:8px 0;font-weight:600;color:var(--ink)}
+.j .nt{background:var(--paper);border-radius:10px;padding:8px 10px;margin:8px 0;font-size:14px}
+.st{display:flex;gap:8px;margin:12px 0}.st button{flex:1;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 6px;font:inherit;font-weight:600;cursor:pointer}
+.st button.on{background:var(--orange);border-color:var(--orange);color:#fff}.st button.fin.on{background:var(--green);border-color:var(--green)}
+.ph{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.ph label{margin:0}.ph .up{display:inline-block;border:1px dashed var(--orange);color:var(--deep);border-radius:10px;padding:9px 12px;font-weight:600;cursor:pointer;font-size:14px}
+.ph input{display:none}
+</style></head><body>
+<header><b>Kais <span>Crew</span></b><button id="logout">Log out</button></header>
+<main>
+<div id="loginBox" class="card login" hidden><h2>Crew login</h2><p class="muted">Enter your email. We send you a login link.</p>
+<form id="lform"><label for="lemail">Email</label><input id="lemail" type="email" required autocomplete="email"><p><button class="btn" id="lbtn" style="width:100%">Send login link</button></p></form><div id="lmsg" class="msg" hidden></div></div>
+<div id="app" hidden>
+<div id="none" class="card" hidden><h3>No crew account</h3><p class="muted">This email is not linked to a crew. Ask Kais.</p></div>
+<div id="list"></div>
+<div id="msg" class="msg" hidden></div>
+</div></main>
+<script>
+(function(){
+var K=KJC,sb=K.sb,esc=K.esc,PH={};
+function when(s){if(!s)return 'Time TBD';var d=new Date(String(s).replace(' ','T')+'Z');return d.toLocaleString('en-US',{timeZone:'UTC',weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
+function map(a){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(a)}
+function note(t,bad){var m=K.$('msg');K.flash(m,t,bad);setTimeout(function(){m.hidden=true},4000)}
+function resize(file){return new Promise(function(ok,no){var im=new Image(),u=URL.createObjectURL(file);im.onload=function(){var m=1280,r=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*r);c.height=Math.round(im.height*r);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?ok(b):no(new Error('image'))},'image/jpeg',.82)};im.onerror=function(){no(new Error('Not an image'))};im.src=u})}
+function load(){sb.rpc('crew_jobs').then(function(r){
+ if(r.error){K.$('none').hidden=false;return}
+ var L=r.data||[],el=K.$('list');
+ if(!L.length){el.innerHTML='<div class="card"><p class="muted">No jobs assigned yet. Check back later.</p></div>';return}
+ el.innerHTML=L.map(function(j){var cs=j.crew_status;
+  return '<div class="j" data-id="'+j.id+'"><div class="tm">'+esc(when(j.scheduled_at))+'</div><h3>'+esc(j.customer_name||'Customer')+' <small class="muted">#'+esc(j.ref)+'</small></h3>'
+  +'<a class="adr" target="_blank" rel="noopener" href="'+map(j.address||'')+'">📍 '+esc(j.address||'')+'</a>'
+  +(j.summary?'<div>'+esc(j.summary)+'</div>':'')+(j.access?'<div class="nt"><b>Access:</b> '+esc(j.access)+'</div>':'')+(j.note?'<div class="nt"><b>Note:</b> '+esc(j.note)+'</div>':'')
+  +'<div class="st"><button data-s="enroute" class="'+(cs==='enroute'?'on':'')+'">🚚 On my way</button><button data-s="working" class="'+(cs==='working'?'on':'')+'">🛠 Working</button><button data-s="finished" class="fin '+(cs==='finished'?'on':'')+'">✅ Done</button></div>'
+  +'<div class="ph"><label class="up">📷 Before<input type="file" accept="image/*" capture="environment" multiple data-k="before"></label><label class="up">📷 After<input type="file" accept="image/*" capture="environment" multiple data-k="after"></label></div>'
+  +'<div class="muted">Photos: <b>'+(j.photos||0)+'</b> · Done needs at least one After photo</div></div>'}).join('')}).catch(function(){})}
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.st button');if(!b)return;var id=b.closest('.j').dataset.id;b.disabled=true;
+ sb.rpc('crew_set_status',{p_lead:id,p_status:b.dataset.s}).then(function(r){if(r.error)note(/after photo/.test(r.error.message)?'Add an After photo first.':r.error.message,true);else note('Saved');load()})});
+document.addEventListener('change',function(e){var f=e.target;if(!f.matches||!f.matches('.ph input'))return;var id=f.closest('.j').dataset.id,kind=f.dataset.k,files=Array.prototype.slice.call(f.files||[]);if(!files.length)return;
+ note('Uploading '+files.length+'…');
+ files.reduce(function(p,file,i){return p.then(function(){return resize(file).then(function(blob){var path=id+'/'+Date.now()+'-'+i+'.jpg';return sb.storage.from('job-photos').upload(path,blob,{contentType:'image/jpeg'}).then(function(u){if(u.error)throw u.error;return sb.rpc('crew_add_photo',{p_lead:id,p_path:path,p_kind:kind})}).then(function(r){if(r.error)throw r.error})})})},Promise.resolve())
+ .then(function(){note('Photos saved');load()}).catch(function(er){note('Upload failed: '+(er.message||er),true)})});
+K.start(function(){sb.rpc('crew_me').then(function(r){if(!r.data){K.$('none').hidden=false;return}load();setInterval(function(){if(!document.hidden)load()},60000)})});
+})();
+</script></body></html>

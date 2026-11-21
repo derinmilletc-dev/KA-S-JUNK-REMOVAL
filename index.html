@@ -47,6 +47,14 @@ h1,h2,h3,p,ul,ol{margin:0}
 button{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--orange);outline-offset:3px}
 .wrap{width:100%;max-width:1120px;margin:0 auto;padding:0 20px}
+.work{padding:56px 0}.work[hidden]{display:none}.ba-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:22px}
+.ba{position:relative;border-radius:18px;overflow:hidden;background:#000;aspect-ratio:4/3;touch-action:pan-y;user-select:none}.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.ba .aft{clip-path:inset(0 0 0 50%)}.ba input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+.ba .bar{position:absolute;top:0;bottom:0;left:50%;width:3px;margin-left:-1.5px;background:#fff;pointer-events:none;box-shadow:0 0 0 1px #0003}.ba .bar:after{content:"";position:absolute;top:50%;left:50%;width:34px;height:34px;margin:-17px;border-radius:50%;background:var(--orange);border:3px solid #fff}
+.ba .tg{position:absolute;top:10px;padding:3px 10px;border-radius:99px;background:#1F2421cc;color:#fff;font-size:12px;font-weight:600;pointer-events:none}.ba .tg.l{left:10px}.ba .tg.r{right:10px}
+.ba-cap{font-size:14px;color:var(--muted);margin:8px 2px 0}
+.rv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:26px}.rv{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}.rv .st{color:#F6B73C;letter-spacing:2px;font-size:18px}.rv p{margin:8px 0 10px}.rv small{color:var(--muted)}
+
 [hidden]{display:none !important}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 .band{padding:64px 0}
@@ -1023,6 +1031,15 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
   </div>
 </section>
 
+<section class="work" id="workSec" aria-labelledby="workh" hidden>
+  <div class="wrap">
+    <span class="kicker" id="workk">Recent jobs</span>
+    <h2 class="h2" id="workh">Before and after</h2>
+    <div class="ba-grid" id="baGrid"></div>
+    <div class="rv-grid" id="rvGrid"></div>
+  </div>
+</section>
+
 <section class="band" id="faqSec" aria-labelledby="faqh">
   <div class="wrap fgrid">
     <div>
@@ -1071,6 +1088,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
         <a href="business.html" style="color:inherit;font:inherit;text-decoration:none;opacity:.85">For realtors &amp; property managers</a>
       </nav>
     </div>
+    <p class="fcities" style="margin:0 0 14px;font-size:13px;opacity:.8;line-height:2">Junk removal in: <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-orlando.html">Orlando</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-tampa.html">Tampa</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-miami.html">Miami</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-jacksonville.html">Jacksonville</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-fort-lauderdale.html">Fort Lauderdale</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-st-petersburg.html">St. Petersburg</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-tallahassee.html">Tallahassee</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-kissimmee.html">Kissimmee</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-sarasota.html">Sarasota</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-fort-myers.html">Fort Myers</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-gainesville.html">Gainesville</a> <a style="color:inherit;margin-right:10px;white-space:nowrap" href="junk-removal-pensacola.html">Pensacola</a></p>
     <div class="fbar">
       <span class="copy">&copy; 2026 Kais Junk Remove. All rights reserved.</span>
       <span class="fpill"><i></i>Open 24/7</span>
@@ -1079,6 +1097,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
 </footer>
 
 <script src="portal/config.js"></script>
+<script src="attr.js"></script>
 <script>
 (function(){
   var NUMBER = '14074462534', MAX = 10;
@@ -1103,7 +1122,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
       fetch(K.SUPABASE_URL + '/rest/v1/rpc/submit_lead', {
         method: 'POST', keepalive: true,
         headers: { 'Content-Type': 'application/json', apikey: K.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + K.SUPABASE_ANON_KEY },
-        body: JSON.stringify({ p_ref: ref, p_code: PARTNER, p_name: name, p_address: addr, p_summary: summary, p_message: msg, p_token: tok, p_rc: RC, p_when: when || '' })
+        body: JSON.stringify({ p_ref: ref, p_code: PARTNER, p_name: name, p_address: addr, p_summary: summary, p_message: msg, p_token: tok, p_rc: RC, p_when: when || '', p_source: (window.kjSource ? window.kjSource().s : ''), p_campaign: (window.kjSource ? window.kjSource().c : '') })
       }).catch(function(){});
     } catch(e){}
   }
@@ -1353,6 +1372,40 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     });
   }
   renderItems();
+
+  /* before/after gallery and reviews (only if the owner added some) */
+  (function(){
+    var K = window.KJ || {};
+    if (!K.SUPABASE_URL || !K.SUPABASE_ANON_KEY) return;
+    function safe(u){ return /^https:\/\//.test(u || '') ? u : ''; }
+    function mk(tag, cls, txt){ var n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; }
+    try {
+      fetch(K.SUPABASE_URL + '/rest/v1/rpc/public_content', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: K.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + K.SUPABASE_ANON_KEY }, body: '{}' })
+        .then(function(r){ return r.json(); }).then(function(c){
+          var g = (c && c.gallery || []).filter(function(x){ return safe(x.before) && safe(x.after); }), rv = (c && c.reviews) || [];
+          if (!g.length && !rv.length) return;
+          var gridEl = document.getElementById('baGrid'), rvEl = document.getElementById('rvGrid');
+          g.slice(0, 6).forEach(function(x){
+            var w = mk('div'), box = mk('div', 'ba');
+            var b = mk('img'); b.src = safe(x.before); b.alt = 'Before'; b.loading = 'lazy';
+            var a = mk('img', 'aft'); a.src = safe(x.after); a.alt = 'After'; a.loading = 'lazy';
+            var bar = mk('div', 'bar'), tl = mk('span', 'tg l', 'Before'), tr = mk('span', 'tg r', 'After');
+            var rg = mk('input'); rg.type = 'range'; rg.min = 0; rg.max = 100; rg.value = 50; rg.setAttribute('aria-label', 'Compare before and after');
+            rg.addEventListener('input', function(){ a.style.clipPath = 'inset(0 0 0 ' + rg.value + '%)'; bar.style.left = rg.value + '%'; });
+            box.appendChild(b); box.appendChild(a); box.appendChild(bar); box.appendChild(tl); box.appendChild(tr); box.appendChild(rg);
+            w.appendChild(box);
+            var cap = [x.title, x.city].filter(Boolean).join(' · '); if (cap) w.appendChild(mk('p', 'ba-cap', cap));
+            gridEl.appendChild(w);
+          });
+          rv.slice(0, 6).forEach(function(x){
+            var d = mk('div', 'rv'); d.appendChild(mk('div', 'st', '★★★★★'.slice(0, Math.max(1, Math.min(5, x.stars || 5)))));
+            d.appendChild(mk('p', '', '“' + x.body + '”')); d.appendChild(mk('small', '', [x.name, x.city].filter(Boolean).join(' · '))); rvEl.appendChild(d);
+          });
+          document.getElementById('workh').textContent = g.length ? 'Before and after' : 'What customers say';
+          document.getElementById('workSec').hidden = false;
+        }).catch(function(){});
+    } catch(e){}
+  })();
 
   /* price estimate (only when the owner turned it on and set prices) */
   var PRICING = null, lastEst = '';

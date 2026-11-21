@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Receipt | Kais Junk Remove</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1F2421;--paper:#F6F3EE;--line:#E2DCD0;--muted:#565D58;--orange:#F26B1D}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 'DM Sans',system-ui,sans-serif}
+.sheet{max-width:640px;margin:20px auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:32px}
+.top{display:flex;justify-content:space-between;gap:16px;border-bottom:3px solid var(--orange);padding-bottom:14px}
+.logo{font:800 24px 'Bricolage Grotesque',sans-serif}.logo span{color:var(--orange)}h1{font:700 28px 'Bricolage Grotesque',sans-serif;margin:0;text-align:right}
+.muted{color:var(--muted);font-size:14px}table{width:100%;border-collapse:collapse;margin-top:20px}td{padding:10px 0;border-bottom:1px solid var(--line)}td:last-child{text-align:right}
+.tot td{font:700 20px 'Bricolage Grotesque',sans-serif;border:0;padding-top:16px}.paid{display:inline-block;border:2px solid #1E8E4E;color:#1E8E4E;font-weight:700;border-radius:8px;padding:2px 12px;transform:rotate(-4deg);margin-top:14px}
+.acts{max-width:640px;margin:0 auto 30px;display:flex;gap:10px;justify-content:center}.acts button{background:var(--orange);color:#fff;border:0;border-radius:12px;padding:13px 22px;font:inherit;font-weight:600;cursor:pointer}
+@media print{body{background:#fff}.sheet{border:0;margin:0}.acts{display:none}}
+</style></head><body>
+<div class="sheet" id="r"><p class="muted" id="st">Loading…</p></div>
+<div class="acts" id="acts" hidden><button onclick="window.print()">Print or save as PDF</button></div>
+<script src="portal/config.js"></script>
+<script>
+(function(){
+var K=window.KJ||{},tok=(new URLSearchParams(location.search).get('t')||'').toLowerCase().replace(/[^a-f0-9]/g,'');
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function m(n){return '$'+Number(n).toFixed(2)}
+function d(s){return new Date(s).toLocaleDateString('en-US',{timeZone:'America/New_York',month:'long',day:'numeric',year:'numeric'})}
+var st=document.getElementById('st');
+if(!K.SUPABASE_URL||tok.length<24){st.textContent='This receipt link is not valid.';return}
+fetch(K.SUPABASE_URL+'/rest/v1/rpc/receipt_lead',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_token:tok})})
+.then(function(r){return r.json()}).then(function(a){var l=a&&a[0];if(!l){st.textContent='Receipt not available yet. It appears once the job is paid.';return}
+ var dep=l.deposit?Number(l.deposit):0,total=Number(l.price);
+ document.getElementById('r').innerHTML='<div class="top"><div><div class="logo">Kais <span>Junk Remove</span></div><div class="muted">Florida · +1 (407) 446-2534</div></div><div><h1>RECEIPT</h1><div class="muted" style="text-align:right">#'+esc(l.ref)+'<br>'+esc(d(l.paid_at))+'</div></div></div>'
+ +'<p><b>Billed to</b><br>'+esc(l.customer_name||'Customer')+'<br><span class="muted">'+esc(l.address||'')+'</span></p>'
+ +'<table><tr><td>'+esc(l.summary||'Junk removal service')+'<br><span class="muted">Completed '+esc(d(l.completed_at))+'</span></td><td>'+m(total)+'</td></tr>'
+ +(dep>0?'<tr><td>Deposit received</td><td>included</td></tr>':'')
+ +'<tr class="tot"><td>Total paid</td><td>'+m(total)+'</td></tr></table><span class="paid">PAID</span><p class="muted" style="margin-top:22px">Thank you for choosing Kais Junk Remove.</p>';
+ document.getElementById('acts').hidden=false}).catch(function(){st.textContent='Could not load the receipt.'});
+})();
+</script></body></html>

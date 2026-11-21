@@ -83,6 +83,26 @@ alter table leads add column if not exists repeat_hint uuid references leads(id)
 alter table leads add column if not exists review_clicked_at timestamptz;
 create index if not exists leads_name_idx on leads(name_key);
 update leads set name_key = lower(regexp_replace(coalesce(customer_name,''),'[^a-zA-Z0-9]','','g')) where name_key is null;
+-- Kaynak takibi, ekip, depozito
+alter table leads add column if not exists source text;
+alter table leads add column if not exists campaign text;
+alter table leads add column if not exists crew_status text check (crew_status in ('enroute','working','finished'));
+alter table leads add column if not exists crew_started_at timestamptz;
+alter table leads add column if not exists crew_finished_at timestamptz;
+alter table leads add column if not exists crew_note text;
+alter table leads add column if not exists deposit_amount numeric(10,2);
+alter table leads add column if not exists deposit_paid_at timestamptz;
+create table if not exists crews (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null unique,
+  phone text,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+alter table crews enable row level security;
+alter table leads add column if not exists crew_id uuid references crews(id) on delete set null;
+create index if not exists leads_crew_idx on leads(crew_id, scheduled_at);
 update leads set addr_key = lower(regexp_replace(coalesce(address,''),'[^a-zA-Z0-9]','','g')) where addr_key is null;
 
 create table if not exists rate_limits (key text not null, at timestamptz not null default now());
@@ -119,7 +139,7 @@ create table if not exists tiers (min_jobs int primary key check (min_jobs > 0),
 insert into tiers values (5, 25), (10, 30) on conflict do nothing;
 create table if not exists settings (key text primary key, value text not null);
 insert into settings values ('customer_credit', '20') on conflict do nothing;
-insert into settings values ('repeat_pct', '10'), ('range_pct', '20'), ('min_charge', '0'), ('pricing_on', 'false'), ('review_url', '') on conflict do nothing;
+insert into settings values ('deposit_note', ''), ('repeat_pct', '10'), ('range_pct', '20'), ('min_charge', '0'), ('pricing_on', 'false'), ('review_url', '') on conflict do nothing;
 create table if not exists price_list (key text primary key, price numeric(10,2) not null check (price >= 0));
 alter table price_list enable row level security;
 alter table tiers enable row level security;
@@ -198,7 +218,8 @@ create policy partner_self on partners for select
 drop function if exists submit_lead(text,text,text,text,text,text);
 drop function if exists submit_lead(text,text,text,text,text,text,text);
 drop function if exists submit_lead(text,text,text,text,text,text,text,text);
-create or replace function submit_lead(p_ref text, p_code text, p_name text, p_address text, p_summary text, p_message text, p_token text, p_rc text default null, p_when text default null)
+drop function if exists submit_lead(text,text,text,text,text,text,text,text,text);
+create or replace function submit_lead(p_ref text, p_code text, p_name text, p_address text, p_summary text, p_message text, p_token text, p_rc text default null, p_when text default null, p_source text default null, p_campaign text default null)
 returns void language plpgsql security definer set search_path = public as $$
 declare pid uuid; pc text; rc text; ak text; dup uuid; ex uuid; ip text; nk text; hint uuid;
 begin
@@ -226,10 +247,10 @@ begin
        and l.status = 'done' and l.completed_at > now() - interval '12 months' order by l.completed_at desc limit 1;
   end if;
   -- tekrar kayit: ortak payi sadece ilk kayda gider
-  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, message, track_token, referrer_code, addr_key, dup_of, when_text, name_key, repeat_hint)
-  values (p_ref, case when dup is null then pid end, case when dup is null then pc end, left(p_name,120), left(p_address,300), left(p_summary,500), left(p_message,3000), p_token, rc, ak, dup, left(p_when,100), nk, hint);
+  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, message, track_token, referrer_code, addr_key, dup_of, when_text, name_key, repeat_hint, source, campaign)
+  values (p_ref, case when dup is null then pid end, case when dup is null then pc end, left(p_name,120), left(p_address,300), left(p_summary,500), left(p_message,3000), p_token, rc, ak, dup, left(p_when,100), nk, hint, left(lower(regexp_replace(coalesce(p_source,''),'[^a-zA-Z0-9._ -]','','g')),40), left(lower(regexp_replace(coalesce(p_campaign,''),'[^a-zA-Z0-9._ -]','','g')),60));
 end $$;
-grant execute on function submit_lead(text,text,text,text,text,text,text,text,text) to anon, authenticated;
+grant execute on function submit_lead(text,text,text,text,text,text,text,text,text,text,text) to anon, authenticated;
 
 -- Ortak, kendi musterisi icin is olusturur (ozel takip linki uretilir)
 create or replace function partner_create_lead(p_ref text, p_name text, p_address text, p_summary text, p_token text)
@@ -255,7 +276,7 @@ grant execute on function partner_create_lead(text,text,text,text,text) to authe
 -- Hizmet onayi (musteri) + odeme onayi (admin) tamamlaninca link kapanir: detay donmez.
 drop function if exists track_lead(text);
 create or replace function track_lead(p_token text)
-returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric, can_confirm boolean, confirmed boolean, closed boolean, share_code text, friends_done int, credit numeric, credit_each numeric, scheduled_at timestamp, review_url text)
+returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric, can_confirm boolean, confirmed boolean, closed boolean, share_code text, friends_done int, credit numeric, credit_each numeric, scheduled_at timestamp, review_url text, crew_status text, deposit_amount numeric, deposit_paid boolean, deposit_note text, paid boolean)
 language sql stable security definer set search_path = public as $$
   select l.ref,
          case when l.closed then null else l.created_at end,
@@ -272,7 +293,12 @@ language sql stable security definer set search_path = public as $$
          f.n * ce.v,
          ce.v,
          case when l.closed then null else l.scheduled_at end,
-         case when l.customer_confirmed_at is not null then nullif((select value from settings where key = 'review_url'), '') end
+         case when l.customer_confirmed_at is not null then nullif((select value from settings where key = 'review_url'), '') end,
+         case when not l.closed and l.status in ('booked','done') then l.crew_status end,
+         case when not l.closed then l.deposit_amount end,
+         (l.deposit_paid_at is not null),
+         case when not l.closed and l.deposit_amount > 0 and l.deposit_paid_at is null then nullif((select value from settings where key = 'deposit_note'), '') end,
+         (l.paid_at is not null)
   from (select x.*, (x.customer_confirmed_at is not null and x.paid_at is not null) as closed
         from leads x where x.track_token = p_token and length(coalesce(p_token,'')) >= 24) l
   cross join lateral (select count(*)::int as n from leads y where y.referrer_code = l.share_code and y.status = 'done') f
@@ -596,10 +622,11 @@ begin
   lbl := coalesce(r ->> 'ref', r ->> 'name', r ->> 'title', r ->> 'key', r ->> 'min_jobs', r ->> 'customer_name', '');
   rid := coalesce(r ->> 'id', r ->> 'min_jobs', r ->> 'key', '');
   watch := case tg_table_name
-    when 'leads' then array['status','price','commission_paid','override_paid','paid_at','customer_confirmed_at','partner_id','scheduled_at','dup_of','repeat_of']
+    when 'leads' then array['status','price','commission_paid','override_paid','paid_at','customer_confirmed_at','partner_id','scheduled_at','dup_of','repeat_of','crew_id','crew_status','deposit_amount','deposit_paid_at']
     when 'partners' then array['commission_pct','override_pct','active','parent_id','email','name','payout_info']
     when 'tiers' then array['pct']
     when 'price_list' then array['price']
+    when 'crews' then array['name','email','active']
     when 'settings' then array['value']
     when 'campaigns' then array['title','bonus_pct','starts_at','ends_at','active']
     when 'claims' then array['status','admin_note']
@@ -627,6 +654,8 @@ drop trigger if exists audit_partners on partners;
 create trigger audit_partners after insert or update or delete on partners for each row execute function audit_changes();
 drop trigger if exists audit_tiers on tiers;
 create trigger audit_tiers after insert or update or delete on tiers for each row execute function audit_changes();
+drop trigger if exists audit_crews on crews;
+create trigger audit_crews after insert or update or delete on crews for each row execute function audit_changes();
 drop trigger if exists audit_price on price_list;
 create trigger audit_price after insert or update or delete on price_list for each row execute function audit_changes();
 drop trigger if exists audit_settings on settings;
@@ -680,6 +709,193 @@ language sql security definer set search_path = public as $$
   where track_token = p_token and length(coalesce(p_token,'')) >= 24 and customer_confirmed_at is not null;
 $$;
 grant execute on function mark_review_click(text) to anon, authenticated;
+
+
+-- ---------- Ekip paneli, galeri, yorumlar, destek, makbuz ----------
+drop policy if exists admin_all_crews on crews;
+create policy admin_all_crews on crews for all using (is_admin()) with check (is_admin());
+drop policy if exists crew_self on crews;
+create policy crew_self on crews for select using (lower(email) = lower(coalesce(auth.jwt() ->> 'email','')));
+
+create table if not exists job_photos (
+  id uuid primary key default gen_random_uuid(),
+  lead_id uuid not null references leads(id) on delete cascade,
+  crew_id uuid references crews(id) on delete set null,
+  path text not null,
+  kind text not null check (kind in ('before','after')),
+  at timestamptz not null default now()
+);
+alter table job_photos enable row level security;
+drop policy if exists admin_all_jphotos on job_photos;
+create policy admin_all_jphotos on job_photos for all using (is_admin()) with check (is_admin());
+
+create table if not exists gallery (
+  id uuid primary key default gen_random_uuid(),
+  title text,
+  city text,
+  before_url text not null,
+  after_url text not null,
+  visible boolean not null default true,
+  sort int not null default 0,
+  created_at timestamptz not null default now()
+);
+alter table gallery enable row level security;
+drop policy if exists admin_all_gallery on gallery;
+create policy admin_all_gallery on gallery for all using (is_admin()) with check (is_admin());
+
+create table if not exists reviews (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  city text,
+  stars int not null default 5 check (stars between 1 and 5),
+  body text not null,
+  visible boolean not null default true,
+  created_at timestamptz not null default now()
+);
+alter table reviews enable row level security;
+drop policy if exists admin_all_reviews on reviews;
+create policy admin_all_reviews on reviews for all using (is_admin()) with check (is_admin());
+
+create table if not exists support_msgs (
+  id uuid primary key default gen_random_uuid(),
+  partner_id uuid not null references partners(id) on delete cascade,
+  from_admin boolean not null default false,
+  body text not null,
+  read_admin boolean not null default false,
+  created_at timestamptz not null default now()
+);
+alter table support_msgs enable row level security;
+create index if not exists support_idx on support_msgs(partner_id, created_at);
+drop policy if exists admin_all_support on support_msgs;
+create policy admin_all_support on support_msgs for all using (is_admin()) with check (is_admin());
+
+-- Admin yanit yazinca ortaga bildirim
+create or replace function support_notify() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.from_admin then
+    insert into notifications(partner_id, text) values (new.partner_id, 'Destek yaniti: ' || left(new.body, 80));
+  end if;
+  return new;
+end $$;
+drop trigger if exists support_notify_t on support_msgs;
+create trigger support_notify_t after insert on support_msgs for each row execute function support_notify();
+
+create or replace function my_support() returns table(id uuid, from_admin boolean, body text, created_at timestamptz)
+language sql stable security definer set search_path = public as $$
+  select m.id, m.from_admin, m.body, m.created_at from support_msgs m join partners p on p.id = m.partner_id
+  where lower(p.email) = lower(coalesce(auth.jwt() ->> 'email','')) order by m.created_at limit 200;
+$$;
+grant execute on function my_support() to authenticated;
+
+create or replace function partner_support_send(p_body text) returns void
+language plpgsql security definer set search_path = public as $$
+declare pid uuid;
+begin
+  select id into pid from partners where lower(email) = lower(coalesce(auth.jwt() ->> 'email','')) and active;
+  if pid is null then raise exception 'not a partner'; end if;
+  if length(trim(coalesce(p_body,''))) < 2 then raise exception 'empty'; end if;
+  if not rate_ok('sup:' || pid::text, 20, interval '1 hour') then raise exception 'too many messages, try later'; end if;
+  insert into support_msgs(partner_id, body) values (pid, left(trim(p_body), 1000));
+end $$;
+grant execute on function partner_support_send(text) to authenticated;
+
+-- Sitenin okudugu acik icerik: galeri + yorumlar (sadece gorunur olanlar)
+create or replace function public_content() returns json
+language sql stable security definer set search_path = public as $$
+  select json_build_object(
+    'gallery', coalesce((select json_agg(json_build_object('title', g.title, 'city', g.city, 'before', g.before_url, 'after', g.after_url) order by g.sort, g.created_at desc) from gallery g where g.visible), '[]'::json),
+    'reviews', coalesce((select json_agg(json_build_object('name', r.name, 'city', r.city, 'stars', r.stars, 'body', r.body) order by r.created_at desc) from reviews r where r.visible), '[]'::json));
+$$;
+grant execute on function public_content() to anon, authenticated;
+
+-- Makbuz: sadece odemesi alinmis ve fiyati girilmis is, takip koduyla
+create or replace function receipt_lead(p_token text)
+returns table(ref text, paid_at timestamptz, completed_at timestamptz, customer_name text, address text, summary text, price numeric, deposit numeric)
+language sql stable security definer set search_path = public as $$
+  select l.ref, l.paid_at, l.completed_at, l.customer_name, l.address, l.summary, l.price,
+         case when l.deposit_paid_at is not null then l.deposit_amount end
+  from leads l where l.track_token = p_token and length(coalesce(p_token,'')) >= 24 and l.paid_at is not null and l.price is not null and l.status = 'done';
+$$;
+grant execute on function receipt_lead(text) to anon, authenticated;
+
+-- ---------- Ekip fonksiyonlari ----------
+create or replace function crew_me() returns uuid
+language sql stable security definer set search_path = public as $$
+  select id from crews where lower(email) = lower(coalesce(auth.jwt() ->> 'email','')) and active;
+$$;
+revoke all on function crew_me() from public, anon;
+grant execute on function crew_me() to authenticated;
+
+-- Ekibin isleri: bugunden itibaren (Florida), bitmis olanlar son 3 gun. Fiyat/ortak bilgisi YOK.
+create or replace function crew_jobs()
+returns table(id uuid, ref text, scheduled_at timestamp, customer_name text, address text, summary text, access text, note text, status text, crew_status text, crew_note text, photos int)
+language sql stable security definer set search_path = public as $$
+  select l.id, l.ref, l.scheduled_at, l.customer_name, l.address, l.summary,
+         substring(l.message from E'Access: ([^\n]*)'), substring(l.message from E'Notes: ([^\n]*)'),
+         l.status, l.crew_status, l.crew_note,
+         (select count(*)::int from job_photos j where j.lead_id = l.id)
+  from leads l
+  where l.crew_id = crew_me() and l.status in ('new','quoted','booked','done')
+    and (l.crew_status is distinct from 'finished' or l.crew_finished_at > now() - interval '3 days')
+    and (l.scheduled_at is null or l.scheduled_at >= (now() at time zone 'America/New_York')::date - 1)
+  order by l.scheduled_at nulls last, l.created_at;
+$$;
+grant execute on function crew_jobs() to authenticated;
+
+create or replace function crew_set_status(p_lead uuid, p_status text, p_note text default null) returns void
+language plpgsql security definer set search_path = public as $$
+declare c uuid;
+begin
+  c := crew_me();
+  if c is null then raise exception 'not crew'; end if;
+  if p_status not in ('enroute','working','finished') then raise exception 'bad status'; end if;
+  if p_status = 'finished' and not exists (select 1 from job_photos where lead_id = p_lead and kind = 'after') then
+    raise exception 'add at least one after photo first';
+  end if;
+  update leads set crew_status = p_status,
+         crew_started_at = case when p_status = 'enroute' and crew_started_at is null then now() else crew_started_at end,
+         crew_finished_at = case when p_status = 'finished' then now() else crew_finished_at end,
+         crew_note = coalesce(left(p_note, 500), crew_note)
+   where id = p_lead and crew_id = c;
+  if not found then raise exception 'not your job'; end if;
+end $$;
+grant execute on function crew_set_status(uuid, text, text) to authenticated;
+
+create or replace function crew_add_photo(p_lead uuid, p_path text, p_kind text) returns void
+language plpgsql security definer set search_path = public as $$
+declare c uuid;
+begin
+  c := crew_me();
+  if c is null then raise exception 'not crew'; end if;
+  if p_kind not in ('before','after') then raise exception 'bad kind'; end if;
+  if split_part(p_path, '/', 1) <> p_lead::text then raise exception 'bad path'; end if;
+  if not exists (select 1 from leads where id = p_lead and crew_id = c) then raise exception 'not your job'; end if;
+  if (select count(*) from job_photos where lead_id = p_lead) >= 30 then raise exception 'too many photos'; end if;
+  insert into job_photos(lead_id, crew_id, path, kind) values (p_lead, c, left(p_path, 200), p_kind);
+end $$;
+grant execute on function crew_add_photo(uuid, text, text) to authenticated;
+
+-- ---------- Depolama (Storage) kovalari ve yetkileri ----------
+-- Storage yoksa veya yetki hatasi olursa hata vermez, sadece uyari yazar.
+do $$ begin
+  if exists (select 1 from information_schema.schemata where schema_name = 'storage') then
+    insert into storage.buckets (id, name, public) values ('job-photos', 'job-photos', false) on conflict (id) do nothing;
+    insert into storage.buckets (id, name, public) values ('gallery', 'gallery', true) on conflict (id) do nothing;
+    drop policy if exists "jp_crew_insert" on storage.objects;
+    create policy "jp_crew_insert" on storage.objects for insert to authenticated with check (
+      bucket_id = 'job-photos' and exists (select 1 from public.leads l where l.id::text = (storage.foldername(name))[1] and l.crew_id = public.crew_me()));
+    drop policy if exists "jp_read" on storage.objects;
+    create policy "jp_read" on storage.objects for select to authenticated using (
+      bucket_id = 'job-photos' and (public.is_admin() or exists (select 1 from public.leads l where l.id::text = (storage.foldername(name))[1] and l.crew_id = public.crew_me())));
+    drop policy if exists "gal_admin_write" on storage.objects;
+    create policy "gal_admin_write" on storage.objects for insert to authenticated with check (bucket_id = 'gallery' and public.is_admin());
+    drop policy if exists "gal_admin_del" on storage.objects;
+    create policy "gal_admin_del" on storage.objects for delete to authenticated using (bucket_id = 'gallery' and public.is_admin());
+  end if;
+exception when others then
+  raise notice 'Storage ayari atlandi: %', sqlerrm;
+end $$;
 
 -- Yonetici (e-postani degistir!)
 insert into admins(email) values (lower('BURAYA_KENDI_EPOSTAN@ornek.com')) on conflict do nothing;

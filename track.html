@@ -49,12 +49,14 @@ function share(l){var el=document.getElementById('share');
  document.getElementById('cl').onclick=function(){navigator.clipboard.writeText(u).then(function(){document.getElementById('cl').textContent='Copied'})}}
 function msg(t,bad){box.innerHTML='<p class="muted'+(bad?' err':'')+'">'+esc(t)+'</p>'}
 function draw(l){
- if(l.closed){box.innerHTML='<h1>All done</h1><p class="muted">#'+esc(l.ref)+'. Service confirmed and payment received. This tracking link is now closed. Thank you for choosing Kais Junk Remove!</p>';document.getElementById('wa').hidden=true;review(l);share(l);return}
+ if(l.closed){box.innerHTML='<h1>All done</h1><p class="muted">#'+esc(l.ref)+'. Service confirmed and payment received. This tracking link is now closed. Thank you for choosing Kais Junk Remove!</p>'+(l.paid?'<a class="btn" target="_blank" href="receipt.html?t='+tok+'">View receipt</a>':'');document.getElementById('wa').hidden=true;review(l);share(l);return}
  if(l.status==='lost'){box.innerHTML='<h1>Request closed</h1><p class="muted">#'+esc(l.ref)+'. This request is closed. Message us if you would like to start again.</p>';return}
  var at=STEPS.findIndex(function(s){return s[0]===l.status});
  box.innerHTML='<h1>'+(l.first_name?'Hi '+esc(l.first_name)+'!':'Your request')+'</h1><p class="muted">Reference #'+esc(l.ref)+' · updated '+fmt(l.updated_at)+'</p>'
  +(l.summary?'<p class="muted">'+esc(l.summary)+'</p>':'')+(l.scheduled_at&&l.status!=='done'?'<div class="price" style="margin-top:8px"><span class="muted">Pickup</span><br><b style="font-size:20px">'+esc(pick(l.scheduled_at))+'</b><br><span class="muted">Florida time</span></div>':'')
  +(l.price!=null?'<div class="price"><span class="muted">Your quote</span><br><b>$'+Number(l.price).toFixed(2).replace(/\.00$/,'')+'</b></div>':'')
+ +(l.crew_status&&l.status!=='done'?'<div class="price" style="margin-top:8px"><b style="font-size:18px">'+({enroute:'🚚 Our crew is on the way',working:'🛠 Our crew is working on it',finished:'✅ Job finished'}[l.crew_status]||'')+'</b></div>':'')
+ +(l.deposit_amount>0?'<div class="price" style="margin-top:8px"><span class="muted">Deposit</span><br><b style="font-size:20px">$'+Number(l.deposit_amount).toFixed(2).replace(/\.00$/,'')+'</b> '+(l.deposit_paid?'<span style="color:var(--green);font-weight:600">✓ received</span>':'<span class="muted">due to confirm your slot</span>')+(!l.deposit_paid&&l.deposit_note?'<br><span class="muted">'+esc(l.deposit_note)+'</span>':'')+'</div>':'')
  +(l.confirmed?'<p class="muted" style="margin-top:12px">✓ You confirmed the service. Waiting for payment confirmation from us.</p>':'')+(l.can_confirm?'<button class="btn ok" id="cf" type="button">Confirm the service was completed</button>':'')+'<ol>'+STEPS.map(function(s,i){var c=i<at||(i===at&&l.status==='done')?'done':i===at?'now':'';return '<li class="'+c+'"><i>'+(c==='done'?'✓':i+1)+'</i><span>'+s[1]+'<small>'+(c?s[2]:'')+'</small></span></li>'}).join('')+'</ol>';
 }
 function load(first){

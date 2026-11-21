@@ -47,3 +47,14 @@ Komisyon varsayılanı %20 (ortak başına admin panelinden değişir). Ortak pa
 - **Tekrar müşteri (12 ay):** Ortaksız gelen bir iş, son 12 ayda ortaklı iş yaptırmış aynı isimli (en az 5 harf) müşteriyle eşleşirse işte "Muhtemel tekrar müşteri" çıkar. Admin "Ortağa bağla" derse ortak o işten sabit %10 alır (admin > Ortaklar > Program ayarları'ndan değişir; seviye/kampanya uygulanmaz) ve bildirim gider. Otomatik bağlanmaz, çünkü isim eşleşmesi yanlış olabilir.
 - **Fiyat hesaplayıcı:** Admin > Fiyatlar. Kamyon dolulugu fiyatları (1/4, 1/2, 3/4, tam), isteğe bağlı eşya başı fiyat, minimum ücret ve aralık %. "Sitede göster" açılana ve fiyat girilene kadar sitede görünmez. Müşteri "tahmini fiyat" görür, WhatsApp mesajına da eklenir.
 - **Google yorum:** Admin > Program ayarları'na Google yorum linkini yaz. Müşteri takip sayfasında "hizmet yapıldı" onayından sonra yorum kartı çıkar (link kapandıktan sonra da durur). Tıklama admin panelinde görünür; işte "Yorum mesajı kopyala" düğmesi var.
+
+## Ekip, galeri, makbuz, destek (yeni)
+- **Ekip paneli** `portal/crew.html`: taseron e-postasiyla girer, kendi islerini gorur (adres + harita, ne alinacak, erisim notu), "Yoldayim / Calisiyor / Bitti" der, once/sonra fotograf yukler. Bitti icin en az 1 "sonra" fotografi sart. Fiyat ve komisyon gormez. Admin "Ekip" sekmesinden eklenir, is satirindan atanir.
+- **Musteri takip sayfasi**: "ekip yolda" bildirimi, depozito karti, is bitip odeme alinca makbuz butonu.
+- **Makbuz** `receipt.html?t=TOKEN`: yazdir / PDF kaydet. Admin is satirindan "Makbuz linki" kopyalar.
+- **Depozito**: admin is satirina tutar yazar, parayi alinca "alindi" isaretler. Odeme talimati Ayarlar'da (Zelle vb.). Stripe henuz yok.
+- **Kaynak takibi**: `attr.js` ilk temas kaynagini (UTM, Google/Facebook reklam, ortak/QR, sehir sayfasi) kaydeder; admin is satirinda ve Rapor'da "Musteri nereden geldi".
+- **Sehir sayfalari**: `python3 tools/build_cities.py` (12 sehir). Alan adin olunca `SITE_URL=https://alanadin.com python3 tools/build_cities.py` sitemap.xml ve robots.txt de uretir.
+- **Galeri/yorumlar**: admin "Galeri" sekmesi; site bolumu bos ise gizli kalir.
+- **Ortak pazarlama paketi**: ortak panelinde el ilani, kartvizit, kare ve story gorseli (kendi linkli QR), PNG indirme.
+- **Destek**: ortak panelinden mesaj, admin "Destek" sekmesinden cevap (ortaga bildirim duser).
