@@ -480,7 +480,7 @@ body.leaving{opacity:0;transform:translateY(-6px);transition:opacity .2s ease,tr
 .now .dim{font-weight:500}
 .tapnote{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);white-space:nowrap;padding:9px 18px;font-size:14px !important;border-radius:999px;background:rgba(31,36,33,.82);color:#fff;font-size:13px;font-weight:600;pointer-events:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .strip{padding:22px 0 8px}
-.strip ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.strip ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;gap:10px}
 .strip li{display:flex;align-items:center;gap:12px;padding:14px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
 .strip .si{flex:none;width:42px;height:42px;border-radius:14px;background:var(--tint);color:var(--orange-deep);display:flex;align-items:center;justify-content:center}
 .strip .si svg{width:22px;height:22px}
@@ -490,7 +490,7 @@ body.leaving{opacity:0;transform:translateY(-6px);transition:opacity .2s ease,tr
 .stats div{padding:18px 14px;border-radius:22px;background:#1F2421;color:#F6F3EE;text-align:center;background-image:radial-gradient(70% 90% at 80% 0%,rgba(242,107,29,.28),transparent 70%)}
 .stats b{display:block;font-family:var(--display);font-weight:800;font-size:34px;letter-spacing:-.03em;color:var(--orange)}
 .stats span{font-size:14px;color:#D6D1C6}
-@media (min-width:860px){.strip ul{grid-template-columns:repeat(4,1fr)}}
+@media (min-width:860px){.strip ul{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:380px){.strip li{padding:12px;gap:10px}.strip .si{width:36px;height:36px}.strip small{font-size:12px}}
 
 .note,.tip{position:relative;padding:14px 16px 14px 20px;border-radius:16px;background:var(--tint);color:#5A2A0D;font-size:15px;line-height:1.45;border:1px solid rgba(242,107,29,.22);overflow:hidden}
@@ -710,8 +710,6 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
         <p class="qmsg warn" id="qEmpty" hidden>Enter your address or ZIP code.</p>
         <div class="qalt"><span>or</span><a href="https://wa.me/14074462534?text=Hi%20Kais%20Junk%20Remove%2C%20I%27d%20like%20a%20quote." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.6-5.4A8.5 8.5 0 1 1 21 12z"/></svg>WhatsApp us</a></div>
       </form>
-      
-      <div class="facts"><span>Photos in, quote back</span><span>Florida</span><span>Open 24/7</span></div>
       <div class="now"><i></i><span>Open right now</span><span class="dim">&middot; <b id="flTime"></b> <span>in Florida</span></span></div>
     </div>
 
@@ -815,7 +813,6 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     <ul>
       <li><span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h1.5l1.2-2h6.6l1.2 2H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg></span><div><b>Photo quote</b><small>No visit needed</small></div></li>
       <li><span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.5L3 21l1.6-5.4A8.5 8.5 0 1 1 21 12z"/></svg></span><div><b>WhatsApp reply</b><small>Your quote comes back in the chat</small></div></li>
-      <li><span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b>Open 24/7</b><small>Message any time</small></div></li>
       <li><span class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.2A7 7 0 0 1 19 9.8C19 14.8 12 21 12 21z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><b>All of Florida</b><small>We come to you</small></div></li>
     </ul>
     <div class="stats" id="stats" hidden></div>
@@ -852,12 +849,6 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
       <span class="kicker">Quote</span>
       <h2 class="h2">Get your quote in a minute</h2>
       <p class="intro">Tell us what is going and where. We take it from there.</p>
-      <ul class="checks">
-        <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></i>Photos instead of a visit</li>
-        <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></i>Quote comes back on WhatsApp</li>
-        <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></i>Open 24/7, across Florida</li>
-      </ul>
-      <div class="call"><small>Prefer to talk?</small><b>+1 (407) 446-2534</b></div>
     </div>
 
     <div class="card" id="quote">
@@ -1086,7 +1077,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     <div class="faq">
       <details><summary>How do I get a price?</summary><p>Send photos and your address. We look at the job and reply on WhatsApp with a quote.</p></details>
       <details><summary>Where do you work?</summary><p>Across Florida. Put the full address in the form and we will confirm.</p></details>
-      <details><summary>When can I reach you?</summary><p>We are open 24/7. Message or call anytime on +1 (407) 446-2534.</p></details>
+      <details><summary>When can I reach you?</summary><p>We are open 24/7. Message us anytime.</p></details>
       <details><summary>What should I photograph?</summary><p>Everything you want gone. One wide shot of the whole pile and a few close-ups of big items works best.</p></details>
     </div>
   </div>
@@ -1108,7 +1099,6 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     <div>
       <h2>Ready when you are</h2>
       <a class="num" href="tel:+14074462534" aria-label="Call +1 (407) 446-2534">+1 (407) 446-2534</a>
-      <p class="info" id="info">Serving Florida. Open 24/7.</p>
       <a class="mail" href="mailto:kaisremoval@gmail.com">kaisremoval@gmail.com</a>
     </div>
     <a class="btn" href="https://wa.me/14074462534?text=Hi%20Kais%20Junk%20Remove%2C%20I%27d%20like%20a%20quote." target="_blank" rel="noopener">
@@ -1255,7 +1245,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     'Where do you work?':'¿Dónde trabajan?',
     'Across Florida. Put the full address in the form and we will confirm.':'En toda Florida. Escribe la dirección completa en el formulario y lo confirmamos.',
     'When can I reach you?':'¿Cuándo puedo contactarlos?',
-    'We are open 24/7. Message or call anytime on +1 (407) 446-2534.':'Estamos abiertos 24/7. Escríbenos o llámanos a cualquier hora al +1 (407) 446-2534.',
+    'We are open 24/7. Message us anytime.':'Estamos abiertos 24/7. Escríbenos cuando quieras.',
     'What should I photograph?':'¿Qué debo fotografiar?',
     'Everything you want gone. One wide shot of the whole pile and a few close-ups of big items works best.':'Todo lo que quieras sacar. Funciona mejor una foto amplia de todo y algunos acercamientos de lo más grande.',
     'Ready when you are':'Listos cuando tú lo estés','Serving Florida. Open 24/7.':'Atendemos en Florida. Abierto 24/7.','Serving Florida, USA. Open 24/7.':'Atendemos en Florida, USA. Abierto 24/7.','For realtors & property managers':'Para agentes y administradores','Junk removal in:':'Retiro de basura en:','Your ZIP code':'Tu código postal',
@@ -1714,7 +1704,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     var info = [];
     if (SITE.area) info.push('Serving ' + SITE.area);
     if (SITE.hours) info.push(SITE.hours);
-    if (info.length) $('info').textContent = info.join('. ') + '.';
+    if (info.length && $('info')) $('info').textContent = info.join('. ') + '.';
     if (SITE.work.length){
       var g = $('gal');
       SITE.work.forEach(function(w){
