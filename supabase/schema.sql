@@ -40,9 +40,16 @@ alter table leads add column if not exists updated_at timestamptz not null defau
 -- Musteri hizmeti onaylar, admin odemeyi onaylar; ikisi de dolunca takip linki kapanir
 alter table leads add column if not exists customer_confirmed_at timestamptz;
 alter table leads add column if not exists paid_at timestamptz;
+alter table leads add column if not exists completed_at timestamptz;
+update leads set completed_at = updated_at where status = 'done' and completed_at is null;
 
 create or replace function touch_lead() returns trigger language plpgsql as $$
-begin new.updated_at = now(); return new; end $$;
+begin
+  new.updated_at = now();
+  if new.status = 'done' and old.status is distinct from 'done' then new.completed_at = now();
+  elsif new.status <> 'done' then new.completed_at = null; end if;
+  return new;
+end $$;
 drop trigger if exists leads_touch on leads;
 create trigger leads_touch before update on leads for each row execute function touch_lead();
 create index if not exists leads_partner_idx on leads(partner_id, created_at desc);
@@ -134,9 +141,9 @@ grant execute on function confirm_service(text) to anon, authenticated;
 -- Ortak kendi islerini gorur (musteri adresi/telefonu gizli: sadece ad bas harfi + ozet)
 drop function if exists my_leads();
 create or replace function my_leads()
-returns table(track_token text, ref text, created_at timestamptz, customer text, summary text, status text, price numeric, commission numeric, commission_paid boolean)
+returns table(track_token text, ref text, created_at timestamptz, completed_at timestamptz, customer text, summary text, status text, price numeric, commission numeric, commission_paid boolean)
 language sql stable security definer set search_path = public as $$
-  select l.track_token, l.ref, l.created_at,
+  select l.track_token, l.ref, l.created_at, l.completed_at,
          left(coalesce(l.customer_name,''),1) || '.' as customer,
          l.summary, l.status, l.price,
          case when l.status = 'done' and l.price is not null then round(l.price * p.commission_pct / 100, 2) end,
