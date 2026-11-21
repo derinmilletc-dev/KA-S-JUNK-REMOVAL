@@ -1811,7 +1811,7 @@ footer.foot{padding:44px 0 calc(28px + env(safe-area-inset-bottom));background:r
   $('lang').addEventListener('click', function(){ applyLang(LANG === 'es' ? 'en' : 'es'); });
 
   show(1, true);
-  var startLang = /^es/i.test(navigator.language || '') ? 'es' : 'en';
+  var startLang = /^es/i.test(navigator.language || '') ? 'es' : 'en'; try { var ql = new URLSearchParams(location.search).get('lang'); if (ql === 'es' || ql === 'en') startLang = ql; } catch(e){}
 
   // service area: map + ZIP check
   (function(){
