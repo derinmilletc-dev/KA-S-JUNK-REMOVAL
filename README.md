@@ -41,3 +41,9 @@ Komisyon varsayılanı %20 (ortak başına admin panelinden değişir). Ortak pa
 1. `supabase functions deploy weekly-digest --no-verify-jwt`
 2. `supabase secrets set RESEND_API_KEY=... FROM_EMAIL="Kais Junk Remove <info@alanadin.com>" CRON_SECRET=uzun-rastgele PANEL_URL=https://ADRES/portal/partner.html`
 3. Supabase > Integrations > Cron: haftada bir (ör. Pazartesi 14:00 UTC) bu fonksiyonu `x-cron-secret: <CRON_SECRET>` başlığıyla çağır.
+
+### Kurumsal sayfa, tekrar müşteri, fiyat hesaplayıcı, Google yorum
+- **Kurumsal sayfa:** `business.html` (emlakçı, mülk yöneticisi, HOA). Başvuru admin > Başvurular'a "Kurumsal" etiketiyle düşer. Ana sitenin altında link var.
+- **Tekrar müşteri (12 ay):** Ortaksız gelen bir iş, son 12 ayda ortaklı iş yaptırmış aynı isimli (en az 5 harf) müşteriyle eşleşirse işte "Muhtemel tekrar müşteri" çıkar. Admin "Ortağa bağla" derse ortak o işten sabit %10 alır (admin > Ortaklar > Program ayarları'ndan değişir; seviye/kampanya uygulanmaz) ve bildirim gider. Otomatik bağlanmaz, çünkü isim eşleşmesi yanlış olabilir.
+- **Fiyat hesaplayıcı:** Admin > Fiyatlar. Kamyon dolulugu fiyatları (1/4, 1/2, 3/4, tam), isteğe bağlı eşya başı fiyat, minimum ücret ve aralık %. "Sitede göster" açılana ve fiyat girilene kadar sitede görünmez. Müşteri "tahmini fiyat" görür, WhatsApp mesajına da eklenir.
+- **Google yorum:** Admin > Program ayarları'na Google yorum linkini yaz. Müşteri takip sayfasında "hizmet yapıldı" onayından sonra yorum kartı çıkar (link kapandıktan sonra da durur). Tıklama admin panelinde görünür; işte "Yorum mesajı kopyala" düğmesi var.

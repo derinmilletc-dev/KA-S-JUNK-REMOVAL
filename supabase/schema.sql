@@ -76,6 +76,13 @@ alter table leads add column if not exists dup_of uuid references leads(id) on d
 alter table leads add column if not exists scheduled_at timestamp;      -- Florida saati (duvar saati)
 alter table leads add column if not exists when_text text;               -- musterinin istedigi zaman (siteden)
 create index if not exists leads_addr_idx on leads(addr_key, created_at);
+-- Tekrar musteri (12 ay) ve yorum takibi
+alter table leads add column if not exists name_key text;
+alter table leads add column if not exists repeat_of uuid references leads(id) on delete set null;
+alter table leads add column if not exists repeat_hint uuid references leads(id) on delete set null;
+alter table leads add column if not exists review_clicked_at timestamptz;
+create index if not exists leads_name_idx on leads(name_key);
+update leads set name_key = lower(regexp_replace(coalesce(customer_name,''),'[^a-zA-Z0-9]','','g')) where name_key is null;
 update leads set addr_key = lower(regexp_replace(coalesce(address,''),'[^a-zA-Z0-9]','','g')) where addr_key is null;
 
 create table if not exists rate_limits (key text not null, at timestamptz not null default now());
@@ -112,6 +119,9 @@ create table if not exists tiers (min_jobs int primary key check (min_jobs > 0),
 insert into tiers values (5, 25), (10, 30) on conflict do nothing;
 create table if not exists settings (key text primary key, value text not null);
 insert into settings values ('customer_credit', '20') on conflict do nothing;
+insert into settings values ('repeat_pct', '10'), ('range_pct', '20'), ('min_charge', '0'), ('pricing_on', 'false'), ('review_url', '') on conflict do nothing;
+create table if not exists price_list (key text primary key, price numeric(10,2) not null check (price >= 0));
+alter table price_list enable row level security;
 alter table tiers enable row level security;
 alter table settings enable row level security;
 
@@ -119,19 +129,26 @@ alter table settings enable row level security;
 drop view if exists lead_calc;
 create view lead_calc as
 with d as (
-  select l.id, l.partner_id, l.price, l.completed_at,
+  select l.id, l.partner_id, l.price, l.completed_at, l.repeat_of,
          count(*) over (partition by l.partner_id order by l.completed_at range between interval '30 days' preceding and current row) as pos
   from leads l where l.status = 'done' and l.partner_id is not null and l.completed_at is not null
 ), e as (
   select d.*, p.parent_id, p.override_pct as ov_pct,
-         greatest(p.commission_pct, coalesce((select max(t.pct) from tiers t where t.min_jobs <= d.pos), 0)) as base_pct,
-         coalesce((select sum(c.bonus_pct) from campaigns c where c.active and d.completed_at >= c.starts_at and d.completed_at <= c.ends_at), 0) as bonus_pct
+         case when d.repeat_of is not null
+              then coalesce((select s.value::numeric from settings s where s.key = 'repeat_pct'), 10)
+              else least(100,
+                     greatest(p.commission_pct, coalesce((select max(t.pct) from tiers t where t.min_jobs <= d.pos), 0))
+                     + coalesce((select sum(c.bonus_pct) from campaigns c where c.active and d.completed_at >= c.starts_at and d.completed_at <= c.ends_at), 0))
+         end as eff_pct,
+         case when d.repeat_of is not null then 0
+              else coalesce((select sum(c.bonus_pct) from campaigns c where c.active and d.completed_at >= c.starts_at and d.completed_at <= c.ends_at), 0)
+         end as bonus_pct
   from d join partners p on p.id = d.partner_id
 )
 select e.id as lead_id, e.partner_id, e.pos,
-       least(100, e.base_pct + e.bonus_pct) as pct,
+       e.eff_pct as pct,
        e.bonus_pct,
-       case when e.price is not null then round(e.price * least(100, e.base_pct + e.bonus_pct) / 100, 2) end as commission,
+       case when e.price is not null then round(e.price * e.eff_pct / 100, 2) end as commission,
        case when sp.active then e.parent_id end as sponsor_id,
        case when sp.active then e.ov_pct end as override_pct,
        case when sp.active and e.price is not null then round(e.price * e.ov_pct / 100, 2) end as override_amt
@@ -183,7 +200,7 @@ drop function if exists submit_lead(text,text,text,text,text,text,text);
 drop function if exists submit_lead(text,text,text,text,text,text,text,text);
 create or replace function submit_lead(p_ref text, p_code text, p_name text, p_address text, p_summary text, p_message text, p_token text, p_rc text default null, p_when text default null)
 returns void language plpgsql security definer set search_path = public as $$
-declare pid uuid; pc text; rc text; ak text; dup uuid; ex uuid; ip text;
+declare pid uuid; pc text; rc text; ak text; dup uuid; ex uuid; ip text; nk text; hint uuid;
 begin
   if p_ref is null or length(p_ref) not between 4 and 20 then return; end if;
   if p_token is null or p_token !~ '^[a-f0-9]{24,48}$' then return; end if;
@@ -192,7 +209,7 @@ begin
   if ex is not null then
     -- ayni talep duzenleniyor (sadece yeni ve ayni takip kodu)
     update leads set customer_name = left(p_name,120), address = left(p_address,300), summary = left(p_summary,500), message = left(p_message,3000),
-           addr_key = lower(regexp_replace(coalesce(p_address,''),'[^a-zA-Z0-9]','','g')), when_text = left(p_when,100)
+           addr_key = lower(regexp_replace(coalesce(p_address,''),'[^a-zA-Z0-9]','','g')), when_text = left(p_when,100), name_key = lower(regexp_replace(coalesce(p_name,''),'[^a-zA-Z0-9]','','g'))
      where id = ex and status = 'new' and track_token = p_token;
     return;
   end if;
@@ -202,9 +219,15 @@ begin
   select id into dup from leads where addr_key = ak and created_at > now() - interval '7 days' and status in ('new','quoted','booked') order by created_at limit 1;
   select id, code into pid, pc from partners where code = upper(coalesce(p_code,'')) and active;
   select share_code into rc from leads where share_code = lower(coalesce(p_rc,'')) and length(coalesce(p_rc,'')) = 8;
+  nk := lower(regexp_replace(coalesce(p_name,''),'[^a-zA-Z0-9]','','g'));
+  -- ortaksiz gelen ama 12 ay icinde ortakli is yaptirmis ayni isimli musteri: admin onayina oner
+  if pid is null and dup is null and length(nk) >= 5 then
+    select l.id into hint from leads l where l.name_key = nk and l.partner_id is not null and l.repeat_of is null
+       and l.status = 'done' and l.completed_at > now() - interval '12 months' order by l.completed_at desc limit 1;
+  end if;
   -- tekrar kayit: ortak payi sadece ilk kayda gider
-  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, message, track_token, referrer_code, addr_key, dup_of, when_text)
-  values (p_ref, case when dup is null then pid end, case when dup is null then pc end, left(p_name,120), left(p_address,300), left(p_summary,500), left(p_message,3000), p_token, rc, ak, dup, left(p_when,100));
+  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, message, track_token, referrer_code, addr_key, dup_of, when_text, name_key, repeat_hint)
+  values (p_ref, case when dup is null then pid end, case when dup is null then pc end, left(p_name,120), left(p_address,300), left(p_summary,500), left(p_message,3000), p_token, rc, ak, dup, left(p_when,100), nk, hint);
 end $$;
 grant execute on function submit_lead(text,text,text,text,text,text,text,text,text) to anon, authenticated;
 
@@ -223,8 +246,8 @@ begin
   if exists (select 1 from leads where addr_key = ak and created_at > now() - interval '7 days' and status in ('new','quoted','booked')) then
     raise exception 'duplicate: this address already has an open request';
   end if;
-  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, track_token, addr_key)
-  values (left(p_ref,20), pid, pc, left(p_name,120), left(p_address,300), left(p_summary,500), p_token, ak);
+  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, track_token, addr_key, name_key)
+  values (left(p_ref,20), pid, pc, left(p_name,120), left(p_address,300), left(p_summary,500), p_token, ak, lower(regexp_replace(coalesce(p_name,''),'[^a-zA-Z0-9]','','g')));
 end $$;
 grant execute on function partner_create_lead(text,text,text,text,text) to authenticated;
 
@@ -232,7 +255,7 @@ grant execute on function partner_create_lead(text,text,text,text,text) to authe
 -- Hizmet onayi (musteri) + odeme onayi (admin) tamamlaninca link kapanir: detay donmez.
 drop function if exists track_lead(text);
 create or replace function track_lead(p_token text)
-returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric, can_confirm boolean, confirmed boolean, closed boolean, share_code text, friends_done int, credit numeric, credit_each numeric, scheduled_at timestamp)
+returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric, can_confirm boolean, confirmed boolean, closed boolean, share_code text, friends_done int, credit numeric, credit_each numeric, scheduled_at timestamp, review_url text)
 language sql stable security definer set search_path = public as $$
   select l.ref,
          case when l.closed then null else l.created_at end,
@@ -248,7 +271,8 @@ language sql stable security definer set search_path = public as $$
          f.n,
          f.n * ce.v,
          ce.v,
-         case when l.closed then null else l.scheduled_at end
+         case when l.closed then null else l.scheduled_at end,
+         case when l.customer_confirmed_at is not null then nullif((select value from settings where key = 'review_url'), '') end
   from (select x.*, (x.customer_confirmed_at is not null and x.paid_at is not null) as closed
         from leads x where x.track_token = p_token and length(coalesce(p_token,'')) >= 24) l
   cross join lateral (select count(*)::int as n from leads y where y.referrer_code = l.share_code and y.status = 'done') f
@@ -269,11 +293,11 @@ grant execute on function confirm_service(text) to anon, authenticated;
 -- Ortak kendi islerini gorur (musteri adresi/telefonu gizli: sadece ad bas harfi + ozet)
 drop function if exists my_leads();
 create or replace function my_leads()
-returns table(track_token text, ref text, created_at timestamptz, completed_at timestamptz, customer text, summary text, status text, price numeric, commission numeric, commission_paid boolean, commission_paid_at timestamptz, pct numeric)
+returns table(track_token text, ref text, created_at timestamptz, completed_at timestamptz, customer text, summary text, status text, price numeric, commission numeric, commission_paid boolean, commission_paid_at timestamptz, pct numeric, is_repeat boolean)
 language sql stable security definer set search_path = public as $$
   select l.track_token, l.ref, l.created_at, l.completed_at,
          left(coalesce(l.customer_name,''),1) || '.' as customer,
-         l.summary, l.status, l.price, c.commission, l.commission_paid, l.commission_paid_at, c.pct
+         l.summary, l.status, l.price, c.commission, l.commission_paid, l.commission_paid_at, c.pct, (l.repeat_of is not null)
   from leads l join partners p on p.id = l.partner_id
   left join lead_calc c on c.lead_id = l.id
   where lower(p.email) = lower(coalesce(auth.jwt() ->> 'email',''))
@@ -435,21 +459,26 @@ create table if not exists partner_applications (
   status text not null default 'pending' check (status in ('pending','approved','rejected')),
   created_at timestamptz not null default now()
 );
+alter table partner_applications add column if not exists kind text not null default 'individual';
+alter table partner_applications add column if not exists company text;
+alter table partner_applications add column if not exists note text;
 alter table partner_applications enable row level security;
 drop policy if exists admin_all_apps on partner_applications;
 create policy admin_all_apps on partner_applications for all using (is_admin()) with check (is_admin());
 
-create or replace function apply_partner(p_name text, p_email text, p_phone text, p_sponsor text) returns void
+drop function if exists apply_partner(text,text,text,text);
+create or replace function apply_partner(p_name text, p_email text, p_phone text, p_sponsor text, p_kind text default 'individual', p_company text default null, p_note text default null) returns void
 language plpgsql security definer set search_path = public as $$
 begin
   if coalesce(trim(p_name),'') = '' or coalesce(p_email,'') !~ '^[^@ ]+@[^@ ]+[.][^@ ]+$' then raise exception 'invalid'; end if;
   if not rate_ok('app:' || client_key(), 3, interval '1 hour') then raise exception 'too many requests'; end if;
   if exists (select 1 from partners where lower(email) = lower(trim(p_email))) then return; end if;
   if exists (select 1 from partner_applications where lower(email) = lower(trim(p_email)) and status = 'pending') then return; end if;
-  insert into partner_applications(name, email, phone, sponsor_code)
-  values (left(trim(p_name),120), lower(left(trim(p_email),200)), left(p_phone,40), nullif(upper(left(trim(coalesce(p_sponsor,'')),12)),''));
+  insert into partner_applications(name, email, phone, sponsor_code, kind, company, note)
+  values (left(trim(p_name),120), lower(left(trim(p_email),200)), left(p_phone,40), nullif(upper(left(trim(coalesce(p_sponsor,'')),12)),''),
+          case when p_kind = 'business' then 'business' else 'individual' end, left(p_company,120), left(p_note,300));
 end $$;
-grant execute on function apply_partner(text,text,text,text) to anon, authenticated;
+grant execute on function apply_partner(text,text,text,text,text,text,text) to anon, authenticated;
 
 create or replace function approve_application(p_id uuid) returns void
 language plpgsql security definer set search_path = public as $$
@@ -567,9 +596,10 @@ begin
   lbl := coalesce(r ->> 'ref', r ->> 'name', r ->> 'title', r ->> 'key', r ->> 'min_jobs', r ->> 'customer_name', '');
   rid := coalesce(r ->> 'id', r ->> 'min_jobs', r ->> 'key', '');
   watch := case tg_table_name
-    when 'leads' then array['status','price','commission_paid','override_paid','paid_at','customer_confirmed_at','partner_id','scheduled_at','dup_of']
+    when 'leads' then array['status','price','commission_paid','override_paid','paid_at','customer_confirmed_at','partner_id','scheduled_at','dup_of','repeat_of']
     when 'partners' then array['commission_pct','override_pct','active','parent_id','email','name','payout_info']
     when 'tiers' then array['pct']
+    when 'price_list' then array['price']
     when 'settings' then array['value']
     when 'campaigns' then array['title','bonus_pct','starts_at','ends_at','active']
     when 'claims' then array['status','admin_note']
@@ -597,6 +627,8 @@ drop trigger if exists audit_partners on partners;
 create trigger audit_partners after insert or update or delete on partners for each row execute function audit_changes();
 drop trigger if exists audit_tiers on tiers;
 create trigger audit_tiers after insert or update or delete on tiers for each row execute function audit_changes();
+drop trigger if exists audit_price on price_list;
+create trigger audit_price after insert or update or delete on price_list for each row execute function audit_changes();
 drop trigger if exists audit_settings on settings;
 create trigger audit_settings after insert or update or delete on settings for each row execute function audit_changes();
 drop trigger if exists audit_campaigns on campaigns;
@@ -605,6 +637,49 @@ drop trigger if exists audit_claims on claims;
 create trigger audit_claims after update on claims for each row execute function audit_changes();
 drop trigger if exists audit_apps on partner_applications;
 create trigger audit_apps after update on partner_applications for each row execute function audit_changes();
+
+
+-- ---------- Kurumsal, tekrar musteri, fiyat hesaplayici, yorum ----------
+drop policy if exists admin_all_prices on price_list;
+create policy admin_all_prices on price_list for all using (is_admin()) with check (is_admin());
+
+-- Sitenin okudugu acik fiyat bilgisi (sadece admin acarsa gorunur)
+create or replace function public_pricing() returns json
+language sql stable security definer set search_path = public as $$
+  select json_build_object(
+    'on', coalesce((select value = 'true' from settings where key = 'pricing_on'), false),
+    'min', coalesce((select value::numeric from settings where key = 'min_charge'), 0),
+    'range', coalesce((select value::numeric from settings where key = 'range_pct'), 20),
+    'prices', coalesce((select json_object_agg(key, price) from price_list), '{}'::json));
+$$;
+grant execute on function public_pricing() to anon, authenticated;
+
+-- Admin: muhtemel tekrar musteriyi ortaga bagla / reddet
+create or replace function link_repeat(p_lead uuid, p_accept boolean) returns void
+language plpgsql security definer set search_path = public as $$
+declare l leads; r leads; pcode text;
+begin
+  if not is_admin() then raise exception 'admin only'; end if;
+  select * into l from leads where id = p_lead;
+  if not found or l.repeat_hint is null then return; end if;
+  if not p_accept then update leads set repeat_hint = null where id = p_lead; return; end if;
+  select * into r from leads where id = l.repeat_hint;
+  if r.partner_id is null or not exists (select 1 from partners where id = r.partner_id and active) then
+    update leads set repeat_hint = null where id = p_lead; return;
+  end if;
+  select code into pcode from partners where id = r.partner_id;
+  update leads set partner_id = r.partner_id, partner_code = pcode, repeat_of = r.id, repeat_hint = null where id = p_lead;
+  insert into notifications(partner_id, text) values (r.partner_id, 'Eski musterin tekrar is verdi: ' || coalesce(l.summary,'is') || ' (tekrar musteri payi)');
+end $$;
+grant execute on function link_repeat(uuid, boolean) to authenticated;
+
+-- Musteri yorum linkine tikladi (takip kodu ile)
+create or replace function mark_review_click(p_token text) returns void
+language sql security definer set search_path = public as $$
+  update leads set review_clicked_at = coalesce(review_clicked_at, now())
+  where track_token = p_token and length(coalesce(p_token,'')) >= 24 and customer_confirmed_at is not null;
+$$;
+grant execute on function mark_review_click(text) to anon, authenticated;
 
 -- Yonetici (e-postani degistir!)
 insert into admins(email) values (lower('BURAYA_KENDI_EPOSTAN@ornek.com')) on conflict do nothing;

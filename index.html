@@ -191,6 +191,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink);background:var(-
 .opt input:checked + .box{border-color:var(--ink);background:var(--ink);color:var(--paper)}
 .opt input:focus-visible + .box{outline:3px solid var(--orange);outline-offset:3px}
 .seg{display:flex;flex-wrap:wrap;gap:8px}
+.est{margin-top:12px;background:var(--tint);border:1px solid #F3C9AE;border-radius:14px;padding:12px 14px}.est small{display:block;color:var(--muted);font-size:13px;margin-top:2px}.est b{font-family:var(--display);font-size:24px;color:var(--orange-deep);letter-spacing:-.01em}.est span{font-weight:600;font-size:14px}
 
 .nav{display:flex;gap:12px;margin-top:28px}
 .nav .btn{flex:1}
@@ -879,6 +880,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
             <label class="opt"><input type="radio" name="size" value="About 3/4 of a truck" data-fill="75"><span class="box">3/4</span></label>
             <label class="opt"><input type="radio" name="size" value="A full truck or more" data-fill="100"><span class="box">Full or more</span></label>
           </div>
+          <div class="est" id="est" hidden aria-live="polite"></div>
         </div>
         <div class="nav"><button class="btn ghost" type="button" data-back>Back</button><button class="btn" type="button" data-next>Next</button></div>
       </div>
@@ -1066,6 +1068,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
         <button type="button" data-go="areaSec">All of Florida</button>
         <button type="button" data-go="faqSec">FAQ</button>
         <button type="button" data-go="quote">Get a quote</button>
+        <a href="business.html" style="color:inherit;font:inherit;text-decoration:none;opacity:.85">For realtors &amp; property managers</a>
       </nav>
     </div>
     <div class="fbar">
@@ -1137,6 +1140,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     'Send photos of what needs to go and where it is. We reply on WhatsApp with your quote.':'Envíanos fotos de lo que hay que sacar y dónde está. Te respondemos por WhatsApp con tu cotización.',
     'Move-outs, listings and tenant turnovers cleared. Send photos and the address and we reply on WhatsApp with your quote.':'Desocupaciones, propiedades en venta y cambios de inquilino. Envía fotos y la dirección y te respondemos por WhatsApp con tu cotización.',
     'For realtors and property managers · Florida':'Para agentes inmobiliarios y administradores de propiedades · Florida',
+    'Estimated price':'Precio estimado','Final price is confirmed from your photos.':'El precio final se confirma con tus fotos.',
     'WhatsApp us':'Escríbenos por WhatsApp','Photos in, quote back':'Envías fotos, te cotizamos',
     'Drag to clear the room for 10% off':'Desliza para despejar el cuarto y obtén 10% de descuento','Drag to clear the room':'Desliza para despejar el cuarto','Services':'Servicios',
     'If it is in your way, send a photo.':'Si te estorba, envíanos una foto.',
@@ -1342,13 +1346,48 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
       var minus = document.createElement('button'); minus.type = 'button'; minus.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'; minus.disabled = !n; minus.setAttribute('aria-label', t('Fewer') + ' ' + t(c));
       var out = document.createElement('output'); out.textContent = n;
       var plus = document.createElement('button'); plus.type = 'button'; plus.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h14M12 5v14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'; plus.setAttribute('aria-label', t('More') + ' ' + t(c));
-      minus.addEventListener('click', function(){ counts[c] = Math.max(0, (counts[c] || 0) - 1); renderItems(); });
-      plus.addEventListener('click', function(){ counts[c] = Math.min(99, (counts[c] || 0) + 1); renderItems(); });
+      minus.addEventListener('click', function(){ counts[c] = Math.max(0, (counts[c] || 0) - 1); renderItems(); updateEst(); });
+      plus.addEventListener('click', function(){ counts[c] = Math.min(99, (counts[c] || 0) + 1); renderItems(); updateEst(); });
       st.appendChild(minus); st.appendChild(out); st.appendChild(plus);
       row.appendChild(ic); row.appendChild(nm); row.appendChild(st); itemsEl.appendChild(row);
     });
   }
   renderItems();
+
+  /* price estimate (only when the owner turned it on and set prices) */
+  var PRICING = null, lastEst = '';
+  (function(){
+    var K = window.KJ || {};
+    if (!K.SUPABASE_URL || !K.SUPABASE_ANON_KEY) return;
+    try {
+      fetch(K.SUPABASE_URL + '/rest/v1/rpc/public_pricing', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: K.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + K.SUPABASE_ANON_KEY }, body: '{}' })
+        .then(function(r){ return r.json(); }).then(function(p){ if (p && p.on && p.prices && Object.keys(p.prices).length){ PRICING = p; updateEst(); } }).catch(function(){});
+    } catch(e){}
+  })();
+  function estimate(){
+    if (!PRICING) return null;
+    var f = document.querySelector('input[name="size"]:checked'), fill = f ? f.getAttribute('data-fill') : '0', base = null;
+    if (fill !== '0' && PRICING.prices['load:' + fill] != null) base = Number(PRICING.prices['load:' + fill]);
+    else {
+      var sum = 0, any = false;
+      CATS.forEach(function(c){ var p = PRICING.prices['item:' + c]; if (counts[c] && p != null){ sum += counts[c] * Number(p); any = true; } });
+      if (any) base = sum;
+    }
+    if (base == null) return null;
+    base = Math.max(base, Number(PRICING.min) || 0);
+    var hi = Math.round(base * (1 + (Number(PRICING.range) || 0) / 100));
+    return { lo: Math.round(base), hi: hi };
+  }
+  function updateEst(){
+    var box = $('est'); if (!box) return;
+    var e = estimate();
+    if (!e){ box.hidden = true; lastEst = ''; return; }
+    box.hidden = false; box.textContent = '';
+    var a = document.createElement('span'); a.textContent = t('Estimated price') + ' '; box.appendChild(a);
+    var b = document.createElement('b'); b.textContent = e.hi > e.lo ? '$' + e.lo + ' - $' + e.hi : '$' + e.lo; box.appendChild(b);
+    var s = document.createElement('small'); s.textContent = t('Final price is confirmed from your photos.'); box.appendChild(s);
+    lastEst = e.hi > e.lo ? '$' + e.lo + '-$' + e.hi : '$' + e.lo;
+  }
 
   /* truck fill */
   var fillRect = $('fillRect'), loadCap = $('loadCap');
@@ -1358,6 +1397,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
       var f = Number(r.getAttribute('data-fill')), h = 74 * f / 100;
       fillRect.setAttribute('y', 88 - h); fillRect.setAttribute('height', h);
       loadCap.textContent = t(CAP[String(f)]);
+      updateEst();
     });
   });
 
@@ -1485,6 +1525,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     if (size) lines.push('🚚 Load: ' + size);
     lines.push('🪜 Access: ' + access);
     lines.push('⏰ When: ' + whenText(false));
+    if (lastEst) lines.push('💰 Website estimate: ' + lastEst);
     if (budget) lines.push('💵 Budget: ' + budget);
     if (discount) lines.push('🎁 *10% OFF* (cleared the room on the website)');
     if (note) lines.push('📝 Notes: ' + note);
@@ -1611,6 +1652,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     walk(); renderItems(); renderThumbs(); renderDays(); applyMode(); setPick();
     var f = document.querySelector('input[name="size"]:checked');
     if (f) loadCap.textContent = t(CAP[f.getAttribute('data-fill')]);
+    updateEst();
     $('langTxt').textContent = l === 'es' ? 'EN' : 'ES';
     $('copy').textContent = t('Copy message');
     if (step === 4) build(true);

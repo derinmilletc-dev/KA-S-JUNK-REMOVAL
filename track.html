@@ -18,10 +18,12 @@ li small{display:block;font-weight:400;color:var(--muted)}
 .price{background:var(--paper);border-radius:12px;padding:12px 14px;margin-top:4px}.price b{font:700 24px 'Bricolage Grotesque',sans-serif}
 .btn{display:block;text-align:center;background:var(--orange);color:#fff;text-decoration:none;font-weight:600;border-radius:12px;padding:13px}
 .btn.ok{background:var(--green);border:0;width:100%;font:inherit;font-weight:600;cursor:pointer;margin-top:14px}.share{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}.share h2{font:700 18px 'Bricolage Grotesque',sans-serif;margin:0 0 4px}.share .row{display:flex;gap:8px;margin-top:12px}.share .row a,.share .row button{flex:1;text-align:center;border-radius:10px;padding:11px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--ink)}.share .row a.g{background:var(--green);border-color:var(--green);color:#fff}
+.rev{background:linear-gradient(135deg,#1F2421,#2E3531);color:#fff;border-radius:18px;padding:20px;margin-bottom:14px}.rev h2{font:700 20px 'Bricolage Grotesque',sans-serif;margin:0 0 4px}.rev p{margin:0;color:#ffffffb3;font-size:14px}.rev .stars{color:#F6B73C;font-size:26px;letter-spacing:3px;margin:8px 0}.rev a{display:block;text-align:center;background:var(--orange);color:#fff;text-decoration:none;font-weight:600;border-radius:12px;padding:13px;margin-top:12px}
 .btn:hover{background:var(--deep)}.err{color:#B42318}
 </style></head><body>
 <header>Kais <span>Junk Remove</span></header>
 <main><div class="card" id="box"><p class="muted" id="state">Loading…</p></div>
+<div id="review"></div>
 <div id="share"></div>
 <a class="btn" id="wa" href="https://wa.me/14074462534" target="_blank" rel="noopener">Message us on WhatsApp</a>
 <p class="muted" style="text-align:center;margin-top:14px">This private page updates by itself. Open +1 (407) 446-2534 anytime.</p></main>
@@ -34,6 +36,10 @@ var STEPS=[['new','Request received','We have your details and photos.'],['quote
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function pick(s){if(!s)return '';try{var d=new Date(String(s).replace(' ','T').replace(/Z$/,'')+'Z');return d.toLocaleString('en-US',{timeZone:'UTC',weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}catch(e){return ''}}
 function fmt(d){return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
+function review(l){var el=document.getElementById('review');
+ if(!l.review_url||!/^https:\/\//.test(l.review_url)){el.innerHTML='';return}
+ el.innerHTML='<div class="rev"><div class="stars" aria-hidden="true">★★★★★</div><h2>How did we do?</h2><p>A quick Google review helps a small local team more than you think. Takes 30 seconds.</p><a id="rv" target="_blank" rel="noopener" href="'+esc(l.review_url)+'">Leave a Google review</a></div>';
+ document.getElementById('rv').addEventListener('click',function(){fetch(K.SUPABASE_URL+'/rest/v1/rpc/mark_review_click',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_token:tok})}).catch(function(){})})}
 function share(l){var el=document.getElementById('share');
  if(!l.share_code||!(l.closed||l.status==='booked'||l.status==='done')){el.innerHTML='';return}
  var u=new URL('./?rc='+l.share_code,location.href).href,each=Number(l.credit_each||0);
@@ -43,7 +49,7 @@ function share(l){var el=document.getElementById('share');
  document.getElementById('cl').onclick=function(){navigator.clipboard.writeText(u).then(function(){document.getElementById('cl').textContent='Copied'})}}
 function msg(t,bad){box.innerHTML='<p class="muted'+(bad?' err':'')+'">'+esc(t)+'</p>'}
 function draw(l){
- if(l.closed){box.innerHTML='<h1>All done</h1><p class="muted">#'+esc(l.ref)+'. Service confirmed and payment received. This tracking link is now closed. Thank you for choosing Kais Junk Remove!</p>';document.getElementById('wa').hidden=true;share(l);return}
+ if(l.closed){box.innerHTML='<h1>All done</h1><p class="muted">#'+esc(l.ref)+'. Service confirmed and payment received. This tracking link is now closed. Thank you for choosing Kais Junk Remove!</p>';document.getElementById('wa').hidden=true;review(l);share(l);return}
  if(l.status==='lost'){box.innerHTML='<h1>Request closed</h1><p class="muted">#'+esc(l.ref)+'. This request is closed. Message us if you would like to start again.</p>';return}
  var at=STEPS.findIndex(function(s){return s[0]===l.status});
  box.innerHTML='<h1>'+(l.first_name?'Hi '+esc(l.first_name)+'!':'Your request')+'</h1><p class="muted">Reference #'+esc(l.ref)+' · updated '+fmt(l.updated_at)+'</p>'
@@ -54,7 +60,7 @@ function draw(l){
 function load(first){
  if(!K.SUPABASE_URL||tok.length<24){if(first)msg('This tracking link is not valid.',true);return}
  fetch(K.SUPABASE_URL+'/rest/v1/rpc/track_lead',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_token:tok})})
- .then(function(r){return r.json()}).then(function(d){if(d&&d[0]){draw(d[0]);share(d[0])}else if(first)msg('We could not find this request. Check the link or message us.',true)})
+ .then(function(r){return r.json()}).then(function(d){if(d&&d[0]){draw(d[0]);review(d[0]);share(d[0])}else if(first)msg('We could not find this request. Check the link or message us.',true)})
  .catch(function(){if(first)msg('Could not load. Try again in a moment.',true)});
 }
 document.addEventListener('click',function(e){if(!e.target||e.target.id!=='cf')return;e.target.disabled=true;

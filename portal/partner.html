@@ -76,7 +76,7 @@ function drawFilters(){var defs=[['all','Hepsi'],['open','Bekleyen'],['done','Ta
 function drawJobs(){var list=L.filter(function(l){return F==='all'||bucket(l)===F});
  $('empty').hidden=list.length>0;
  $('jobs').innerHTML=list.map(function(l){var b=bucket(l);
-  return '<div class="job"><div class="top"><div class="av">'+K.esc((l.customer||'?').charAt(0))+'</div><div class="grow"><div class="sum">'+K.esc(l.summary||'Is')+'</div><div class="meta">'+K.dt(l.created_at)+' · #'+K.esc(l.ref)+'</div></div><span class="tag '+(b==='paid'?'paid':K.esc(l.status))+'">'+(b==='paid'?'Odendi':K.esc(K.STATUS[l.status]||l.status))+'</span></div>'
+  return '<div class="job"><div class="top"><div class="av">'+K.esc((l.customer||'?').charAt(0))+'</div><div class="grow"><div class="sum">'+K.esc(l.summary||'Is')+'</div><div class="meta">'+K.dt(l.created_at)+' · #'+K.esc(l.ref)+(l.is_repeat?' · <b style="color:var(--deep)">Tekrar musteri</b>':'')+'</div></div><span class="tag '+(b==='paid'?'paid':K.esc(l.status))+'">'+(b==='paid'?'Odendi':K.esc(K.STATUS[l.status]||l.status))+'</span></div>'
   +'<div class="amts"><div><small>Is tutari</small><b>'+K.money(l.price)+'</b></div><div><small>Komisyonun'+(l.pct!=null?' (%'+Number(l.pct)+')':'')+'</small><b>'+(l.commission!=null?K.money(l.commission):'-')+'</b></div></div>'
   +'<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-t="'+K.esc(l.track_token)+'" data-n="'+K.esc(l.summary||'Is')+'">Musteri takip linki</button></div></div>'}).join('')}
 function drawAll(){drawStats();drawFilters();drawJobs()}
