@@ -1,0 +1,54 @@
+<!doctype html><html lang="en"><head><title>Kais Admin</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="portal.css"></head><body>
+<header><b>Kais <span>Admin</span></b><button id="logout">Cikis</button></header>
+<main>
+<div id="loginBox" class="card login" hidden><h2>Yonetici girisi</h2>
+<form id="lform"><label for="lemail">E-posta</label><input id="lemail" type="email" required autocomplete="email"><p><button class="btn" id="lbtn" style="width:100%">Giris baglantisi gonder</button></p></form><div id="lmsg" class="msg" hidden></div></div>
+<div id="app" hidden>
+<div id="deny" class="card" hidden><h3>Yetki yok</h3><p class="muted">Bu e-posta yonetici listesinde degil.</p></div>
+<div id="main" hidden>
+<div class="grid" id="stats" style="margin-bottom:16px"></div>
+<div class="tabs"><button data-t="leads" class="on">Isler</button><button data-t="partners">Ortaklar</button></div>
+<div id="msg" class="msg" hidden></div>
+<section id="t-leads" class="card"><div class="tbl"><table><thead><tr><th>Tarih</th><th>Musteri / Adres</th><th>Ortak</th><th>Durum</th><th>Tutar $</th><th>Komisyon</th></tr></thead><tbody id="lrows"></tbody></table></div><p class="muted" id="lempty" hidden>Henuz talep yok.</p></section>
+<section id="t-partners" hidden>
+<div class="card"><h3>Yeni ortak</h3><form id="pform" class="row"><div class="grow"><label>Ad</label><input id="pn" required></div><div class="grow"><label>E-posta</label><input id="pe" type="email" required></div><div class="grow"><label>Telefon</label><input id="pp"></div><div style="width:110px"><label>Komisyon %</label><input id="pc" type="number" min="0" max="100" step="0.5" value="10"></div><div style="align-self:flex-end"><button class="btn">Ekle</button></div></form></div>
+<div class="card"><div class="tbl"><table><thead><tr><th>Ortak</th><th>Kod / Baglanti</th><th>Komisyon</th><th>Is</th><th>Odenecek</th><th></th></tr></thead><tbody id="prows"></tbody></table></div></div></section>
+<div id="qrm" class="card" hidden><div class="row" style="align-items:flex-start;gap:20px"><div class="qr" id="qr"></div><div class="grow"><b id="qn"></b><div class="link" id="ql" style="margin:8px 0"></div><button class="btn sm ghost" id="qc">Kopyala</button> <button class="btn sm ghost" id="qx">Kapat</button></div></div></div>
+</div></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="config.js"></script><script src="core.js"></script>
+<script>
+(function(){var K=KJC,$=K.$,sb=K.sb,P=[],L=[];
+function msg(t,b){K.flash($('msg'),t,b)}
+function code(){var a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='';for(var i=0;i<6;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
+function comm(l){var p=P.find(function(x){return x.id===l.partner_id});return l.status==='done'&&l.price!=null&&p?Math.round(l.price*p.commission_pct)/100:null}
+function render(){
+ var open=L.filter(function(l){return l.status==='new'||l.status==='quoted'}).length,rev=0,owed=0;
+ L.forEach(function(l){if(l.status==='done'&&l.price){rev+=Number(l.price);var c=comm(l);if(c&&!l.commission_paid)owed+=c}});
+ $('stats').innerHTML=[['Toplam talep',L.length],['Bekleyen',open],['Ciro',K.money(rev)],['Ortaklara borc',K.money(owed)]].map(function(s){return '<div class="stat"><b>'+K.esc(s[1])+'</b><small>'+s[0]+'</small></div>'}).join('');
+ $('lempty').hidden=L.length>0;
+ $('lrows').innerHTML=L.map(function(l){var p=P.find(function(x){return x.id===l.partner_id}),c=comm(l);
+  return '<tr data-id="'+l.id+'"><td>'+K.dt(l.created_at)+'<br><small class="muted">#'+K.esc(l.ref)+'</small></td><td><b>'+K.esc(l.customer_name)+'</b><br><small class="muted">'+K.esc(l.address)+'<br>'+K.esc(l.summary||'')+'</small></td><td>'+(p?K.esc(p.name):'<span class="muted">-</span>')+'</td>'
+  +'<td><select data-f="status">'+Object.keys(K.STATUS).map(function(s){return '<option value="'+s+'"'+(l.status===s?' selected':'')+'>'+K.STATUS[s]+'</option>'}).join('')+'</select></td>'
+  +'<td><input data-f="price" type="number" min="0" step="1" value="'+(l.price==null?'':l.price)+'" style="width:90px"></td>'
+  +'<td>'+(c!=null?K.money(c)+'<br><label style="margin:2px 0;font-weight:400"><input data-f="paid" type="checkbox" style="width:auto"'+(l.commission_paid?' checked':'')+'> odendi</label>':'<span class="muted">-</span>')+'</td></tr>'}).join('');
+ $('prows').innerHTML=P.map(function(p){var mine=L.filter(function(l){return l.partner_id===p.id}),owe=0;mine.forEach(function(l){var c=comm(l);if(c&&!l.commission_paid)owe+=c});
+  return '<tr data-id="'+p.id+'"><td><b>'+K.esc(p.name)+'</b><br><small class="muted">'+K.esc(p.email)+(p.phone?' &middot; '+K.esc(p.phone):'')+'</small></td><td><b>'+K.esc(p.code)+'</b><br><button class="btn sm ghost" data-a="qr">QR / baglanti</button></td><td>%'+Number(p.commission_pct)+'</td><td>'+mine.length+'</td><td>'+K.money(owe)+'</td><td><button class="btn sm ghost" data-a="tog">'+(p.active?'Durdur':'Aktif et')+'</button></td></tr>'}).join('');
+}
+function load(){return Promise.all([sb.from('partners').select('*').order('created_at',{ascending:false}),sb.from('leads').select('*').order('created_at',{ascending:false}).limit(500)]).then(function(r){
+ if(r[0].error||r[1].error){msg('Yuklenemedi: '+(r[0].error||r[1].error).message,true);return}P=r[0].data;L=r[1].data;render()})}
+K.start(function(s){
+ sb.from('admins').select('email').then(function(r){
+  if(!r.data||!r.data.length){$('deny').hidden=false;return}
+  $('main').hidden=false;load();
+ });
+});
+document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b)});$('t-leads').hidden=b.dataset.t!=='leads';$('t-partners').hidden=b.dataset.t!=='partners'}});
+$('lrows').addEventListener('change',function(e){var tr=e.target.closest('tr'),f=e.target.dataset.f;if(!tr||!f)return;var l=L.find(function(x){return x.id===tr.dataset.id}),u={};
+ if(f==='status')u.status=e.target.value;if(f==='price')u.price=e.target.value===''?null:Number(e.target.value);if(f==='paid')u.commission_paid=e.target.checked;
+ sb.from('leads').update(u).eq('id',l.id).then(function(r){if(r.error)msg('Kaydedilemedi: '+r.error.message,true);else{Object.assign(l,u);msg('Kaydedildi');render()}})});
+$('pform').onsubmit=function(e){e.preventDefault();var row={name:$('pn').value.trim(),email:$('pe').value.trim().toLowerCase(),phone:$('pp').value.trim()||null,commission_pct:Number($('pc').value),code:code()};
+ sb.from('partners').insert(row).select().then(function(r){if(r.error)msg('Eklenemedi: '+r.error.message,true);else{P.unshift(r.data[0]);$('pform').reset();$('pc').value=10;msg('Ortak eklendi. Artik bu e-postayla portal/partner.html uzerinden girebilir.');render()}})};
+$('prows').addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var p=P.find(function(x){return x.id===b.closest('tr').dataset.id});
+ if(b.dataset.a==='tog')sb.from('partners').update({active:!p.active}).eq('id',p.id).then(function(r){if(!r.error){p.active=!p.active;render()}});
+ else{var l=K.refLink(p.code);$('qr').innerHTML=K.qrSvg(l);$('ql').textContent=l;$('qn').textContent=p.name;$('qrm').hidden=false;$('qc').onclick=function(){navigator.clipboard.writeText(l)};$('qx').onclick=function(){$('qrm').hidden=true};$('qrm').scrollIntoView()}});
+})();
+</script></body></html>

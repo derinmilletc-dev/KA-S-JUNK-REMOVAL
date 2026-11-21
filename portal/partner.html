@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><title>Kais Partner Portal</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="portal.css"></head><body>
+<header><b>Kais <span>Partner</span></b><button id="logout">Cikis</button></header>
+<main>
+<div id="loginBox" class="card login" hidden><h2>Ortak girisi</h2><p class="muted">Kayitli e-postani yaz, sana giris baglantisi gonderelim.</p>
+<form id="lform"><label for="lemail">E-posta</label><input id="lemail" type="email" required autocomplete="email"><p><button class="btn" id="lbtn" style="width:100%">Giris baglantisi gonder</button></p></form><div id="lmsg" class="msg" hidden></div></div>
+<div id="app" hidden>
+<div id="none" class="card" hidden><h3>Ortak kaydi bulunamadi</h3><p class="muted">Bu e-posta bir ortak hesabina bagli degil. Kais ekibiyle iletisime gec.</p></div>
+<div id="main" hidden>
+<div class="card"><h2 id="hello"></h2><p class="muted">Bu baglanti veya QR ile gelen her musteri senin adina kaydedilir.</p>
+<div class="row" style="align-items:flex-start;gap:20px"><div class="qr" id="qr"></div>
+<div class="grow"><div class="link" id="rl"></div><p class="row"><button class="btn sm" id="copy">Baglantiyi kopyala</button><button class="btn sm ghost" id="dl">QR indir</button></p>
+<p class="muted">Kodun: <b id="code"></b> &middot; Komisyon: <b id="pct"></b></p></div></div></div>
+<div class="grid" id="stats" style="margin-bottom:16px"></div>
+<div class="card"><h3 style="margin-bottom:8px">Islerin</h3><div class="tbl"><table><thead><tr><th>Tarih</th><th>Musteri</th><th>Is</th><th>Durum</th><th>Tutar</th><th>Komisyon</th></tr></thead><tbody id="rows"></tbody></table></div><p class="muted" id="empty" hidden>Henuz is yok. Baglantini paylas!</p></div>
+</div></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="config.js"></script><script src="core.js"></script>
+<script>
+(function(){var K=KJC,$=K.$;
+K.start(function(){
+ K.sb.from('partners').select('*').limit(1).then(function(r){
+  var p=r.data&&r.data[0]; if(!p){$('none').hidden=false;return;}
+  $('main').hidden=false; $('hello').textContent='Merhaba, '+p.name;
+  var link=K.refLink(p.code); $('rl').textContent=link; $('code').textContent=p.code; $('pct').textContent='%'+Number(p.commission_pct);
+  $('qr').innerHTML=K.qrSvg(link);
+  $('copy').onclick=function(){navigator.clipboard.writeText(link).then(function(){$('copy').textContent='Kopyalandi'})};
+  $('dl').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('qr').innerHTML],{type:'image/svg+xml'}));a.download='kais-'+p.code+'-qr.svg';a.click()};
+  K.sb.rpc('my_leads').then(function(x){
+   var L=x.data||[],done=L.filter(function(l){return l.status==='done'}),earn=0,unpaid=0;
+   done.forEach(function(l){var c=Number(l.commission||0);earn+=c;if(!l.commission_paid)unpaid+=c});
+   $('stats').innerHTML=[['Toplam talep',L.length],['Tamamlanan',done.length],['Toplam kazanc',K.money(earn)],['Odenmeyi bekleyen',K.money(unpaid)]].map(function(s){return '<div class="stat"><b>'+K.esc(s[1])+'</b><small>'+s[0]+'</small></div>'}).join('');
+   $('empty').hidden=L.length>0;
+   $('rows').innerHTML=L.map(function(l){return '<tr><td>'+K.dt(l.created_at)+'</td><td>'+K.esc(l.customer)+'</td><td>'+K.esc(l.summary||'')+'</td><td><span class="tag '+K.esc(l.status)+'">'+K.esc(K.STATUS[l.status]||l.status)+'</span></td><td>'+K.money(l.price)+'</td><td>'+(l.commission!=null?K.money(l.commission)+(l.commission_paid?' (odendi)':''):'-')+'</td></tr>'}).join('');
+  });
+ });
+});})();
+</script></body></html>
