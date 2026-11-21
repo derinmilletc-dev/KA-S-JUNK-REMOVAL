@@ -95,6 +95,7 @@ alter table leads add column if not exists deposit_paid_at timestamptz;
 alter table leads add column if not exists quote_accepted_at timestamptz;
 alter table leads add column if not exists customer_phone text;
 alter table leads add column if not exists paid_claim_at timestamptz;
+alter table leads add column if not exists photos_partner boolean not null default false;
 alter table leads add column if not exists crew_pay numeric(10,2);
 alter table leads add column if not exists crew_paid_at timestamptz;
 create table if not exists crews (
@@ -682,7 +683,7 @@ begin
   lbl := coalesce(r ->> 'ref', r ->> 'name', r ->> 'title', r ->> 'key', r ->> 'min_jobs', r ->> 'customer_name', '');
   rid := coalesce(r ->> 'id', r ->> 'min_jobs', r ->> 'key', '');
   watch := case tg_table_name
-    when 'leads' then array['status','price','commission_paid','override_paid','paid_at','customer_confirmed_at','partner_id','scheduled_at','dup_of','repeat_of','crew_id','crew_status','deposit_amount','deposit_paid_at','crew_pay','crew_paid_at','paid_claim_at']
+    when 'leads' then array['status','price','commission_paid','override_paid','paid_at','customer_confirmed_at','partner_id','scheduled_at','dup_of','repeat_of','crew_id','crew_status','deposit_amount','deposit_paid_at','crew_pay','crew_paid_at','paid_claim_at','photos_partner']
     when 'partners' then array['commission_pct','override_pct','active','parent_id','email','name','payout_info']
     when 'tiers' then array['pct']
     when 'price_list' then array['price']
@@ -950,7 +951,11 @@ do $$ begin
       bucket_id = 'job-photos' and exists (select 1 from public.leads l where l.id::text = (storage.foldername(name))[1] and l.crew_id = public.crew_me()));
     drop policy if exists "jp_read" on storage.objects;
     create policy "jp_read" on storage.objects for select to authenticated using (
-      bucket_id = 'job-photos' and (public.is_admin() or exists (select 1 from public.leads l where l.id::text = (storage.foldername(name))[1] and l.crew_id = public.crew_me())));
+      bucket_id = 'job-photos' and (public.is_admin()
+        or exists (select 1 from public.leads l where l.id::text = (storage.foldername(name))[1] and l.crew_id = public.crew_me())
+        or exists (select 1 from public.leads l join public.partners p on p.id = l.partner_id
+                   where l.id::text = (storage.foldername(name))[1] and l.photos_partner and l.status = 'done'
+                     and lower(p.email) = lower(coalesce(auth.jwt() ->> 'email','')))));
     drop policy if exists "gal_admin_write" on storage.objects;
     create policy "gal_admin_write" on storage.objects for insert to authenticated with check (bucket_id = 'gallery' and public.is_admin());
     drop policy if exists "gal_admin_del" on storage.objects;
@@ -1066,6 +1071,19 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke all on function my_events() from public, anon;
 grant execute on function my_events() to authenticated;
+
+-- Ortak: admin izin verdigi (photos_partner) ve biten islerin once/sonra fotograflari
+create or replace function my_job_photos()
+returns table(ref text, path text, kind text)
+language sql stable security definer set search_path = public as $$
+  select l.ref, j.path, j.kind
+  from leads l join partners p on p.id = l.partner_id join job_photos j on j.lead_id = l.id
+  where lower(p.email) = lower(coalesce(auth.jwt() ->> 'email',''))
+    and l.photos_partner and l.status = 'done'
+  order by j.at;
+$$;
+revoke all on function my_job_photos() from public, anon;
+grant execute on function my_job_photos() to authenticated;
 
 -- Ekibin kendi kazanci (sadece kendi isleri)
 create or replace function crew_earnings()
