@@ -74,6 +74,11 @@ button{font:inherit;color:inherit}
 .links{display:none;gap:28px}
 .links button{border:0;background:none;cursor:pointer;font-weight:500;font-size:16px;padding:8px 2px;color:var(--muted)}
 .links button:hover{color:var(--ink)}
+@media(max-width:1180px){.links{gap:16px}.links button{font-size:15px}.top .right{gap:8px}}
+@media(max-width:1180px){html[lang=es] .links{gap:12px}html[lang=es] .links button{font-size:14px}.top .live{display:none}.links [data-go=joinSec]{display:none}}
+.links button,.top .brand span,.top .cta{white-space:nowrap}
+@media(min-width:900px){html[lang=es] .links{gap:14px}html[lang=es] .links button{font-size:14.5px}html[lang=es] .top .live{display:none}html[lang=es] .links [data-go=joinSec]{display:none}}
+@media(max-width:1080px){.links [data-go=contactSec]{display:none}html[lang=es] .links [data-go=howSec]{display:none}}
 .right{display:flex;align-items:center;gap:12px}
 .live{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:600;white-space:nowrap}
 .live i{width:9px;height:9px;border-radius:50%;background:var(--live);position:relative}
@@ -94,7 +99,7 @@ button{font:inherit;color:inherit}
 
 /* hero */
 .hero{padding:36px 0 56px}
-.hero-grid{display:grid;gap:28px}
+.hero-grid{display:grid;gap:28px;grid-template-columns:minmax(0,1fr)}.hero-grid>*{min-width:0}
 .hero h1{font-family:var(--display);font-weight:800;font-size:clamp(58px,16vw,112px);line-height:.92;letter-spacing:-.04em;margin-top:12px}
 .hero h1 em{font-style:normal;color:var(--orange)}
 .hero .lead{margin-top:20px;max-width:28em;font-size:19px;color:var(--muted)}
@@ -106,7 +111,7 @@ button{font:inherit;color:inherit}
 .scene .range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;touch-action:pan-y}
 .scene:focus-within{outline:3px solid var(--orange);outline-offset:3px}
 .scene .hint,.scene .gone{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;padding:9px 18px;border-radius:999px;font-weight:600;font-size:15px;pointer-events:none;white-space:nowrap}
-.scene .hint{background:var(--ink);color:var(--paper);font-size:14px;max-width:calc(100% - 24px)}
+.scene .hint{background:var(--ink);color:var(--paper);font-size:14px;max-width:calc(100% - 24px);white-space:normal;text-align:center;line-height:1.25;border-radius:18px;width:max-content}
 .scene .gone{background:var(--orange);color:var(--ink);font-family:var(--display);font-weight:800;font-size:20px}
 
 /* what we take */
@@ -215,6 +220,8 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink);background:var(-
 .sum button{flex:none;border:0;background:none;text-decoration:underline;font-weight:600;font-size:15px;cursor:pointer;padding:6px}
 .sum .ph{display:flex;gap:6px;flex-wrap:wrap;flex:1}
 .sum .ph img{width:44px;height:44px;border-radius:12px;object-fit:cover}
+@media(max-width:420px){.sum .r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center}.sum dt{width:auto;grid-column:1;grid-row:1}.sum button{grid-column:2;grid-row:1}.sum dd{grid-column:1/-1;grid-row:2;overflow-wrap:break-word}}
+@media(max-width:400px){#send,#copy{font-size:15px;white-space:nowrap;padding-left:12px;padding-right:12px}}
 div.warn{margin-top:20px;padding:16px 18px;border-radius:20px;background:var(--ink);color:var(--paper)}
 div.warn b{display:block;font-family:var(--display);font-weight:800;font-size:19px;color:var(--orange)}
 div.warn p{margin-top:4px;color:#E4DFD5;font-size:16px}
@@ -284,12 +291,13 @@ body.inq .dock,body.s4 .dock{transform:translateY(140%)}
 .stepno b{color:var(--ink)}
 .stepno em{font-style:normal;color:var(--orange-deep)}
 .seg.g2,.seg.g3,.seg.g4{display:grid;gap:8px}
-.seg.g2{grid-template-columns:1fr 1fr}
-.seg.g3{grid-template-columns:repeat(3,1fr)}
-.seg.g4{grid-template-columns:repeat(4,1fr)}
+.seg.g2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.seg.g2 .box,.seg.g3 .box,.seg.g4 .box{min-width:0;overflow-wrap:break-word;hyphens:manual}
+.seg.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
 .seg.g2 .box,.seg.g3 .box,.seg.g4 .box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;border-radius:18px;padding:12px 6px;min-height:78px;font-size:14px;line-height:1.15;border:2px solid var(--line);background:var(--card);transition:border-color .15s,background .15s,transform .15s}
 .seg.g2 .box{flex-direction:row;justify-content:flex-start;gap:10px;padding:12px 14px;min-height:56px;text-align:left;font-size:15px}
 .seg .box svg{width:22px;height:22px;flex:none;color:var(--orange-deep)}
+@media(max-width:380px){.seg.g2 .box{padding:10px 8px;gap:0;font-size:13.5px;justify-content:center;text-align:center}.seg.g2 .box svg{display:none}.seg.g3 .box,.seg.g4 .box{font-size:13px;padding:12px 4px}}
 .opt:active .box{transform:scale(.97)}
 .opt input:checked + .box{border-color:var(--ink);background:var(--ink);color:var(--paper)}
 .opt input:checked + .box svg{color:var(--orange)}
@@ -333,7 +341,7 @@ body.inq .dock,body.s4 .dock{transform:translateY(140%)}
   .top .cta{display:inline-flex}
   .dock{display:none}
   .hero{padding:72px 0 96px}
-  .hero-grid{grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
+  .hero-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:56px;align-items:center}
   .bento{grid-template-columns:repeat(4,1fr);gap:16px}
   .tile{min-height:190px}
   .qgrid{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:64px;align-items:start}
@@ -372,7 +380,7 @@ body.inq .dock,body.s4 .dock{transform:translateY(140%)}
 }
 
 /* chips in one row */
-.facts{flex-wrap:nowrap;gap:6px}
+.facts{flex-wrap:wrap;gap:6px}
 .facts span{white-space:nowrap;font-size:clamp(11px,3.25vw,14px);padding:8px clamp(8px,2.4vw,14px) 8px clamp(20px,5.6vw,30px)}
 .facts span::before{left:clamp(8px,2.4vw,12px);width:7px;height:7px;margin-top:-3.5px}
 
@@ -385,7 +393,9 @@ body.inq .dock,body.s4 .dock{transform:translateY(140%)}
 .tile::after{content:'';position:absolute;right:-34px;top:-34px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(242,107,29,.16),transparent 70%);pointer-events:none}
 .tile .ic{width:54px;height:54px;border-radius:18px;background:linear-gradient(145deg,#FF8A3D,#F26B1D);color:#fff;box-shadow:0 10px 20px -8px rgba(242,107,29,.8)}
 .tile .ic svg{width:28px;height:28px}
-.tile b{font-size:clamp(18px,5.2vw,22px)}
+.tile b{font-size:clamp(18px,5.2vw,22px);overflow-wrap:break-word;hyphens:auto;min-width:0}
+html[lang=es] .tile b{font-size:clamp(15px,4.4vw,22px)}
+.bento>.tile{min-width:0}
 .tile .go{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--ink);font-size:14px;font-weight:700;padding-top:12px;border-top:1px dashed var(--line);width:100%}
 .tile .go svg{flex:none;width:26px!important;height:26px!important;margin:0!important;padding:6px;border-radius:50%;background:var(--ink);color:var(--paper);vertical-align:0!important;transition:transform .15s,background .15s}
 .tile:hover .go svg{transform:translateX(3px);background:var(--orange);color:var(--ink)}
@@ -450,11 +460,12 @@ body.inq .dock,body.s4 .dock{transform:translateY(140%)}
 ::view-transition-old(root){animation:vtout .22s ease both}::view-transition-new(root){animation:vtin .32s cubic-bezier(.2,.8,.2,1) both}
 @keyframes vtout{to{opacity:0;transform:translateY(-8px)}}@keyframes vtin{from{opacity:0;transform:translateY(14px)}}
 body.leaving{opacity:0;transform:translateY(-6px);transition:opacity .2s ease,transform .2s ease}
-@media(max-width:380px){.krow{gap:7px;flex-wrap:nowrap}.hero .krow .kicker{font-size:12px;padding:6px 10px 6px 9px;gap:7px}.wlink{font-size:13px;padding:7px 12px;gap:5px;white-space:nowrap}.wlink svg{width:13px;height:13px}}
+@media(max-width:380px){.krow{gap:7px}.hero .krow .kicker{font-size:12px;padding:6px 10px 6px 9px;gap:7px}.wlink{font-size:13px;padding:7px 12px;gap:5px;white-space:nowrap}.wlink svg{width:13px;height:13px}}
 .qrow{display:flex;gap:8px}
 .qrow input{flex:1 1 auto;min-width:0;font:inherit;font-weight:600;font-size:17px;color:var(--ink);background:var(--paper);border:2px solid transparent;border-radius:999px;padding:0 20px;min-height:56px}
 .qrow input:focus{outline:0;border-color:var(--orange);background:#fff}
 .qrow .btn{flex:0 0 auto;padding:0 22px;min-height:56px;font-size:18px;gap:8px}
+@media(max-width:400px){.qrow .btn{padding:0 16px;font-size:16px;gap:6px}.qrow .btn svg{width:16px;height:16px}.qrow input{padding:0 14px;font-size:16px}}
 .qmsg{margin:10px 6px 2px;font-size:15px;font-weight:600}.qmsg.ok{color:#17803F}.qmsg.warn{color:var(--orange-deep)}
 .hero .ctas{margin-top:12px}.hero .ctas .btn{min-height:50px;font-size:17px}
 .now{display:inline-flex;align-items:center;gap:9px;margin-top:16px;font-size:14px;font-weight:600;color:var(--muted)}
@@ -485,6 +496,7 @@ body.leaving{opacity:0;transform:translateY(-6px);transition:opacity .2s ease,tr
 .contact{position:relative;overflow:hidden;border-radius:36px 36px 0 0;padding:64px 0 52px;margin-top:-1px;background:radial-gradient(60% 70% at 100% 0%,rgba(242,107,29,.30),transparent 70%),radial-gradient(40% 50% at 0% 100%,rgba(242,107,29,.12),transparent 70%),#1F2421}
 .contact::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1.2px,transparent 1.4px);background-size:22px 22px;-webkit-mask-image:linear-gradient(180deg,#000,transparent 80%);mask-image:linear-gradient(180deg,#000,transparent 80%);pointer-events:none}
 .contact .in{position:relative}
+.contact .in .btn{justify-content:center;text-align:center;line-height:1.15}
 .contact a.num{display:inline-flex;align-items:center;gap:12px;font-family:var(--display);font-weight:800;font-size:clamp(34px,9vw,52px);letter-spacing:-.03em;line-height:1.05;margin-top:14px;color:var(--orange);text-decoration:none}
 .contact a.num::after{content:'';flex:none;width:.5em;height:.5em;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z'/%3E%3C/svg%3E") center/contain no-repeat}
 footer.foot{background:#1F2421;border-top:1px solid rgba(255,255,255,.08);color:#B9B4A9;padding:30px 0 calc(30px + env(safe-area-inset-bottom))}
@@ -578,7 +590,7 @@ html,body{overflow-x:clip}
 .hero{padding-bottom:36px}
 
 .cant{position:relative;overflow:hidden;background:linear-gradient(180deg,#FFF6F4,#FBF2EE);border-color:rgba(180,35,24,.18)}
-.cgrid{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cgrid{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.cgrid b{min-width:0;overflow-wrap:anywhere;hyphens:auto}
 .cgrid li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:var(--card);border:1px solid var(--line);transition:border-color .2s,background .2s,transform .2s}
 .cgrid .ti{flex:none;width:36px;height:36px;border-radius:12px;background:#FDE9E6;color:#B42318;display:flex;align-items:center;justify-content:center}
 .cgrid .ti svg{width:20px;height:20px}
@@ -591,7 +603,7 @@ html,body{overflow-x:clip}
 .cmsg{margin:10px 4px 0;font-size:14.5px;font-weight:600;line-height:1.4}
 .cmsg.no{color:#B42318}.cmsg.yes{color:#17803F}
 .cmsg button{margin-left:6px;border:0;border-radius:999px;background:var(--orange);color:#1F2421;font:inherit;font-weight:700;font-size:13.5px;padding:6px 13px;cursor:pointer}
-@media (min-width:700px){.cgrid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:700px){.cgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 /* dark mode */
 @media (prefers-color-scheme:dark){
@@ -1025,7 +1037,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
 <path class="fl2" d="M27.2,93.4 C24.0,92.4 21.8,92.3 20.6,86.8 C19.4,81.3 0.0,67.4 20.6,63.0 C41.2,58.7 113.3,60.4 135.0,62.6 C156.7,64.8 125.3,72.4 141.2,75.4 C157.0,78.4 201.9,78.1 223.0,79.3 C244.1,80.5 250.7,80.0 258.2,82.0 C265.7,83.9 260.8,91.7 264.8,90.3 C268.8,88.9 275.4,76.8 280.2,74.0 C285.0,71.3 288.8,72.2 291.2,74.9 C293.6,77.6 292.2,82.5 293.4,89.0 C294.6,95.5 296.2,103.9 297.8,111.0 C299.4,118.1 299.4,121.9 302.2,128.6 C305.0,135.3 309.2,141.3 313.2,148.4 C317.2,155.5 321.0,163.1 324.2,168.2 C327.4,173.3 329.2,172.2 330.8,177.0 C332.4,181.8 331.8,188.3 333.0,194.6 C334.2,200.9 335.0,205.9 337.4,212.2 C339.8,218.5 343.3,223.5 346.2,229.8 C349.1,236.1 352.5,240.3 353.7,247.4 C354.9,254.5 353.5,262.3 352.8,269.4 C352.1,276.5 350.9,281.5 349.7,287.0 C348.5,292.5 348.4,295.1 346.2,300.2 C344.0,305.3 340.2,312.0 337.4,315.6 C334.6,319.2 335.2,319.0 330.8,320.0 C326.4,321.0 317.6,321.1 313.2,321.3 C308.8,321.6 309.8,323.5 306.6,321.3 C303.4,319.1 299.6,314.8 295.6,309.0 C291.6,303.2 288.2,294.7 284.6,289.2 C281.0,283.7 278.6,283.0 275.8,278.2 C273.0,273.4 272.0,268.3 269.2,262.8 C266.4,257.3 262.8,251.4 260.4,247.4 C258.0,243.4 258.8,244.8 256.0,240.8 C253.2,236.8 248.2,230.2 245.0,225.4 C241.8,220.6 240.0,218.8 238.4,214.4 C236.8,210.0 237.4,204.8 236.2,201.2 C235.0,197.6 231.8,199.0 231.8,194.6 C231.8,190.2 236.2,183.3 236.2,177.0 C236.2,170.7 234.2,164.9 231.8,159.4 C229.4,153.9 227.4,151.3 223.0,146.2 C218.6,141.1 213.1,137.1 207.6,130.8 C202.1,124.5 197.3,116.1 192.2,111.0 C187.1,105.9 183.8,102.6 179.0,102.2 C174.2,101.8 171.3,106.4 165.8,108.8 C160.3,111.2 154.5,113.0 148.2,115.4 C141.9,117.8 135.7,121.2 130.6,122.0 C125.5,122.8 124.0,122.6 119.6,119.8 C115.2,117.0 110.8,111.0 106.4,106.6 C102.0,102.2 100.5,98.8 95.4,95.6 C90.3,92.4 84.9,89.8 77.8,89.0 C70.7,88.2 62.9,90.6 55.8,91.2 C48.7,91.8 43.3,92.1 38.2,92.5 C33.1,92.9 30.4,94.4 27.2,93.4Z"/><circle cx="333.0" cy="324.4" r="1.8" class="key"/><circle cx="322.0" cy="331.0" r="1.8" class="key"/><circle cx="308.8" cy="337.6" r="1.8" class="key"/><circle cx="295.6" cy="342.0" r="1.8" class="key"/><circle cx="284.6" cy="345.5" r="1.8" class="key"/><g class="pin" data-city="Miami" transform="translate(346.6 292.7)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/><text class="lbl" x="9" y="4" text-anchor="start">Miami</text></g><g class="pin" data-city="Orlando" transform="translate(294.3 170.8)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/><text class="lbl" x="10" y="-8" text-anchor="start">Orlando</text></g><g class="pin" data-city="Tampa" transform="translate(246.8 196.8)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/><text class="lbl" x="-10" y="-8" text-anchor="end">Tampa</text></g><g class="pin" data-city="Jacksonville" transform="translate(282.0 92.1)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/><text class="lbl" x="-10" y="-8" text-anchor="end">Jacksonville</text></g><g class="pin" data-city="Fort Lauderdale" transform="translate(348.8 277.3)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="St. Petersburg" transform="translate(238.8 204.7)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Tallahassee" transform="translate(166.7 87.2)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/><text class="lbl" x="0" y="-13" text-anchor="middle">Tallahassee</text></g><g class="pin" data-city="Naples" transform="translate(275.8 276.4)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Fort Myers" transform="translate(272.7 254.4)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="West Palm Beach" transform="translate(352.8 251.4)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Gainesville" transform="translate(252.9 122.0)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Kissimmee" transform="translate(293.0 181.8)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Sarasota" transform="translate(243.7 223.6)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Pensacola" transform="translate(38.2 88.1)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/><text class="lbl" x="0" y="-13" text-anchor="start">Pensacola</text></g><g class="pin" data-city="Daytona Beach" transform="translate(310.1 141.4)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Clearwater" transform="translate(231.8 195.9)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Cape Coral" transform="translate(269.2 258.0)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Lakeland" transform="translate(269.2 192.8)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Boca Raton" transform="translate(351.5 266.3)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Key West" transform="translate(276.7 346.0)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/><text class="lbl" x="-10" y="4" text-anchor="end">Key West</text></g><g class="pin" data-city="Panama City" transform="translate(106.0 99.6)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Melbourne" transform="translate(328.2 191.1)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="pin" data-city="Fort Pierce" transform="translate(340.5 218.8)"><circle class="halo" r="9"/><circle class="dot" r="4.2"/></g><g class="you" id="you"><circle class="yr" r="20"/><circle class="yr2" r="12"/><circle class="yd" r="6.5"/></g></svg>
       <form class="zipbar" id="zipForm" novalidate>
         <label for="zipIn">Check your area</label>
-        <div class="zrow"><input autocomplete="off" type="text" id="zipIn" inputmode="numeric" maxlength="5" placeholder="Enter your ZIP code"><span class="zok" id="zIcon" aria-hidden="true"></span></div>
+        <div class="zrow"><input autocomplete="off" type="text" id="zipIn" inputmode="numeric" maxlength="5" placeholder="Your ZIP code"><span class="zok" id="zIcon" aria-hidden="true"></span></div>
         <p class="zmsg" id="zOk" hidden><b>Yes, we come to you.</b> <button type="button" data-go="quote">Get a quote</button></p>
         <p class="zmsg warn" id="zNo" hidden>That ZIP looks outside Florida. Message us on WhatsApp and we will check.</p>
       </form>
@@ -1182,7 +1194,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     'Near':'Cerca de',
     'Wide shot':'Foto amplia','The whole pile in one photo':'Todo el montón en una foto','Close-up':'Acercamiento','Big items, one by one':'Artículos grandes, uno por uno','The way in':'La entrada','Door, stairs or gate':'Puerta, escaleras o portón','What we cannot take':'Lo que no podemos llevar','These need special disposal. Not sure? Send a photo and ask.':'Requieren desecho especial. ¿No estás seguro? Envía una foto y pregunta.','Paint and solvents':'Pintura y solventes','Chemicals and pesticides':'Químicos y pesticidas','Gasoline and propane':'Gasolina y propano','Asbestos':'Asbesto','Medical waste':'Desechos médicos','Ammunition and explosives':'Municiones y explosivos',
     'or':'o',
-    'Check an item':'Revisa un artículo','Type an item, like paint':'Escribe un artículo, como pintura','Sorry, we cannot take this one. It needs special disposal.':'Lo sentimos, este no lo podemos llevar. Requiere desecho especial.','Looks fine to us. Send a photo and we will confirm.':'Nos parece bien. Envía una foto y lo confirmamos.',
+    'Check an item':'Revisa un artículo','Type an item, like paint':'Un artículo, ej. pintura','Sorry, we cannot take this one. It needs special disposal.':'Lo sentimos, este no lo podemos llevar. Requiere desecho especial.','Looks fine to us. Send a photo and we will confirm.':'Nos parece bien. Envía una foto y lo confirmamos.',
     'Swipe to see more days':'Desliza para ver más días','Work with us':'Trabaja con nosotros','Partners':'Socios','Know someone with junk to clear? Share your link and earn a commission on every completed job. Free to join, no fees.':'¿Conoces a alguien con cosas que sacar? Comparte tu enlace y gana una comisión por cada trabajo completado. Unirse es gratis, sin cuotas.','Become a partner':'Hazte socio','Quick budget':'Presupuesto rápido','Quick notes':'Notas rápidas','Under $100':'Menos de $100','$100 to $200':'$100 a $200','$200 to $400':'$200 a $400','$400 or more':'$400 o más','Gate code':'Código del portón','Parking':'Estacionamiento','Call on arrival':'Llamar al llegar','Heavy items':'Cosas pesadas',
     'Which floor?':'¿En qué piso?','Enter a floor number.':'Escribe el número de piso.','Quick floor':'Piso rápido','Floor':'Piso','2nd floor':'Piso 2','3rd floor':'Piso 3','4th floor':'Piso 4','5th floor':'Piso 5','6th floor or higher':'Piso 6 o más',
     'What we take':'Qué nos llevamos','How it works':'Cómo funciona','FAQ':'Preguntas frecuentes','Contact':'Contacto',
@@ -1192,8 +1204,8 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     'Move-outs, listings and tenant turnovers cleared. Send photos and the address and we reply on WhatsApp with your quote.':'Desocupaciones, propiedades en venta y cambios de inquilino. Envía fotos y la dirección y te respondemos por WhatsApp con tu cotización.',
     'For realtors and property managers · Florida':'Para agentes inmobiliarios y administradores de propiedades · Florida',
     'Estimated price':'Precio estimado','Final price is confirmed from your photos.':'El precio final se confirma con tus fotos.',
-    'WhatsApp us':'Escríbenos por WhatsApp','Photos in, quote back':'Envías fotos, te cotizamos',
-    'Drag to clear the room for 10% off':'Desliza para despejar el cuarto y obtén 10% de descuento','Drag to clear the room':'Desliza para despejar el cuarto','Services':'Servicios',
+    'WhatsApp us':'Por WhatsApp','Photos in, quote back':'Envías fotos, te cotizamos',
+    'Drag to clear the room for 10% off':'Desliza para despejar y obtén 10% de descuento','Drag to clear the room':'Desliza para despejar el cuarto','Services':'Servicios',
     'If it is in your way, send a photo.':'Si te estorba, envíanos una foto.',
     'Furniture':'Muebles','Appliances':'Electrodomésticos','Garden waste':'Residuos de jardín','Garage':'Limpieza de','clean-outs':'garaje',
     'Garage items':'Cosas del garaje','Other':'Otros','Send a photo':'Enviar una foto',
@@ -1219,13 +1231,13 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     'Enter the full address with the street number, like 123 Main St, Orlando FL 32801.':'Escribe la dirección completa con el número de calle, como 123 Main St, Orlando FL 32801.','Enter a full 10-digit mobile number, or leave it empty.':'Escribe un número móvil de 10 dígitos, o déjalo vacío.',
     'That ZIP code looks outside Florida. We serve Florida. You can still send it and we will confirm.':'Ese código postal parece estar fuera de Florida. Atendemos en Florida. Aun así puedes enviarlo y lo confirmamos.',
     'Your name':'Tu nombre','Enter your name.':'Escribe tu nombre.','I am a':'Soy',
-    'Homeowner':'Propietario','Realtor':'Agente inmobiliario','Property manager':'Administrador de propiedades','Business':'Negocio',
+    'Homeowner':'Propietario','Realtor':'Agente','Property manager':'Administrador','Business':'Negocio',
     'Where are the items?':'¿Dónde están los artículos?','Ground floor':'Planta baja','Stairs':'Escaleras','Elevator':'Elevador',
     'When?':'¿Cuándo?','As soon as possible':'Lo antes posible','Pick a day':'Elegir un día','Flexible':'Flexible',
     'Morning':'Por la mañana','Afternoon':'Por la tarde','Evening':'Por la noche','Anytime':'Cualquier hora','Choose a day.':'Elige un día.',
     'Anything else?':'¿Algo más?','Review':'Revisar','Check and send':'Revisa y envía',
     'This is the message we will open in WhatsApp.':'Este es el mensaje que abriremos en WhatsApp.','One more thing':'Una cosa más',
-    'Send on WhatsApp':'Enviar por WhatsApp','Copy message':'Copiar mensaje',
+    'Send on WhatsApp':'Enviar por WhatsApp','Copy message':'Copiar',
     'Nothing is sent until you press send inside WhatsApp.':'No se envía nada hasta que presiones enviar dentro de WhatsApp.',
     'Process':'Proceso','Send photos and your address':'Envía fotos y tu dirección',
     'Use the form above or message us on WhatsApp.':'Usa el formulario o escríbenos por WhatsApp.',
@@ -1240,13 +1252,13 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     'We are open 24/7. Message or call anytime on +1 (407) 446-2534.':'Estamos abiertos 24/7. Escríbenos o llámanos a cualquier hora al +1 (407) 446-2534.',
     'What should I photograph?':'¿Qué debo fotografiar?',
     'Everything you want gone. One wide shot of the whole pile and a few close-ups of big items works best.':'Todo lo que quieras sacar. Funciona mejor una foto amplia de todo y algunos acercamientos de lo más grande.',
-    'Ready when you are':'Listos cuando tú lo estés','Serving Florida. Open 24/7.':'Atendemos en Florida. Abierto 24/7.',
-    'Message on WhatsApp':'Escríbenos por WhatsApp','Serving Florida · Open 24/7':'Atendemos en Florida · Abierto 24/7',
+    'Ready when you are':'Listos cuando tú lo estés','Serving Florida. Open 24/7.':'Atendemos en Florida. Abierto 24/7.','Serving Florida, USA. Open 24/7.':'Atendemos en Florida, USA. Abierto 24/7.','For realtors & property managers':'Para agentes y administradores','Junk removal in:':'Retiro de basura en:','Your ZIP code':'Tu código postal',
+    'Message on WhatsApp':'Habla por WhatsApp','Serving Florida · Open 24/7':'Atendemos en Florida · Abierto 24/7',
     'Name':'Nombre','Type':'Tipo','Address':'Dirección','Load':'Carga','Location':'Ubicación','When':'Cuándo','Notes':'Notas','Edit':'Editar',
     'Today':'Hoy','Tomorrow':'Mañana','Copied':'Copiado','Copy failed':'No se pudo copiar','Before':'Antes','After':'Después',
     'Photo':'Foto','Remove photo':'Quitar foto','Fewer':'Menos','More':'Más',
     'Street, number, city, ZIP code':'Calle, número, ciudad, código postal','First and last name':'Nombre y apellido','Mobile number (optional)':'Número de celular (opcional)','So we can text you updates':'Para enviarte avisos',
-    'Phone':'Teléfono','Your budget':'Tu presupuesto','Budget':'Presupuesto','For example $200, or not sure':'Por ejemplo $200, o no estoy seguro',
+    'Phone':'Teléfono','Your budget':'Tu presupuesto','Budget':'Presupuesto','For example $200, or not sure':'Ej. $200, o no sé',
     'Parking, gate code, best time of day':'Estacionamiento, código de acceso, mejor hora del día',
     'Kais Junk Remove, back to top':'Kais Junk Remove, volver arriba','Progress':'Progreso','Sections':'Secciones',
     'Quick actions':'Acciones rápidas','Language':'Idioma','Choose a day':'Elige un día'
@@ -1879,6 +1891,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     Array.prototype.forEach.call(document.querySelectorAll('.qchips'), function(box){
       box.addEventListener('click', function(e){
         var b = e.target.closest('button'); if (!b) return;
+        if (!box.getAttribute('data-for')) return;
         var inp = $(box.getAttribute('data-for')), v = b.getAttribute('data-v');
         if (box.getAttribute('data-add')) { inp.value = (inp.value && !/\s$/.test(inp.value) ? inp.value + ' ' : inp.value) + v; inp.focus(); }
         else { inp.value = v; Array.prototype.forEach.call(box.children, function(c){ c.classList.toggle('on', c === b); }); }
