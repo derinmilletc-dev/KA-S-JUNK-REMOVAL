@@ -439,9 +439,10 @@ body.inq .dock,body.s4 .dock{transform:translateY(140%)}
 /* quick start */
 .quick{margin-top:22px;padding:14px;border-radius:26px;background:rgba(255,255,255,.85);border:1px solid var(--line);box-shadow:0 24px 50px -30px rgba(31,36,33,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .quick label{display:block;font-weight:700;font-size:14px;margin:2px 4px 8px;color:var(--muted)}
-.qhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 4px 10px}.qhead label{margin:0;min-width:0}
-.quick .kicker{flex:none;font-size:10.5px;letter-spacing:.06em;font-weight:700;padding:5px 10px 5px 9px;gap:6px;white-space:nowrap}.quick .kicker::before{width:6px;height:6px}
-@media(max-width:374px){.qhead label{font-size:13px;white-space:nowrap}.quick .kicker{font-size:9.5px;letter-spacing:.04em;padding:4px 8px 4px 7px;gap:5px}}
+.krow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.wlink{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;border:1.5px solid var(--orange);color:var(--orange-deep);font-weight:700;font-size:14px;letter-spacing:.02em;text-decoration:none;transition:background .15s,color .15s,transform .12s}
+.wlink svg{width:15px;height:15px;transition:transform .15s}.wlink:hover{background:var(--orange);color:#1F2421}.wlink:hover svg{transform:translateX(3px)}.wlink:active{transform:scale(.97)}
+@media(max-width:380px){.krow{gap:7px;flex-wrap:nowrap}.hero .krow .kicker{font-size:12px;padding:6px 10px 6px 9px;gap:7px}.wlink{font-size:13px;padding:6px 11px;gap:5px;white-space:nowrap}.wlink svg{width:13px;height:13px}}
 .qrow{display:flex;gap:8px}
 .qrow input{flex:1 1 auto;min-width:0;font:inherit;font-weight:600;font-size:17px;color:var(--ink);background:var(--paper);border:2px solid transparent;border-radius:999px;padding:0 20px;min-height:56px}
 .qrow input:focus{outline:0;border-color:var(--orange);background:#fff}
@@ -673,10 +674,11 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
 <section class="hero" id="top">
   <div class="wrap hero-grid">
     <div class="copy">
+      <div class="krow"><span class="kicker" id="tag">Serving Florida</span><a class="wlink" href="join.html">Work with us<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
       <h1>Junk gone.<br><em>Space back.</em></h1>
       <p class="lead" id="lead">Send photos of what needs to go and where it is. We reply on WhatsApp with your quote.</p>
       <form class="quick" id="quick" novalidate>
-        <div class="qhead"><label for="qa">Start with your address</label><span class="kicker" id="tag">Serving Florida</span></div>
+        <label for="qa">Start with your address</label>
         <div class="qrow"><input autocomplete="off" id="qa" type="text" placeholder="Address or ZIP"><button class="btn" type="submit"><span>Start</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
         <p class="qmsg ok" id="qOk" hidden>Yes, we come to you.</p>
         <p class="qmsg warn" id="qNo" hidden>That ZIP code looks outside Florida. We serve Florida. You can still send it and we will confirm.</p>
@@ -1180,7 +1182,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     'Junk gone.':'Fuera la basura.','Space back.':'Recupera tu espacio.',
     'Send photos of what needs to go and where it is. We reply on WhatsApp with your quote.':'Envíanos fotos de lo que hay que sacar y dónde está. Te respondemos por WhatsApp con tu cotización.',
     'Move-outs, listings and tenant turnovers cleared. Send photos and the address and we reply on WhatsApp with your quote.':'Desocupaciones, propiedades en venta y cambios de inquilino. Envía fotos y la dirección y te respondemos por WhatsApp con tu cotización.',
-    'Realtors · Florida':'Agentes · Florida',
+    'For realtors and property managers · Florida':'Para agentes inmobiliarios y administradores de propiedades · Florida',
     'Estimated price':'Precio estimado','Final price is confirmed from your photos.':'El precio final se confirma con tus fotos.',
     'WhatsApp us':'Escríbenos por WhatsApp','Photos in, quote back':'Envías fotos, te cotizamos',
     'Drag to clear the room for 10% off':'Desliza para despejar el cuarto y obtén 10% de descuento','Drag to clear the room':'Desliza para despejar el cuarto','Services':'Servicios',
@@ -1720,7 +1722,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     $('lead').textContent = t(pro
       ? 'Move-outs, listings and tenant turnovers cleared. Send photos and the address and we reply on WhatsApp with your quote.'
       : 'Send photos of what needs to go and where it is. We reply on WhatsApp with your quote.');
-    $('tag').textContent = t(pro ? 'Realtors · Florida' : 'Serving Florida');
+    $('tag').textContent = t(pro ? 'For realtors and property managers · Florida' : 'Serving Florida');
     var r = document.querySelector('input[name="who"][value="' + (pro ? 'Realtor' : 'Homeowner') + '"]');
     if (r) r.checked = true;
   }
