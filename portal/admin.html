@@ -27,7 +27,7 @@ function render(){
  $('lempty').hidden=L.length>0;
  $('lrows').innerHTML=L.map(function(l){var p=P.find(function(x){return x.id===l.partner_id}),c=comm(l);
   return '<tr data-id="'+l.id+'"><td>'+K.dt(l.created_at)+'<br><small class="muted">#'+K.esc(l.ref)+'</small>'+(l.track_token?'<br><button class="btn sm ghost" data-a="trk" style="margin-top:4px">Takip linki</button>':'')+'</td><td><b>'+K.esc(l.customer_name)+'</b><br><small class="muted">'+K.esc(l.address)+'<br>'+K.esc(l.summary||'')+'</small></td><td>'+(p?K.esc(p.name):'<span class="muted">-</span>')+'</td>'
-  +'<td><select data-f="status">'+Object.keys(K.STATUS).map(function(s){return '<option value="'+s+'"'+(l.status===s?' selected':'')+'>'+K.STATUS[s]+'</option>'}).join('')+'</select></td>'
+  +'<td><select data-f="status">'+Object.keys(K.STATUS).map(function(s){return '<option value="'+s+'"'+(l.status===s?' selected':'')+'>'+K.STATUS[s]+'</option>'}).join('')+'</select><label style="margin:6px 0 0;font-weight:400"><input data-f="pay" type="checkbox" style="width:auto"'+(l.paid_at?' checked':'')+'> Odeme alindi</label><small class="muted">Musteri onayi: '+(l.customer_confirmed_at?'evet':'bekliyor')+'</small>'+(l.paid_at&&l.customer_confirmed_at?'<br><span class="tag">Link kapandi</span>':'')+'</td>'
   +'<td><input data-f="price" type="number" min="0" step="1" value="'+(l.price==null?'':l.price)+'" style="width:90px"></td>'
   +'<td>'+(c!=null?K.money(c)+'<br><label style="margin:2px 0;font-weight:400"><input data-f="paid" type="checkbox" style="width:auto"'+(l.commission_paid?' checked':'')+'> odendi</label>':'<span class="muted">-</span>')+'</td></tr>'}).join('');
  $('prows').innerHTML=P.map(function(p){var mine=L.filter(function(l){return l.partner_id===p.id}),owe=0;mine.forEach(function(l){var c=comm(l);if(c&&!l.commission_paid)owe+=c});
@@ -43,7 +43,7 @@ K.start(function(s){
 });
 document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b)});$('t-leads').hidden=b.dataset.t!=='leads';$('t-partners').hidden=b.dataset.t!=='partners'}});
 $('lrows').addEventListener('change',function(e){var tr=e.target.closest('tr'),f=e.target.dataset.f;if(!tr||!f)return;var l=L.find(function(x){return x.id===tr.dataset.id}),u={};
- if(f==='status')u.status=e.target.value;if(f==='price')u.price=e.target.value===''?null:Number(e.target.value);if(f==='paid')u.commission_paid=e.target.checked;
+ if(f==='status')u.status=e.target.value;if(f==='price')u.price=e.target.value===''?null:Number(e.target.value);if(f==='paid')u.commission_paid=e.target.checked;if(f==='pay')u.paid_at=e.target.checked?new Date().toISOString():null;
  sb.from('leads').update(u).eq('id',l.id).then(function(r){if(r.error)msg('Kaydedilemedi: '+r.error.message,true);else{Object.assign(l,u);msg('Kaydedildi');render()}})});
 $('pform').onsubmit=function(e){e.preventDefault();var row={name:$('pn').value.trim(),email:$('pe').value.trim().toLowerCase(),phone:$('pp').value.trim()||null,commission_pct:Number($('pc').value),code:code()};
  sb.from('partners').insert(row).select().then(function(r){if(r.error)msg('Eklenemedi: '+r.error.message,true);else{P.unshift(r.data[0]);$('pform').reset();$('pc').value=10;msg('Ortak eklendi. Artik bu e-postayla portal/partner.html uzerinden girebilir.');render()}})};

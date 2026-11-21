@@ -1,7 +1,9 @@
--- Kais Junk Remove: ortak (partner) sistemi
--- Supabase > SQL Editor'a yapistirip bir kez calistir.
--- Sonra su satirdaki e-postayi KENDI e-postanla degistirip calistir:
---   insert into admins(email) values ('senin@epostan.com');
+-- =====================================================================
+-- KAIS JUNK REMOVE: TEK SEFERDE CALISTIR (tekrar calistirmak da guvenli)
+-- 1) Asagidaki 'BURAYA_KENDI_EPOSTAN@ornek.com' yerine KENDI e-postani yaz
+--    (admin paneline giriste kullanacagin e-posta).
+-- 2) Supabase > SQL Editor > New query > hepsini yapistir > Run.
+-- =====================================================================
 
 create table if not exists admins (email text primary key);
 
@@ -35,6 +37,9 @@ create table if not exists leads (
 );
 alter table leads add column if not exists track_token text unique;
 alter table leads add column if not exists updated_at timestamptz not null default now();
+-- Musteri hizmeti onaylar, admin odemeyi onaylar; ikisi de dolunca takip linki kapanir
+alter table leads add column if not exists customer_confirmed_at timestamptz;
+alter table leads add column if not exists paid_at timestamptz;
 
 create or replace function touch_lead() returns trigger language plpgsql as $$
 begin new.updated_at = now(); return new; end $$;
@@ -95,15 +100,36 @@ begin
 end $$;
 grant execute on function partner_create_lead(text,text,text,text,text) to authenticated;
 
--- Musteri takip sayfasi: sadece ozel kodu bilen gorur, hassas bilgi donmez
+-- Musteri takip sayfasi: sadece ozel kodu bilen gorur, hassas bilgi donmez.
+-- Hizmet onayi (musteri) + odeme onayi (admin) tamamlaninca link kapanir: detay donmez.
+drop function if exists track_lead(text);
 create or replace function track_lead(p_token text)
-returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric)
+returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric, can_confirm boolean, confirmed boolean, closed boolean)
 language sql stable security definer set search_path = public as $$
-  select l.ref, l.created_at, l.updated_at, split_part(coalesce(l.customer_name,''),' ',1), l.summary, l.status,
-         case when l.status in ('quoted','booked','done') then l.price end
-  from leads l where l.track_token = p_token and length(coalesce(p_token,'')) >= 24;
+  select l.ref,
+         case when closed then null else l.created_at end,
+         case when closed then null else l.updated_at end,
+         case when closed then null else split_part(coalesce(l.customer_name,''),' ',1) end,
+         case when closed then null else l.summary end,
+         case when closed then 'closed' else l.status end,
+         case when not closed and l.status in ('quoted','booked','done') then l.price end,
+         (not closed and l.status = 'done' and l.customer_confirmed_at is null),
+         (l.customer_confirmed_at is not null),
+         closed
+  from (select x.*, (x.customer_confirmed_at is not null and x.paid_at is not null) as closed
+        from leads x where x.track_token = p_token and length(coalesce(p_token,'')) >= 24) l;
 $$;
 grant execute on function track_lead(text) to anon, authenticated;
+
+-- Musteri "hizmet yerine getirildi" onayi (yalnizca is 'tamamlandi' ise)
+create or replace function confirm_service(p_token text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if length(coalesce(p_token,'')) < 24 then return; end if;
+  update leads set customer_confirmed_at = now()
+   where track_token = p_token and status = 'done' and customer_confirmed_at is null;
+end $$;
+grant execute on function confirm_service(text) to anon, authenticated;
 
 -- Ortak kendi islerini gorur (musteri adresi/telefonu gizli: sadece ad bas harfi + ozet)
 drop function if exists my_leads();
@@ -120,3 +146,6 @@ language sql stable security definer set search_path = public as $$
   order by l.created_at desc;
 $$;
 grant execute on function my_leads() to authenticated;
+
+-- Yonetici (e-postani degistir!)
+insert into admins(email) values (lower('BURAYA_KENDI_EPOSTAN@ornek.com')) on conflict do nothing;

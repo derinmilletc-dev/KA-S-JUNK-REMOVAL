@@ -17,11 +17,11 @@ li.now i{border-color:var(--orange);background:var(--tint);color:var(--deep);box
 li small{display:block;font-weight:400;color:var(--muted)}
 .price{background:var(--paper);border-radius:12px;padding:12px 14px;margin-top:4px}.price b{font:700 24px 'Bricolage Grotesque',sans-serif}
 .btn{display:block;text-align:center;background:var(--orange);color:#fff;text-decoration:none;font-weight:600;border-radius:12px;padding:13px}
-.btn:hover{background:var(--deep)}.err{color:#B42318}
+.btn.ok{background:var(--green);border:0;width:100%;font:inherit;font-weight:600;cursor:pointer;margin-top:14px}.btn:hover{background:var(--deep)}.err{color:#B42318}
 </style></head><body>
 <header>Kais <span>Junk Remove</span></header>
 <main><div class="card" id="box"><p class="muted" id="state">Loading…</p></div>
-<a class="btn" href="https://wa.me/14074462534" target="_blank" rel="noopener">Message us on WhatsApp</a>
+<a class="btn" id="wa" href="https://wa.me/14074462534" target="_blank" rel="noopener">Message us on WhatsApp</a>
 <p class="muted" style="text-align:center;margin-top:14px">This private page updates by itself. Open +1 (407) 446-2534 anytime.</p></main>
 <script src="portal/config.js"></script>
 <script>
@@ -33,12 +33,13 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function fmt(d){return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
 function msg(t,bad){box.innerHTML='<p class="muted'+(bad?' err':'')+'">'+esc(t)+'</p>'}
 function draw(l){
+ if(l.closed){box.innerHTML='<h1>All done</h1><p class="muted">#'+esc(l.ref)+'. Service confirmed and payment received. This tracking link is now closed. Thank you for choosing Kais Junk Remove!</p>';document.getElementById('wa').hidden=true;return}
  if(l.status==='lost'){box.innerHTML='<h1>Request closed</h1><p class="muted">#'+esc(l.ref)+'. This request is closed. Message us if you would like to start again.</p>';return}
  var at=STEPS.findIndex(function(s){return s[0]===l.status});
  box.innerHTML='<h1>'+(l.first_name?'Hi '+esc(l.first_name)+'!':'Your request')+'</h1><p class="muted">Reference #'+esc(l.ref)+' · updated '+fmt(l.updated_at)+'</p>'
  +(l.summary?'<p class="muted">'+esc(l.summary)+'</p>':'')
  +(l.price!=null?'<div class="price"><span class="muted">Your quote</span><br><b>$'+Number(l.price).toFixed(2).replace(/\.00$/,'')+'</b></div>':'')
- +'<ol>'+STEPS.map(function(s,i){var c=i<at||(i===at&&l.status==='done')?'done':i===at?'now':'';return '<li class="'+c+'"><i>'+(c==='done'?'✓':i+1)+'</i><span>'+s[1]+'<small>'+(c?s[2]:'')+'</small></span></li>'}).join('')+'</ol>';
+ +(l.confirmed?'<p class="muted" style="margin-top:12px">✓ You confirmed the service. Waiting for payment confirmation from us.</p>':'')+(l.can_confirm?'<button class="btn ok" id="cf" type="button">Confirm the service was completed</button>':'')+'<ol>'+STEPS.map(function(s,i){var c=i<at||(i===at&&l.status==='done')?'done':i===at?'now':'';return '<li class="'+c+'"><i>'+(c==='done'?'✓':i+1)+'</i><span>'+s[1]+'<small>'+(c?s[2]:'')+'</small></span></li>'}).join('')+'</ol>';
 }
 function load(first){
  if(!K.SUPABASE_URL||tok.length<24){if(first)msg('This tracking link is not valid.',true);return}
@@ -46,6 +47,8 @@ function load(first){
  .then(function(r){return r.json()}).then(function(d){if(d&&d[0])draw(d[0]);else if(first)msg('We could not find this request. Check the link or message us.',true)})
  .catch(function(){if(first)msg('Could not load. Try again in a moment.',true)});
 }
+document.addEventListener('click',function(e){if(!e.target||e.target.id!=='cf')return;e.target.disabled=true;
+ fetch(K.SUPABASE_URL+'/rest/v1/rpc/confirm_service',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_token:tok})}).then(function(){load(false)})});
 load(true);setInterval(function(){if(!document.hidden)load(false)},30000);
 })();
 </script></body></html>
