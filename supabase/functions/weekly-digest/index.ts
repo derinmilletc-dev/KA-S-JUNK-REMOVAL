@@ -5,6 +5,22 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const esc = (s: string) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 const money = (n: number) => "$" + Number(n || 0).toFixed(2).replace(/\.00$/, "");
 
+// ---- Ortak e-posta tasarimi (logolu, sade). Tum fonksiyonlarda ayni. ----
+const LOGO = "https://kaisremoval.com/apple-touch-icon.png";
+function layout(title: string, inner: string, link?: string, label = "Open panel / Abrir panel", pre = ""): string {
+  const btn = link
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0 6px"><tr><td style="background:#F26B1D;border-radius:12px"><a href="${esc(link)}" style="display:inline-block;padding:14px 24px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none">${label}</a></td></tr></table>`
+    : "";
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#F3EEE4"><div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(pre || title)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3EEE4"><tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #E7E0D2;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1F2421">
+<tr><td style="background:#1F2421;padding:20px 28px"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td><img src="${LOGO}" width="40" height="40" alt="" style="display:block;border-radius:10px;border:0"></td><td style="padding-left:12px;font-size:18px;font-weight:700;color:#ffffff;letter-spacing:-0.01em">Kais Junk Remove</td></tr></table></td></tr>
+<tr><td style="height:4px;line-height:4px;font-size:0;background:#F26B1D">&nbsp;</td></tr>
+<tr><td style="padding:30px 28px 6px"><h1 style="margin:0 0 14px;font-size:24px;line-height:1.25;letter-spacing:-0.02em;color:#1F2421">${esc(title)}</h1><div style="font-size:16px;line-height:1.6;color:#2C332F">${inner}</div>${btn}</td></tr>
+<tr><td style="padding:22px 28px 28px"><div style="border-top:1px solid #EDE7DA;padding-top:16px;font-size:12px;line-height:1.7;color:#7A817C">Kais Junk Remove &middot; Florida &middot; Open 24/7<br>+1 (407) 446-2534 &middot; <a href="https://kaisremoval.com" style="color:#7A817C">kaisremoval.com</a></div></td></tr>
+</table></td></tr></table></body></html>`;
+}
+
 Deno.serve(async (req) => {
   // Sadece gizli anahtarla cagrilabilir (cron bunu gonderir)
   if (req.headers.get("x-cron-secret") !== Deno.env.get("CRON_SECRET")) return new Response("forbidden", { status: 403 });
@@ -21,19 +37,14 @@ Deno.serve(async (req) => {
     // Hareketsiz ortaga mail atma
     if (!p.requests && !p.done && !Number(p.earned) && !p.team_new && !Number(p.pending)) continue;
     const first = esc(String(p.name).split(" ")[0]);
-    const html = `<div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto;color:#1F2421">
-      <h2 style="margin:0 0 8px">Hi ${first}, here is your week</h2>
-      <p style="color:#565D58;margin:0 0 16px">Your last 7 days with Kais Junk Remove.</p>
-      <table style="width:100%;border-collapse:collapse;font-size:16px">
-        <tr><td style="padding:8px 0">New requests</td><td align="right"><b>${p.requests}</b></td></tr>
-        <tr><td style="padding:8px 0">Completed jobs</td><td align="right"><b>${p.done}</b></td></tr>
-        <tr><td style="padding:8px 0">Earned this week</td><td align="right"><b>${money(p.earned)}</b></td></tr>
-        <tr><td style="padding:8px 0">Waiting to be paid</td><td align="right"><b>${money(p.pending)}</b></td></tr>
-        ${p.team_new ? `<tr><td style="padding:8px 0">New team members</td><td align="right"><b>${p.team_new}</b></td></tr>` : ""}
-      </table>
-      ${panel ? `<p style="margin-top:20px"><a href="${esc(panel)}" style="background:#F26B1D;color:#fff;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:600">Open my partner panel</a></p>` : ""}
-      <p style="color:#565D58;font-size:13px;margin-top:24px">“You will be paid in direct proportion to the value you create.” — T. Harv Eker</p>
-    </div>`;
+    const html = layout(`Hi ${first}, here is your week`, `<p style="color:#565D58;margin:0 0 14px">Your last 7 days with Kais Junk Remove.</p>
+      <table role="presentation" style="width:100%;border-collapse:collapse;font-size:16px">
+        <tr><td style="padding:10px 0;border-bottom:1px solid #EDE7DA">New requests</td><td align="right" style="border-bottom:1px solid #EDE7DA"><b>${p.requests}</b></td></tr>
+        <tr><td style="padding:10px 0;border-bottom:1px solid #EDE7DA">Completed jobs</td><td align="right" style="border-bottom:1px solid #EDE7DA"><b>${p.done}</b></td></tr>
+        <tr><td style="padding:10px 0;border-bottom:1px solid #EDE7DA">Earned this week</td><td align="right" style="border-bottom:1px solid #EDE7DA"><b>${money(p.earned)}</b></td></tr>
+        <tr><td style="padding:10px 0">Waiting to be paid</td><td align="right"><b>${money(p.pending)}</b></td></tr>
+        ${p.team_new ? `<tr><td style="padding:10px 0;border-top:1px solid #EDE7DA">New team members</td><td align="right" style="border-top:1px solid #EDE7DA"><b>${p.team_new}</b></td></tr>` : ""}
+      </table>`, panel ? panel : undefined, "Open my partner panel");
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`, "Content-Type": "application/json" },
