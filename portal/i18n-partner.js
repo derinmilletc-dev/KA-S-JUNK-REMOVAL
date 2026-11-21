@@ -96,6 +96,7 @@ P(/^Ekibine yeni ortak katildi: (.*)$/,'A new partner joined your team: $1','Un 
 P(/^Yeni kampanya: (.*)$/,'New campaign: $1','Nueva campaña: $1');
 P(/^Eski musterin tekrar is verdi: (.*?) \(tekrar musteri payi\)$/,'Your past customer ordered again: $1 (repeat customer share)','Tu cliente anterior volvió a pedir: $1 (comisión por cliente recurrente)');
 P(/^Destek yaniti: (.*)$/,'Support reply: $1','Respuesta de soporte: $1');
-P(/^Itirazin \((.*)\) (onaylandi|reddedildi)(.*)$/,'Your dispute ($1): $2$3','Tu reclamo ($1): $2$3');
+P(/^Itirazin \((.*)\) onaylandi(.*)$/,'Your dispute ($1) was approved$2','Tu reclamo ($1) fue aprobado$2');
+P(/^Itirazin \((.*)\) reddedildi(.*)$/,'Your dispute ($1) was rejected$2','Tu reclamo ($1) fue rechazado$2');
 KJI.init({src:'tr',langs:['tr','en','es']});
 })();

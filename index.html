@@ -1035,10 +1035,10 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
   </div>
 </section>
 
-<section class="work" id="workSec" aria-labelledby="workh" hidden>
+<section class="work" id="workSec" aria-labelledby="workh2" hidden>
   <div class="wrap">
     <span class="kicker" id="workk">Recent jobs</span>
-    <h2 class="h2" id="workh">Before and after</h2>
+    <h2 class="h2" id="workh2">Before and after</h2>
     <div class="ba-grid" id="baGrid"></div>
     <div class="rv-grid" id="rvGrid"></div>
   </div>
@@ -1405,7 +1405,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
             var d = mk('div', 'revw'); d.appendChild(mk('div', 'st', '★★★★★'.slice(0, Math.max(1, Math.min(5, x.stars || 5)))));
             d.appendChild(mk('p', '', '“' + x.body + '”')); d.appendChild(mk('small', '', [x.name, x.city].filter(Boolean).join(' · '))); rvEl.appendChild(d);
           });
-          document.getElementById('workh').textContent = g.length ? 'Before and after' : 'What customers say';
+          document.getElementById('workh2').textContent = g.length ? 'Before and after' : 'What customers say';
           document.getElementById('workSec').hidden = false;
         }).catch(function(){});
     } catch(e){}
