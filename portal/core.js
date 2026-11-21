@@ -31,9 +31,10 @@
     };
   }
   function start(onReady){
+    var lo0 = $('logout'); if (lo0) lo0.style.display = 'none';
     if (!sb){ loginUI(); return; }
     sb.auth.getSession().then(function(r){
-      if (r.data.session) { $('loginBox').hidden = true; $('app').hidden = false; onReady(r.data.session); }
+      if (r.data.session) { $('loginBox').hidden = true; $('app').hidden = false; if (lo0) lo0.style.display = ''; onReady(r.data.session); }
       else loginUI();
     });
     sb.auth.onAuthStateChange(function(ev){ if (ev === 'SIGNED_IN' && $('app').hidden) location.reload(); });
