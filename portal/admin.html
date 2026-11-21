@@ -1,4 +1,31 @@
-<!doctype html><html lang="en"><head><title>Kais Admin</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="portal.css"></head><body>
+<!doctype html><html lang="en"><head><title>Kais Admin</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="portal.css"><style>
+header{position:sticky;top:0;z-index:20}
+.gnav{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;padding:2px 0 4px}
+.gnav button{flex:none;display:flex;align-items:center;gap:6px;border:0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 18px;font:inherit;font-weight:700;cursor:pointer;color:var(--ink)}
+.gnav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.gnav .n{background:var(--orange);color:#fff;border-radius:99px;font-size:12px;padding:1px 8px;font-weight:700}
+.tabs.sub{margin-top:0}
+.tl{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-bottom:14px}
+.tl .card{margin:0}.tl h3{display:flex;justify-content:space-between;align-items:center;font-size:17px;margin-bottom:8px}
+.tl .it{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px;cursor:pointer}
+.tl .it:hover{background:var(--paper)}.tl .it small{display:block;color:var(--muted)}.tl .it b{font-weight:600}
+.big{font:800 30px 'Bricolage Grotesque',sans-serif}.good{color:var(--green)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input{flex:1;min-width:200px}
+.chipbar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;width:100%}
+.chipbar button{flex:none;border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+.chipbar button.on{background:var(--ink);color:#fff;border-color:var(--ink)}.chipbar small{opacity:.65}
+#t-leads{background:none;border:0;padding:0}
+#t-leads table,#t-leads tbody{display:block}#t-leads thead{display:none}
+#lrows tr{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px 18px;padding:14px 16px;border:1px solid var(--line);border-left:5px solid var(--line);border-radius:14px;margin-bottom:10px;background:#fff}
+#lrows tr[data-st=new]{border-left-color:#2F4A9A}#lrows tr[data-st=quoted]{border-left-color:var(--orange)}#lrows tr[data-st=booked]{border-left-color:#8A5CF6}#lrows tr[data-st=done]{border-left-color:var(--green)}#lrows tr[data-st=lost]{border-left-color:var(--red);opacity:.7}
+#lrows td{display:block;border:0;padding:0}
+details.dt{background:var(--paper);border-radius:10px;padding:8px 10px;margin-top:8px}details.dt summary{cursor:pointer;font-size:13px;font-weight:600}
+.tpl select{width:auto;padding:7px;font-size:14px;margin-top:6px}
+.pc{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;background:#fff}
+.pc .row{margin-top:8px}.warn{color:#9A6700;font-size:13px}
+@media(max-width:600px){main{padding:12px}.big{font-size:26px}}
+</style></head><body>
 <header><b>Kais <span>Admin</span></b><button id="logout">Cikis</button></header>
 <main>
 <div id="loginBox" class="card login" hidden><h2>Yonetici girisi</h2>
@@ -6,10 +33,16 @@
 <div id="app" hidden>
 <div id="deny" class="card" hidden><h3>Yetki yok</h3><p class="muted">Bu e-posta yonetici listesinde degil.</p></div>
 <div id="main" hidden>
-<div class="grid" id="stats" style="margin-bottom:16px"></div>
-<div class="tabs"><button data-t="leads" class="on">Isler</button><button data-t="cal">Takvim</button><button data-t="rep">Rapor</button><button data-t="partners">Ortaklar</button><button data-t="apps">Basvurular <span class="tag" id="ab" hidden></span></button><button data-t="claims">Itirazlar <span class="tag" id="cb" hidden></span></button><button data-t="price">Fiyatlar</button><button data-t="camp">Kampanyalar</button><button data-t="crew">Ekip</button><button data-t="gal">Galeri</button><button data-t="sup">Destek <span class="tag" id="sb" hidden></span></button><button data-t="log">Kayit</button></div>
+<div class="gnav" id="gnav"><button data-g="today" class="on">Bugun <span class="n" id="gb-today" hidden></span></button><button data-g="jobs">Isler</button><button data-g="partners">Ortaklar <span class="n" id="gb-partners" hidden></span></button><button data-g="money">Para</button><button data-g="set">Ayarlar</button></div>
+<div class="tabs sub" id="subtabs"><button data-t="today" data-g="today" class="on">Bugun</button><button data-t="leads" data-g="jobs">Is listesi</button><button data-t="cal" data-g="jobs">Takvim</button><button data-t="partners" data-g="partners">Ortaklar</button><button data-t="apps" data-g="partners">Basvurular <span class="tag" id="ab" hidden></span></button><button data-t="claims" data-g="partners">Itirazlar <span class="tag" id="cb" hidden></span></button><button data-t="sup" data-g="partners">Destek <span class="tag" id="sb" hidden></span></button><button data-t="rep" data-g="money">Rapor</button><button data-t="pay" data-g="money">Odemeler</button><button data-t="price" data-g="set">Fiyatlar</button><button data-t="camp" data-g="set">Kampanyalar</button><button data-t="crew" data-g="set">Ekip</button><button data-t="gal" data-g="set">Galeri</button><button data-t="log" data-g="set">Kayit</button></div>
 <div id="msg" class="msg" hidden></div>
-<section id="t-leads" class="tabsec card"><div class="tbl"><table><thead><tr><th>Tarih</th><th>Musteri / Adres</th><th>Ortak</th><th>Durum</th><th>Tutar $</th><th>Komisyon</th></tr></thead><tbody id="lrows"></tbody></table></div><p class="muted" id="lempty" hidden>Henuz talep yok.</p></section>
+<section id="t-today" class="tabsec">
+<div class="row" style="justify-content:space-between;margin-bottom:10px"><div><h2 id="tg" style="font-size:24px"></h2><p class="muted" id="td"></p></div><button class="btn sm ghost" id="notifbtn" hidden>🔔 Bildirimleri ac</button></div>
+<div class="grid" id="stats" style="margin-bottom:14px"></div>
+<div class="tl" id="tcards"></div></section>
+<section id="t-pay" class="tabsec" hidden><div class="card"><h3>Ortak odemeleri</h3><p class="muted">Sadece <b>musteri odemesi alinmis</b> islerin komisyonu burada odenebilir gorunur. Odemeyi yaptiktan sonra "Odendi yap" ile tum isleri tek tusla isaretle.</p></div><div id="paylist"></div></section>
+<section id="t-leads" class="tabsec" hidden><div class="toolbar"><input id="lq2" type="search" placeholder="Ara: isim, adres, is kodu, ortak, ozet"><div class="chipbar" id="lchips"></div></div><p class="muted" id="lcount"></p>
+<div class="tbl"><table><thead><tr><th>Tarih</th><th>Musteri / Adres</th><th>Ortak</th><th>Durum</th><th>Tutar $</th><th>Komisyon</th></tr></thead><tbody id="lrows"></tbody></table></div><p class="muted" id="lempty" hidden>Bu filtreyle is yok.</p><p style="text-align:center"><button class="btn ghost" id="lmore" hidden>Daha fazla goster</button></p></section>
 <section id="t-partners" class="tabsec" hidden>
 <div class="card"><h3>Yeni ortak</h3><form id="pform" class="row"><div class="grow"><label>Ad</label><input id="pn" required></div><div class="grow"><label>E-posta</label><input id="pe" type="email" required></div><div class="grow"><label>Telefon</label><input id="pp"></div><div style="width:110px"><label>Komisyon %</label><input id="pc" type="number" min="0" max="100" step="0.5" value="20"></div><div style="align-self:flex-end"><button class="btn">Ekle</button></div></form></div>
 <div class="card"><h3>Program ayarlari</h3><p class="muted">Seviye: ortagin son 30 gundeki is sayisina gore komisyon yuzdesi. Is azalinca seviye de duser (ortagin kendi yuzdesinden dusukse kendi yuzdesi kalir).</p><div id="tiers"></div>
@@ -88,14 +121,44 @@ function crewBox(l){var jp=JP.filter(function(x){return x.lead_id===l.id}).lengt
  +(l.crew_status?'<br><span class="tag '+(l.crew_status==='finished'?'done':'')+'">'+CSN[l.crew_status]+'</span>':'')+(l.crew_note?' <small class="muted">'+K.esc(l.crew_note)+'</small>':'')+(jp?' <button class="btn sm ghost" data-a="photos">Foto ('+jp+')</button>':'')
  +'<label style="margin:8px 0 2px;font-weight:600;font-size:13px">Depozito $</label><input data-f="dep" type="number" min="0" step="1" value="'+(l.deposit_amount==null?'':l.deposit_amount)+'" style="width:90px;padding:7px"> <label style="display:inline;font-weight:400"><input data-f="deppaid" type="checkbox" style="width:auto"'+(l.deposit_paid_at?' checked':'')+'> alindi</label>'
  +(l.paid_at&&l.status==='done'&&l.price!=null?'<br><button class="btn sm ghost" data-a="rcpt" style="margin-top:6px">Makbuz linki</button>':'')}
+var OPEN={},FQ='',FF='all',LIM=60;
+function whenTxt(l){if(!l.scheduled_at)return '';var d=new Date(String(l.scheduled_at).replace(' ','T')+'Z');return d.toLocaleString('en-US',{timeZone:'UTC',weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
+function sumLine(l){var a=[];a.push(l.scheduled_at?'📅 '+whenTxt(l):'📅 randevu yok');var c=CR.find(function(x){return x.id===l.crew_id});a.push(c?'👷 '+c.name:'👷 ekip yok');if(l.deposit_amount>0)a.push('💵 '+K.money(l.deposit_amount)+(l.deposit_paid_at?' ✓':''));return K.esc(a.join(' · '))}
+function tplSel(){return '<select data-tpl style="margin-top:8px;width:190px;padding:7px"><option value="">💬 Mesaj sablonu...</option><option value="quote">Teklif gonder</option><option value="book">Randevu onayi</option><option value="remind">Randevu hatirlatma</option><option value="enroute">Ekip yolda</option><option value="deposit">Depozito iste</option><option value="receipt">Makbuz gonder</option><option value="review">Yorum iste</option></select>'}
+function tplText(k,l){var tr=K.trackLink(l.track_token),nm=(l.customer_name||'').split(' ')[0]||'there',pr=l.price!=null?'$'+Number(l.price):'[price]';
+ var T={quote:'Hi '+nm+'! Thanks for sending your photos. Your quote for '+(l.summary||'the job')+' is '+pr+'. Reply YES and we will lock in a time. Track your request: '+tr,
+  book:'Hi '+nm+', you are booked for '+(whenTxt(l)||'[date/time]')+' at '+(l.address||'')+'. We will message you when the crew is on the way. Track: '+tr,
+  remind:'Reminder from Kais Junk Remove: your pickup is '+(whenTxt(l)||'[date/time]')+'. Please make sure the items are easy to reach. Reply here if anything changes.',
+  enroute:'Hi '+nm+', our crew is on the way to '+(l.address||'you')+' now!',
+  deposit:'Hi '+nm+', to hold your slot we need a '+(l.deposit_amount>0?'$'+Number(l.deposit_amount):'small')+' deposit. '+(ST.deposit_note||'')+' Thank you!',
+  receipt:'Thank you '+nm+'! Here is your receipt: '+new URL('../receipt.html?t='+l.track_token,location.href).href,
+  review:'Thanks for choosing Kais Junk Remove! If we did a good job, a quick review means a lot to us: '+(ST.review_url||'[review link]')};return T[k]||''}
+function passes(l){
+ if(FQ){var p=P.find(function(x){return x.id===l.partner_id}),hay=((l.customer_name||'')+' '+(l.address||'')+' '+(l.ref||'')+' '+(l.summary||'')+' '+(p?p.name:'')+' '+(l.source||'')).toLowerCase();if(hay.indexOf(FQ)<0)return false}
+ return fpass(l,FF)}
+function fpass(l,f){var wk=mondayOf(today());
+ if(f==='new')return l.status==='new';if(f==='quoted')return l.status==='quoted';if(f==='booked')return l.status==='booked';
+ if(f==='unpaid')return l.status==='done'&&!l.paid_at;
+ if(f==='week')return !!l.scheduled_at&&l.status!=='lost'&&l.scheduled_at.slice(0,10)>=wk&&l.scheduled_at.slice(0,10)<=addDays(wk,6);
+ if(f==='nopartner')return !l.partner_id;return true}
+function VIS(){return L.filter(passes).slice(0,LIM)}
+var CHIPS=[['all','Hepsi'],['new','Yeni'],['quoted','Teklif'],['booked','Randevu'],['unpaid','Odeme bekleyen'],['week','Bu hafta'],['nopartner','Ortaksiz']];
+function drawLeadBar(){$('lchips').innerHTML=CHIPS.map(function(c){var n=L.filter(function(l){return fpass(l,c[0])}).length;return '<button data-f="'+c[0]+'" class="'+(FF===c[0]?'on':'')+'">'+c[1]+' <small>'+n+'</small></button>'}).join('');
+ var tot=L.filter(passes).length;$('lcount').textContent=tot+' is'+(tot>LIM?' (ilk '+LIM+' gosteriliyor)':'');$('lempty').hidden=tot>0;$('lmore').hidden=tot<=LIM}
+$('lq2').oninput=function(){FQ=this.value.trim().toLowerCase();LIM=60;render()};
+$('lchips').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;FF=b.dataset.f;LIM=60;render()});
+$('lmore').onclick=function(){LIM+=60;render()};
+$('lrows').addEventListener('toggle',function(e){var tr=e.target.closest&&e.target.closest('tr');if(tr&&e.target.tagName==='DETAILS')OPEN[tr.dataset.id]=e.target.open},true);
+$('lrows').addEventListener('change',function(e){var t=e.target;if(!t.matches||!t.matches('[data-tpl]')||!t.value)return;var l=L.find(function(x){return x.id===t.closest('tr').dataset.id}),txt=tplText(t.value,l);t.value='';
+ navigator.clipboard&&navigator.clipboard.writeText(txt).catch(function(){});window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank','noopener');msg('Mesaj kopyalandi ve WhatsApp acildi. Musteriyi sec, gonder.')});
 function render(){
  var open=L.filter(function(l){return l.status==='new'||l.status==='quoted'}).length,rev=0,owed=0;
  L.forEach(function(l){if(l.status==='done'&&l.price){rev+=Number(l.price);var c=comm(l);if(c&&!l.commission_paid)owed+=c;var o=ovr(l);if(o&&!l.override_paid)owed+=o}});
  $('stats').innerHTML=[['Toplam talep',L.length],['Bekleyen',open],['Ciro',K.money(rev)],['Ortaklara borc',K.money(owed)]].map(function(s){return '<div class="stat"><b>'+K.esc(s[1])+'</b><small>'+s[0]+'</small></div>'}).join('');
- $('lempty').hidden=L.length>0;
- $('lrows').innerHTML=L.map(function(l){var p=P.find(function(x){return x.id===l.partner_id}),c=comm(l);
-  return '<tr data-id="'+l.id+'"><td>'+K.dt(l.created_at)+'<br><small class="muted">#'+K.esc(l.ref)+'</small>'+(l.track_token?'<br><button class="btn sm ghost" data-a="trk" style="margin-top:4px">Takip linki</button>':'')+'</td><td><b>'+K.esc(l.customer_name)+'</b><br><small class="muted">'+K.esc(l.address)+'<br>'+K.esc(l.summary||'')+'</small>'+refNote(l)+repNote(l)+srcTag(l)+(l.dup_of?'<br><span class="tag lost">Tekrar kayit</span> <small class="muted">ayni adres, ortak payi yok</small>':'')+(l.when_text&&!l.scheduled_at?'<br><small class="muted">Istedigi zaman: '+K.esc(l.when_text)+'</small>':'')+'</td><td>'+(p?K.esc(p.name):'<span class="muted">-</span>')+(cc(l)&&cc(l).sponsor_id?'<br><small class="muted">Ust: '+K.esc(pn(cc(l).sponsor_id))+'</small>':'')+'</td>'
-  +'<td><select data-f="status">'+Object.keys(K.STATUS).map(function(s){return '<option value="'+s+'"'+(l.status===s?' selected':'')+'>'+K.STATUS[s]+'</option>'}).join('')+'</select><label style="margin:6px 0 0;font-weight:400"><input data-f="pay" type="checkbox" style="width:auto"'+(l.paid_at?' checked':'')+'> Odeme alindi</label><small class="muted">Musteri onayi: '+(l.customer_confirmed_at?'evet':'bekliyor')+'</small><label style="margin:8px 0 2px;font-weight:600;font-size:13px">Randevu (Florida)</label><input data-f="sched" type="datetime-local" value="'+K.esc((l.scheduled_at||'').slice(0,16))+'" style="width:190px;padding:7px">'+crewBox(l)+(l.paid_at&&l.customer_confirmed_at?'<br><span class="tag">Link kapandi</span>':'')+'</td>'
+ drawLeadBar();
+ $('lrows').innerHTML=VIS().map(function(l){var p=P.find(function(x){return x.id===l.partner_id}),c=comm(l);
+  return '<tr data-st="'+l.status+'" data-id="'+l.id+'"><td>'+K.dt(l.created_at)+'<br><small class="muted">#'+K.esc(l.ref)+'</small>'+(l.track_token?'<br><button class="btn sm ghost" data-a="trk" style="margin-top:4px">Takip linki</button>':'')+'</td><td><b>'+K.esc(l.customer_name)+'</b><br><small class="muted">'+K.esc(l.address)+'<br>'+K.esc(l.summary||'')+'</small>'+refNote(l)+repNote(l)+srcTag(l)+(l.dup_of?'<br><span class="tag lost">Tekrar kayit</span> <small class="muted">ayni adres, ortak payi yok</small>':'')+(l.when_text&&!l.scheduled_at?'<br><small class="muted">Istedigi zaman: '+K.esc(l.when_text)+'</small>':'')+'</td><td>'+(p?K.esc(p.name):'<span class="muted">-</span>')+(cc(l)&&cc(l).sponsor_id?'<br><small class="muted">Ust: '+K.esc(pn(cc(l).sponsor_id))+'</small>':'')+'</td>'
+  +'<td><select data-f="status">'+Object.keys(K.STATUS).map(function(s){return '<option value="'+s+'"'+(l.status===s?' selected':'')+'>'+K.STATUS[s]+'</option>'}).join('')+'</select><label style="margin:6px 0 0;font-weight:400"><input data-f="pay" type="checkbox" style="width:auto"'+(l.paid_at?' checked':'')+'> Odeme alindi</label><small class="muted">Musteri onayi: '+(l.customer_confirmed_at?'evet':'bekliyor')+'</small><details class="dt"'+(OPEN[l.id]?' open':'')+'><summary>'+sumLine(l)+'</summary><label style="margin:8px 0 2px;font-weight:600;font-size:13px">Randevu (Florida)</label><input data-f="sched" type="datetime-local" value="'+K.esc((l.scheduled_at||'').slice(0,16))+'" style="width:190px;padding:7px">'+crewBox(l)+'</details>'+tplSel()+(l.paid_at&&l.customer_confirmed_at?'<br><span class="tag">Link kapandi</span>':'')+'</td>'
   +'<td><input data-f="price" type="number" min="0" step="1" value="'+(l.price==null?'':l.price)+'" style="width:90px"></td>'
   +'<td>'+(c!=null?K.money(c)+' <small class="muted">(%'+Number(cc(l).pct)+')</small><br><label style="margin:2px 0;font-weight:400"><input data-f="paid" type="checkbox" style="width:auto"'+(l.commission_paid?' checked':'')+'> odendi</label>':'<span class="muted">-</span>')+(ovr(l)!=null?'<br><small>Ust pay: <b>'+K.money(ovr(l))+'</b></small><br><label style="margin:2px 0;font-weight:400"><input data-f="ovpaid" type="checkbox" style="width:auto"'+(l.override_paid?' checked':'')+'> odendi</label>':'')+'</td></tr>'}).join('');
  $('prows').innerHTML=P.map(function(p){var mine=L.filter(function(l){return l.partner_id===p.id}),owe=0;mine.forEach(function(l){var c=comm(l);if(c&&!l.commission_paid)owe+=c});L.forEach(function(l){var k=cc(l);if(k&&k.sponsor_id===p.id&&ovr(l)&&!l.override_paid)owe+=ovr(l)});var team=P.filter(function(x){return x.parent_id===p.id}).length;
@@ -113,7 +176,7 @@ function drawApps(){var list=AP.filter(function(a){return a.status==='pending'})
  $('arows').innerHTML=list.map(function(a){return '<div style="border-bottom:1px solid var(--line);padding:12px 0" data-id="'+a.id+'"><b>'+K.esc(a.name)+'</b> &middot; '+K.esc(a.email)+(a.phone?' &middot; '+K.esc(a.phone):'')+(a.kind==='business'?'<br><span class="tag">Kurumsal</span> '+K.esc(a.company||'')+(a.note?' &middot; '+K.esc(a.note):''):'')+'<br><small class="muted">'+K.dt(a.created_at)+(a.sponsor_code?' &middot; Davet eden kod: '+K.esc(a.sponsor_code):'')+'</small><div class="row" style="margin-top:8px"><button class="btn sm" data-ap="1">Onayla</button><button class="btn sm ghost" data-ap="0">Reddet</button></div></div>'}).join('')}
 function load(){return Promise.all([sb.from('partners').select('*').order('created_at',{ascending:false}),sb.from('leads').select('*').order('created_at',{ascending:false}).limit(2000),sb.from('claims').select('*').order('created_at',{ascending:false}).limit(200),sb.rpc('admin_lead_calc'),sb.from('tiers').select('*').order('min_jobs'),sb.from('settings').select('*'),sb.from('partner_applications').select('*').order('created_at',{ascending:false}).limit(200),sb.from('campaigns').select('*').order('created_at',{ascending:false}).limit(100),sb.from('audit_log').select('*').order('id',{ascending:false}).limit(300),sb.from('price_list').select('*'),sb.from('crews').select('*').order('created_at'),sb.from('gallery').select('*').order('created_at',{ascending:false}),sb.from('reviews').select('*').order('created_at',{ascending:false}),sb.from('support_msgs').select('*').order('created_at').limit(1000),sb.from('job_photos').select('*').order('at')]).then(function(r){
  var bad=r.find(function(x){return x.error});if(bad){msg('Yuklenemedi: '+bad.error.message,true);return}
- P=r[0].data;L=r[1].data;CL=r[2].data;CALC={};(r[3].data||[]).forEach(function(c){CALC[c.lead_id]=c});TI=r[4].data||[];(r[5].data||[]).forEach(function(x){ST[x.key]=x.value});AP=r[6].data||[];CAMP=r[7].data||[];LOG=r[8].data||[];PL={};(r[9].data||[]).forEach(function(x){PL[x.key]=x.price});CR=r[10].data||[];GA=r[11].data||[];RV=r[12].data||[];SM=r[13].data||[];JP=r[14].data||[];render();drawCrew();drawGal();drawSup();drawClaims();drawSettings();drawApps();drawCal();drawRep();drawSrc();drawCamp();drawLog();drawPrice()})}
+ P=r[0].data;L=r[1].data;CL=r[2].data;CALC={};(r[3].data||[]).forEach(function(c){CALC[c.lead_id]=c});TI=r[4].data||[];(r[5].data||[]).forEach(function(x){ST[x.key]=x.value});AP=r[6].data||[];CAMP=r[7].data||[];LOG=r[8].data||[];PL={};(r[9].data||[]).forEach(function(x){PL[x.key]=x.price});CR=r[10].data||[];GA=r[11].data||[];RV=r[12].data||[];SM=r[13].data||[];JP=r[14].data||[];render();drawCrew();drawGal();drawSup();drawClaims();drawSettings();drawApps();drawCal();drawRep();drawSrc();drawCamp();drawToday();drawPay();drawLog();drawPrice()})}
 
 function today(){return new Date().toLocaleDateString('en-CA',{timeZone:'America/New_York'})}
 function addDays(d,n){var x=new Date(d+'T00:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)}
@@ -218,6 +281,55 @@ function drawSup(){var by={};SM.forEach(function(m){(by[m.partner_id]=by[m.partn
 $('slist').addEventListener('click',function(e){var b=e.target.closest('[data-a=sres]');if(!b)return;var box=b.closest('[data-id]'),v=box.querySelector('[data-r]').value.trim();if(!v)return;
  sb.from('support_msgs').insert({partner_id:box.dataset.id,from_admin:true,body:v,read_admin:true}).then(function(r){if(r.error)msg('Hata: '+r.error.message,true);else sb.from('support_msgs').update({read_admin:true}).eq('partner_id',box.dataset.id).eq('from_admin',false).then(function(){msg('Gonderildi');load()})})});
 document.querySelectorAll('.tabs button').forEach(function(b){if(b.dataset.t==='sup')b.addEventListener('click',function(){var un=SM.some(function(m){return !m.from_admin&&!m.read_admin});if(un)sb.from('support_msgs').update({read_admin:true}).eq('from_admin',false).eq('read_admin',false).then(function(){})})});
+
+// ---- Bugun
+function goTab(t,f,q){var b=document.querySelector('#subtabs [data-t="'+t+'"]');if(!b)return;if(t==='leads'){FF=f||'all';FQ=q||'';$('lq2').value=FQ;LIM=60;render()}b.click();window.scrollTo(0,0)}
+function owedAll(){var o=0;L.forEach(function(l){if(l.status==='done'&&l.price){var c=comm(l);if(c&&!l.commission_paid)o+=c;var v=ovr(l);if(v&&!l.override_paid)o+=v}});return o}
+function drawToday(){var h=new Date().toLocaleString('en-US',{timeZone:'America/New_York',hour:'numeric',hour12:false}),g=(+h<12?'Gunaydin':+h<18?'Iyi gunler':'Iyi aksamlar');$('tg').textContent=g+' 👋';$('td').textContent=new Date().toLocaleDateString('tr-TR',{timeZone:'America/New_York',weekday:'long',day:'numeric',month:'long'})+' (Florida saati)';
+ var nw=L.filter(function(l){return l.status==='new'}),td=today(),tj=L.filter(function(l){return l.scheduled_at&&l.scheduled_at.slice(0,10)===td&&l.status!=='lost'}).sort(function(a,b){return a.scheduled_at<b.scheduled_at?-1:1}),
+  un=L.filter(function(l){return l.status==='done'&&!l.paid_at}),qt=L.filter(function(l){return l.status==='quoted'}),
+  cp=CL.filter(function(c){return c.status==='pending'}).length,ap=AP.filter(function(a){return a.status==='pending'}).length,sp=SM.filter(function(m){return !m.from_admin&&!m.read_admin}).length,owed=owedAll();
+ function it(l,sub){return '<div class="it" data-q="'+K.esc(l.ref)+'"><div><b>'+K.esc(l.customer_name||'-')+'</b><small>'+K.esc(sub)+'</small></div><span class="muted">'+K.esc(l.price!=null?K.money(l.price):'')+'</span></div>'}
+ function card(t,n,body,go,cls){return '<div class="card"><h3>'+t+' <span class="tag '+(cls||'')+'">'+n+'</span></h3>'+(body||'<p class="muted">Yok, temiz 🎉</p>')+(go?'<p style="margin:10px 0 0"><button class="btn sm ghost" '+go+'>Hepsini gor</button></p>':'')+'</div>'}
+ var cards=[
+  card('Cevap bekleyen yeni talepler',nw.length,nw.slice(0,5).map(function(l){return it(l,(l.summary||'')+' · '+K.dt(l.created_at))}).join(''),'data-go="leads" data-f="new"',nw.length?'new':''),
+  card('Bugunku randevular',tj.length,tj.map(function(l){var c=CR.find(function(x){return x.id===l.crew_id});return it(l,t12(l.scheduled_at.slice(11,16))+' · '+(l.address||'')+' · '+(c?c.name:'ekip yok')+(l.crew_status?' · '+CSN[l.crew_status]:''))}).join(''),'data-go="cal"'),
+  card('Teklif verdim, cevap yok',qt.length,qt.slice(0,4).map(function(l){return it(l,(l.summary||'')+' · '+K.dt(l.updated_at||l.created_at))}).join(''),'data-go="leads" data-f="quoted"'),
+  card('Biten ama odemesi alinmayan',un.length,un.slice(0,5).map(function(l){return it(l,K.dt(l.completed_at||l.created_at))}).join(''),'data-go="leads" data-f="unpaid"',un.length?'lost':''),
+  '<div class="card"><h3>Ortaklara odenecek</h3><div class="big">'+K.money(owed)+'</div><p class="muted">Tamamlanan islerin komisyonu ve ust pay</p><p style="margin:10px 0 0"><button class="btn sm ghost" data-go="pay">Odemelere git</button></p></div>',
+  '<div class="card"><h3>Bekleyenler</h3>'+[['Basvuru',ap,'apps'],['Itiraz',cp,'claims'],['Destek mesaji',sp,'sup']].map(function(x){return '<div class="it" data-go="'+x[2]+'"><b>'+x[0]+'</b><span class="tag '+(x[1]?'new':'')+'">'+x[1]+'</span></div>'}).join('')+'</div>'];
+ $('tcards').innerHTML=cards.join('');
+ var gb=nw.length+tj.length;$('gb-today').hidden=!gb;$('gb-today').textContent=gb;var pb=ap+cp+sp;$('gb-partners').hidden=!pb;$('gb-partners').textContent=pb;
+ document.title=(nw.length?'('+nw.length+') ':'')+'Kais Admin'}
+$('tcards').addEventListener('click',function(e){var b=e.target.closest('[data-go]');if(b){goTab(b.dataset.go,b.dataset.f);return}var i=e.target.closest('.it[data-q]');if(i)goTab('leads','all',i.dataset.q)});
+// ---- Odemeler (toplu)
+var PAYARM=null;
+function payData(){var m={};function g(id){return m[id]=m[id]||{c:[],o:[],amt:0,wait:0,waitN:0}}
+ L.forEach(function(l){if(l.status!=='done'||!l.price)return;var c=comm(l),k=cc(l),o=ovr(l);
+  if(l.partner_id&&c&&!l.commission_paid){var x=g(l.partner_id);if(l.paid_at){x.c.push(l.id);x.amt+=c}else{x.wait+=c;x.waitN++}}
+  if(k&&k.sponsor_id&&o&&!l.override_paid){var y=g(k.sponsor_id);if(l.paid_at){y.o.push(l.id);y.amt+=o}else{y.wait+=o;y.waitN++}}});return m}
+function drawPay(){var m=payData(),ids=Object.keys(m).filter(function(id){return m[id].amt>0||m[id].wait>0}).sort(function(a,b){return m[b].amt-m[a].amt});
+ $('paylist').innerHTML=ids.length?ids.map(function(id){var x=m[id],p=P.find(function(q){return q.id===id});
+  return '<div class="pc" data-id="'+id+'"><div class="row" style="justify-content:space-between"><div><b>'+K.esc(p?p.name:'-')+'</b><br><small class="muted">'+(p&&p.payout_info?'Odeme: '+K.esc(p.payout_info):'<span class="warn">Odeme bilgisi girilmemis</span>')+'</small></div><div class="big">'+K.money(x.amt)+'</div></div>'
+  +'<small class="muted">'+(x.c.length+x.o.length)+' is odenebilir'+(x.waitN?' · <span class="warn">'+x.waitN+' is musteri odemesi bekliyor ('+K.money(x.wait)+')</span>':'')+'</small>'
+  +(x.amt>0?'<div class="row"><button class="btn sm ghost" data-a="cpy">Odeme bilgisini kopyala</button><button class="btn sm" data-a="paid">'+(PAYARM===id?'Emin misin? Tekrar bas':'Odendi yap')+'</button></div>':'')+'</div>'}).join(''):'<div class="card"><p class="muted">Bekleyen odeme yok 🎉</p></div>'}
+$('paylist').addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var id=b.closest('.pc').dataset.id,p=P.find(function(q){return q.id===id}),x=payData()[id];
+ if(b.dataset.a==='cpy'){navigator.clipboard.writeText((p.payout_info||'')+' - '+K.money(x.amt)).then(function(){b.textContent='Kopyalandi'});return}
+ if(PAYARM!==id){PAYARM=id;drawPay();return}
+ PAYARM=null;b.disabled=true;
+ Promise.all([x.c.length?sb.from('leads').update({commission_paid:true}).in('id',x.c):null,x.o.length?sb.from('leads').update({override_paid:true}).in('id',x.o):null]).then(function(rs){var bad=rs.find(function(q){return q&&q.error});if(bad)msg('Hata: '+bad.error.message,true);else{msg(p.name+' icin '+K.money(x.amt)+' odendi olarak isaretlendi');load()}})});
+// ---- Grup menusu
+var GT={today:'today',jobs:'leads',partners:'partners',money:'rep',set:'price'},CURG='today',LASTT={};
+function showGroup(g){CURG=g;document.querySelectorAll('#gnav button').forEach(function(b){b.classList.toggle('on',b.dataset.g===g)});var n=0;document.querySelectorAll('#subtabs button').forEach(function(b){var v=b.dataset.g===g;b.hidden=!v;if(v)n++});$('subtabs').hidden=n<2}
+$('gnav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;showGroup(b.dataset.g);var t=LASTT[b.dataset.g]||GT[b.dataset.g];document.querySelector('#subtabs [data-t="'+t+'"]').click()});
+document.querySelectorAll('#subtabs button').forEach(function(b){b.addEventListener('click',function(){showGroup(b.dataset.g);LASTT[b.dataset.g]=b.dataset.t})});
+showGroup('today');
+// ---- Yeni talep bildirimi
+var LASTN=null;
+function beep(){try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.08;o.start();setTimeout(function(){o.stop();a.close()},260)}catch(e){}}
+function poll(){sb.from('leads').select('id',{count:'exact',head:true}).then(function(r){if(!r||r.error||r.count==null)return;if(LASTN!=null&&r.count>LASTN){beep();try{if(window.Notification&&Notification.permission==='granted')new Notification('Kais: yeni talep geldi')}catch(e){}msg('Yeni talep geldi!');load()}LASTN=r.count})}
+poll();setInterval(function(){poll()},45000);
+if(window.Notification&&Notification.permission==='default'){$('notifbtn').hidden=false;$('notifbtn').onclick=function(){Notification.requestPermission().then(function(){$('notifbtn').hidden=true})}}
 document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b)});document.querySelectorAll('.tabsec').forEach(function(sec){sec.hidden=sec.id!=='t-'+b.dataset.t})}});
 $('crows').addEventListener('click',function(e){var b=e.target.closest('[data-r]');if(!b)return;var d=b.closest('[data-id]');
  sb.rpc('resolve_claim',{p_id:d.dataset.id,p_approve:b.dataset.r==='1',p_note:d.querySelector('[data-n]').value}).then(function(r){if(r.error)msg('Hata: '+r.error.message,true);else{msg('Karar kaydedildi');load()}})});

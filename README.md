@@ -58,3 +58,11 @@ Komisyon varsayılanı %20 (ortak başına admin panelinden değişir). Ortak pa
 - **Galeri/yorumlar**: admin "Galeri" sekmesi; site bolumu bos ise gizli kalir.
 - **Ortak pazarlama paketi**: ortak panelinde el ilani, kartvizit, kare ve story gorseli (kendi linkli QR), PNG indirme.
 - **Destek**: ortak panelinden mesaj, admin "Destek" sekmesinden cevap (ortaga bildirim duser).
+
+## Admin paneli yenilendi
+- 5 grup: Bugun, Isler, Ortaklar, Para, Ayarlar (alt sekmeler gruba gore acilir).
+- **Bugun**: yeni talepler, bugunku randevular (ekip ve durumuyla), teklif cevapsiz, odemesi alinmayan biten isler, ortaklara odenecek tutar, bekleyen basvuru/itiraz/destek.
+- **Is listesi**: arama + filtre (Yeni, Teklif, Randevu, Odeme bekleyen, Bu hafta, Ortaksiz), kart gorunumu, randevu/ekip/depozito acilir detay kutusunda.
+- **Mesaj sablonlari**: teklif, randevu onayi, hatirlatma, ekip yolda, depozito, makbuz, yorum. Kopyalar ve WhatsApp acar (musteri numarasi saklanmadigi icin kisiyi sen secersin).
+- **Odemeler**: ortak basina bekleyen komisyon, tek tusla "Odendi yap" (sadece musteri odemesi alinmis isler).
+- **Yeni talep bildirimi**: panel acikken 45 sn'de bir kontrol, ses ve tarayici bildirimi, sekme basliginda sayi.
