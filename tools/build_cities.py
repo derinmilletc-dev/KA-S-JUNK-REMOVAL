@@ -94,7 +94,7 @@ def build():
         s = slug(city)
         ld = {
             "@context": "https://schema.org", "@type": "LocalBusiness", "name": "Kais Junk Remove",
-            "telephone": PHONE_TEL.replace("+1", "+1-"), "serviceType": "Junk removal",
+            "email": "kaisremoval@gmail.com", "telephone": PHONE_TEL.replace("+1", "+1-"), "serviceType": "Junk removal",
             "areaServed": [{"@type": "City", "name": city}] + [{"@type": "City", "name": a} for a in areas],
             "openingHoursSpecification": {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "00:00", "closes": "23:59"},
         }
