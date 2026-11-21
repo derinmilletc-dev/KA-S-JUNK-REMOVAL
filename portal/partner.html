@@ -11,7 +11,10 @@
 <div class="grow"><div class="link" id="rl"></div><p class="row"><button class="btn sm" id="copy">Baglantiyi kopyala</button><button class="btn sm ghost" id="dl">QR indir</button></p>
 <p class="muted">Kodun: <b id="code"></b> &middot; Komisyon: <b id="pct"></b></p></div></div></div>
 <div class="grid" id="stats" style="margin-bottom:16px"></div>
-<div class="card"><h3 style="margin-bottom:8px">Islerin</h3><div class="tbl"><table><thead><tr><th>Tarih</th><th>Musteri</th><th>Is</th><th>Durum</th><th>Tutar</th><th>Komisyon</th></tr></thead><tbody id="rows"></tbody></table></div><p class="muted" id="empty" hidden>Henuz is yok. Baglantini paylas!</p></div>
+<div class="card"><h3>Musterin icin is olustur</h3><p class="muted">Musteriye ozel takip linki ve QR olusur. Musteri islemi bu linkten izler.</p>
+<form id="jf" class="row"><div class="grow"><label>Musteri adi</label><input id="jn" required></div><div class="grow"><label>Adres</label><input id="ja" required></div><div class="grow"><label>Ne alinacak</label><input id="js" required placeholder="Kanepe, buzdolabi..."></div><div style="align-self:flex-end"><button class="btn">Olustur</button></div></form>
+<div id="jr" hidden style="margin-top:14px"><div class="row" style="align-items:flex-start;gap:20px"><div class="qr" id="jqr"></div><div class="grow"><b>Musteri takip linki</b><div class="link" id="jl" style="margin:8px 0"></div><button class="btn sm ghost" id="jc">Kopyala</button></div></div></div><div id="jm" class="msg" hidden></div></div>
+<div class="card"><h3 style="margin-bottom:8px">Islerin</h3><div class="tbl"><table><thead><tr><th>Tarih</th><th>Musteri</th><th>Is</th><th>Durum</th><th>Tutar</th><th>Komisyon</th><th></th></tr></thead><tbody id="rows"></tbody></table></div><p class="muted" id="empty" hidden>Henuz is yok. Baglantini paylas!</p></div>
 </div></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="config.js"></script><script src="core.js"></script>
 <script>
 (function(){var K=KJC,$=K.$;
@@ -23,12 +26,19 @@ K.start(function(){
   $('qr').innerHTML=K.qrSvg(link);
   $('copy').onclick=function(){navigator.clipboard.writeText(link).then(function(){$('copy').textContent='Kopyalandi'})};
   $('dl').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('qr').innerHTML],{type:'image/svg+xml'}));a.download='kais-'+p.code+'-qr.svg';a.click()};
+
+  function showLink(t){var u=K.trackLink(t);$('jqr').innerHTML=K.qrSvg(u);$('jl').textContent=u;$('jr').hidden=false;$('jc').onclick=function(){navigator.clipboard.writeText(u)};$('jr').scrollIntoView()}
+  $('rows').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(b)showLink(b.dataset.t)});
+  $('jf').onsubmit=function(e){e.preventDefault();var t=K.newTok(),ref='KJ-'+Math.random().toString(36).slice(2,6).toUpperCase();
+   K.sb.rpc('partner_create_lead',{p_ref:ref,p_name:$('jn').value.trim(),p_address:$('ja').value.trim(),p_summary:$('js').value.trim(),p_token:t}).then(function(r){
+    if(r.error){K.flash($('jm'),'Olusturulamadi: '+r.error.message,true);return}
+    $('jm').hidden=true;$('jf').reset();showLink(t);setTimeout(function(){location.reload()},60000)})};
   K.sb.rpc('my_leads').then(function(x){
    var L=x.data||[],done=L.filter(function(l){return l.status==='done'}),earn=0,unpaid=0;
    done.forEach(function(l){var c=Number(l.commission||0);earn+=c;if(!l.commission_paid)unpaid+=c});
    $('stats').innerHTML=[['Toplam talep',L.length],['Tamamlanan',done.length],['Toplam kazanc',K.money(earn)],['Odenmeyi bekleyen',K.money(unpaid)]].map(function(s){return '<div class="stat"><b>'+K.esc(s[1])+'</b><small>'+s[0]+'</small></div>'}).join('');
    $('empty').hidden=L.length>0;
-   $('rows').innerHTML=L.map(function(l){return '<tr><td>'+K.dt(l.created_at)+'</td><td>'+K.esc(l.customer)+'</td><td>'+K.esc(l.summary||'')+'</td><td><span class="tag '+K.esc(l.status)+'">'+K.esc(K.STATUS[l.status]||l.status)+'</span></td><td>'+K.money(l.price)+'</td><td>'+(l.commission!=null?K.money(l.commission)+(l.commission_paid?' (odendi)':''):'-')+'</td></tr>'}).join('');
+   $('rows').innerHTML=L.map(function(l){return '<tr><td>'+K.dt(l.created_at)+'</td><td>'+K.esc(l.customer)+'</td><td>'+K.esc(l.summary||'')+'</td><td><span class="tag '+K.esc(l.status)+'">'+K.esc(K.STATUS[l.status]||l.status)+'</span></td><td>'+K.money(l.price)+'</td><td>'+(l.commission!=null?K.money(l.commission)+(l.commission_paid?' (odendi)':''):'-')+'</td><td><button class="btn sm ghost" data-t="'+K.esc(l.track_token)+'">Link</button></td></tr>'}).join('');
   });
  });
 });})();

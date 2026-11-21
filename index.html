@@ -943,6 +943,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
         <dl class="sum" id="sum"></dl>
         <div class="warn">
           <b>One more thing</b>
+          <p id="trackNote" class="small" hidden></p>
           <p id="photoNote">In the WhatsApp chat, tap + and add your photos, then press send.</p>
         </div>
         <p class="fine">Nothing is sent until you press send inside WhatsApp.</p>
@@ -1084,14 +1085,14 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     var sv = JSON.parse(localStorage.getItem('kj_ref') || 'null');
     if (sv && Date.now() - sv.t < 30 * 864e5) PARTNER = sv.c;
   } catch(e){}
-  function sendLead(ref, name, addr, summary, msg){
+  function sendLead(ref, tok, name, addr, summary, msg){
     var K = window.KJ || {};
     if (!K.SUPABASE_URL || !K.SUPABASE_ANON_KEY) return;
     try {
       fetch(K.SUPABASE_URL + '/rest/v1/rpc/submit_lead', {
         method: 'POST', keepalive: true,
         headers: { 'Content-Type': 'application/json', apikey: K.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + K.SUPABASE_ANON_KEY },
-        body: JSON.stringify({ p_ref: ref, p_code: PARTNER, p_name: name, p_address: addr, p_summary: summary, p_message: msg })
+        body: JSON.stringify({ p_ref: ref, p_code: PARTNER, p_name: name, p_address: addr, p_summary: summary, p_message: msg, p_token: tok })
       }).catch(function(){});
     } catch(e){}
   }
@@ -1445,7 +1446,8 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
   }
   function val(name){ var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ''; }
 
-  var curRef = '';
+  var curRef = '', curTok = '';
+  function newTok(){ var a = new Uint8Array(12); (window.crypto || window.msCrypto).getRandomValues(a); return Array.prototype.map.call(a, function(x){ return ('0' + x.toString(16)).slice(-2); }).join(''); }
   function build(keep){
     var es = LANG === 'es';
     var ref = keep && curRef ? curRef : 'KJ-' + Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -1480,9 +1482,12 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     if (note) lines.push('📝 Notes: ' + note);
     if (es) lines.push('🌐 Customer prefers Spanish');
     if (PARTNER) lines.push('🤝 Partner: ' + PARTNER);
+    if (!keep || !curTok) curTok = newTok();
+    var trackUrl = new URL('track.html?t=' + curTok, location.href).href;
+    if (window.KJ && window.KJ.SUPABASE_URL) lines.push('🔎 Track: ' + trackUrl);
     lines.push('', '📷 ' + photos.length + ' photo' + (photos.length === 1 ? '' : 's') + ' coming right after this message (#' + ref + ')');
     message = lines.join('\n');
-    if (!keep) sendLead(ref, $('name').value.trim(), addr, (list.map(function(c){ return c + ' x' + counts[c]; }).join(', ') || size || 'See photos'), message);
+    if (!keep) sendLead(ref, curTok, $('name').value.trim(), addr, (list.map(function(c){ return c + ' x' + counts[c]; }).join(', ') || size || 'See photos'), message);
 
     var rows = [
       ['Name', $('name').value.trim(), 3],
@@ -1515,6 +1520,7 @@ input::placeholder,textarea::placeholder,.zrow input::placeholder{color:#8E958F}
     $('photoNote').textContent = es
       ? 'En el chat de WhatsApp, toca + y agrega ' + (n === 1 ? 'tu foto' : 'tus ' + n + ' fotos') + ', luego presiona enviar. Tu referencia es #' + ref + '.'
       : 'In the WhatsApp chat, tap + and add your ' + (n === 1 ? 'photo' : n + ' photos') + ', then press send. Your reference is #' + ref + '.';
+    var tn = $('trackNote'); if (window.KJ && window.KJ.SUPABASE_URL){ tn.hidden = false; tn.textContent = ''; var ta = document.createElement('a'); ta.href = trackUrl; ta.target = '_blank'; ta.rel = 'noopener'; ta.textContent = es ? 'Sigue tu solicitud aquí' : 'Track your request here'; tn.appendChild(ta); } else tn.hidden = true;
     $('send').href = 'https://wa.me/' + NUMBER + '?text=' + encodeURIComponent(message);
   }
 

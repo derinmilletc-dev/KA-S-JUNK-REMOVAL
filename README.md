@@ -15,3 +15,6 @@ Customer web page for Kais Junk Remove (Florida, USA). Static single page: `inde
 4. Yönetim: `/portal/admin.html` — ortak ekle, kod/QR al, işlere tutar gir, komisyon öde.
 5. Ortak girişi: `/portal/partner.html` — kendi link/QR'ı ve işleri.
 6. Müşteri `siteadresi/?ref=KOD` ile gelirse 30 gün hatırlanır, talep ortağa yazılır.
+
+### Musteri takibi
+Her talebin ozel takip linki var (`track.html?t=KOD`). Musteri sitede forma doldurunca link ekranda ve WhatsApp mesajinda gelir. Ortak da kendi musterisi icin portaldan is acip link/QR alir. Durumu admin panelden degistirdikce musterinin sayfasi 30 sn icinde guncellenir.

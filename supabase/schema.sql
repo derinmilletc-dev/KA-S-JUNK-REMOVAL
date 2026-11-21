@@ -29,8 +29,17 @@ create table if not exists leads (
   price numeric(10,2),
   commission_paid boolean not null default false,
   notes text,
-  created_at timestamptz not null default now()
+  track_token text unique,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
+alter table leads add column if not exists track_token text unique;
+alter table leads add column if not exists updated_at timestamptz not null default now();
+
+create or replace function touch_lead() returns trigger language plpgsql as $$
+begin new.updated_at = now(); return new; end $$;
+drop trigger if exists leads_touch on leads;
+create trigger leads_touch before update on leads for each row execute function touch_lead();
 create index if not exists leads_partner_idx on leads(partner_id, created_at desc);
 
 alter table admins enable row level security;
@@ -54,27 +63,54 @@ drop policy if exists partner_self on partners;
 create policy partner_self on partners for select
   using (lower(email) = lower(coalesce(auth.jwt() ->> 'email','')));
 
--- Web sitesi: herkes talep gonderebilir (sadece bu fonksiyonla)
-create or replace function submit_lead(p_ref text, p_code text, p_name text, p_address text, p_summary text, p_message text)
+-- Web sitesi: herkes talep gonderebilir (sadece bu fonksiyonla). Takip kodunu site uretir.
+drop function if exists submit_lead(text,text,text,text,text,text);
+create or replace function submit_lead(p_ref text, p_code text, p_name text, p_address text, p_summary text, p_message text, p_token text)
 returns void language plpgsql security definer set search_path = public as $$
 declare pid uuid; pc text;
 begin
   if p_ref is null or length(p_ref) not between 4 and 20 then return; end if;
+  if p_token is null or p_token !~ '^[a-f0-9]{24,48}$' then return; end if;
   select id, code into pid, pc from partners where code = upper(coalesce(p_code,'')) and active;
-  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, message)
-  values (p_ref, pid, pc, left(p_name,120), left(p_address,300), left(p_summary,500), left(p_message,3000))
+  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, message, track_token)
+  values (p_ref, pid, pc, left(p_name,120), left(p_address,300), left(p_summary,500), left(p_message,3000), p_token)
   on conflict (ref) do update set
     customer_name = excluded.customer_name, address = excluded.address,
     summary = excluded.summary, message = excluded.message
-  where leads.status = 'new';
+  where leads.status = 'new' and leads.track_token = excluded.track_token;
 end $$;
-grant execute on function submit_lead(text,text,text,text,text,text) to anon, authenticated;
+grant execute on function submit_lead(text,text,text,text,text,text,text) to anon, authenticated;
+
+-- Ortak, kendi musterisi icin is olusturur (ozel takip linki uretilir)
+create or replace function partner_create_lead(p_ref text, p_name text, p_address text, p_summary text, p_token text)
+returns void language plpgsql security definer set search_path = public as $$
+declare pid uuid; pc text;
+begin
+  select id, code into pid, pc from partners
+   where lower(email) = lower(coalesce(auth.jwt() ->> 'email','')) and active;
+  if pid is null then raise exception 'not a partner'; end if;
+  if p_token is null or p_token !~ '^[a-f0-9]{24,48}$' then raise exception 'bad token'; end if;
+  insert into leads(ref, partner_id, partner_code, customer_name, address, summary, track_token)
+  values (left(p_ref,20), pid, pc, left(p_name,120), left(p_address,300), left(p_summary,500), p_token);
+end $$;
+grant execute on function partner_create_lead(text,text,text,text,text) to authenticated;
+
+-- Musteri takip sayfasi: sadece ozel kodu bilen gorur, hassas bilgi donmez
+create or replace function track_lead(p_token text)
+returns table(ref text, created_at timestamptz, updated_at timestamptz, first_name text, summary text, status text, price numeric)
+language sql stable security definer set search_path = public as $$
+  select l.ref, l.created_at, l.updated_at, split_part(coalesce(l.customer_name,''),' ',1), l.summary, l.status,
+         case when l.status in ('quoted','booked','done') then l.price end
+  from leads l where l.track_token = p_token and length(coalesce(p_token,'')) >= 24;
+$$;
+grant execute on function track_lead(text) to anon, authenticated;
 
 -- Ortak kendi islerini gorur (musteri adresi/telefonu gizli: sadece ad bas harfi + ozet)
+drop function if exists my_leads();
 create or replace function my_leads()
-returns table(ref text, created_at timestamptz, customer text, summary text, status text, price numeric, commission numeric, commission_paid boolean)
+returns table(track_token text, ref text, created_at timestamptz, customer text, summary text, status text, price numeric, commission numeric, commission_paid boolean)
 language sql stable security definer set search_path = public as $$
-  select l.ref, l.created_at,
+  select l.track_token, l.ref, l.created_at,
          left(coalesce(l.customer_name,''),1) || '.' as customer,
          l.summary, l.status, l.price,
          case when l.status = 'done' and l.price is not null then round(l.price * p.commission_pct / 100, 2) end,
