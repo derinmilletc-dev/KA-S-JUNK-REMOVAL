@@ -45,6 +45,10 @@ small{color:var(--muted);display:block;margin-top:14px;font-size:13px}
 .stk a{flex:1;text-align:center;padding:15px;border-radius:16px;background:var(--ink);color:#fff;font:700 16px 'DM Sans',sans-serif;text-decoration:none;box-shadow:0 14px 34px -10px rgba(0,0,0,.55)}.stk a b{color:var(--orange)}
 body{padding-bottom:84px}@media(min-width:700px){.stk{display:none}body{padding-bottom:0}}
 html{scroll-behavior:smooth}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.calc .stp{display:flex;align-items:center;gap:10px;margin-top:2px}.calc .stp button{width:52px;height:52px;margin:0;padding:0;border-radius:16px;background:#ffffff14;border:1px solid #ffffff26;color:#fff;font:600 28px/1 'DM Sans',sans-serif}.calc .stp button:active{background:#ffffff26}
+.calc .stp div{flex:1;text-align:center}.calc .stp b{display:block;font:800 34px/1 'Bricolage Grotesque',sans-serif}.calc .stp small{display:block;margin:2px 0 0;color:#ffffffa0;font-size:13px}
+.calc .one{margin-top:16px;border-radius:18px;padding:16px 16px 14px;background:linear-gradient(135deg,#FF8A3D,#F26B1D);color:#1F2421}.calc .one small{display:block;margin:0;color:#1F2421;font-size:13px;font-weight:700;opacity:.85}.calc .one b{display:block;font:800 46px/1.05 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em}.calc .one span{display:block;margin-top:4px;font-size:14px;font-weight:600;opacity:.85}
+.calc .nt{margin:12px 2px 0;color:#ffffffb8;font-size:13.5px}
 </style><link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -56,11 +60,11 @@ html{scroll-behavior:smooth}@media(prefers-reduced-motion:reduce){html{scroll-be
 <a class="ctab" href="#f">Apply now<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 <div class="badges"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>No fees, no hidden costs</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Track every job in your panel</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Repeat clients pay you for 12 months</span></div>
 <section class="calc" id="calc" aria-labelledby="ch"><h2 id="ch">See what you could earn</h2><p class="cs">Type the price of a job. We do the math.</p>
-<label for="cp">Price of the job</label><div class="money"><i>$</i><input id="cp" type="text" inputmode="numeric" value="300" maxlength="5" autocomplete="off"></div>
+<label for="cp">Price of one job</label><div class="money"><i>$</i><input id="cp" type="text" inputmode="numeric" value="300" maxlength="5" autocomplete="off"></div>
 <div class="chips" id="cc"><button type="button" data-v="150">$150</button><button type="button" data-v="300" class="on">$300</button><button type="button" data-v="500">$500</button><button type="button" data-v="800">$800</button><button type="button" data-v="1200">$1,200</button></div>
-<label for="cj">Jobs you bring per month<output id="cjo">4</output></label><input id="cj" type="range" min="1" max="20" step="1" value="4">
-<div class="res"><div class="big"><small>You earn per job</small><b id="r1">$60</b></div><div><small>Per month</small><b id="r2">$240</b></div><div><small>Per year</small><b id="r3">$2,880</b></div></div>
-<div class="tier"><span>Your rate: <b id="tp">20%</b></span><div class="bar"><i id="tb"></i></div><span id="tn"></span></div>
+<label>How many jobs per month?</label><div class="stp"><button type="button" id="jm" aria-label="-">&minus;</button><div><b id="jn">4</b><small id="jl">jobs</small></div><button type="button" id="jp" aria-label="+">+</button></div>
+<div class="one"><small>You earn per month</small><b id="r2">$240</b><span id="r1x"></span></div>
+<p class="nt">Your rate grows as you bring more jobs: 20% to start, 25% after 5, 30% after 10.</p>
 <span class="fine">Estimate only. Commission is paid on jobs that are completed and paid by the customer.</span></section>
 <p class="who"><b>Great for</b><span>Realtors</span><span>Property managers</span><span>Movers</span><span>Neighbors</span><span>Contractors</span></p>
 <div class="steps">
@@ -93,24 +97,22 @@ f.addEventListener('submit',function(e){e.preventDefault();
 </script>
 <script>
 (function(){
-var es=document.documentElement.lang==='es',N={m:'month',next5:'%d more completed jobs to reach %d%%',top:'Top rate reached'},$=function(i){return document.getElementById(i)};
+var es=document.documentElement.lang==='es',$=function(i){return document.getElementById(i)},J=4;
 function fm(n){return '$'+Math.round(n).toLocaleString('en-US')}
 function rate(k){return k>=10?30:k>=5?25:20}
+var W=es?['trabajo','trabajos','por trabajo','tasa']:['job','jobs','per job','rate'];
 function calc(){
- var p=parseInt(($('cp').value||'').replace(/\D/g,''),10)||0,j=+$('cj').value;
- $('cjo').textContent=j+' / '+N.m;
- var mo=0;for(var i=1;i<=j;i++)mo+=p*rate(i)/100;
- var steady=p*rate(j)/100;
- $('r1').textContent=fm(p*rate(1)/100)+(j>=5?' \u2192 '+fm(p*rate(j)/100):'');
- $('r2').textContent=fm(mo);$('r3').textContent=fm(mo*12);
- var r=rate(j);$('tp').textContent=r+'%';
- var nxt=j<5?5:j<10?10:0;$('tb').style.width=(nxt?Math.min(100,j/nxt*100):100)+'%';
- $('tn').textContent=nxt?N.next5.replace('%d',nxt-j).replace('%d',nxt===5?25:30):N.top;
+ var p=parseInt(($('cp').value||'').replace(/\D/g,''),10)||0,mo=0;
+ for(var i=1;i<=J;i++)mo+=p*rate(i)/100;
+ $('jn').textContent=J;$('jl').textContent=J==1?W[0]:W[1];
+ $('r2').textContent=fm(mo);
+ $('r1x').textContent=fm(p*rate(J)/100)+' '+W[2]+' ('+rate(J)+'%)';
+ $('jm').disabled=J<=1;$('jp').disabled=J>=30;
  var cs=document.querySelectorAll('#cc button');for(var k=0;k<cs.length;k++)cs[k].classList.toggle('on',+cs[k].dataset.v===p);
 }
 $('cp').addEventListener('input',function(){this.value=this.value.replace(/\D/g,'').slice(0,5);calc()});
-$('cj').addEventListener('input',calc);
-document.getElementById('cc').addEventListener('click',function(e){var b=e.target.closest('button');if(b){$('cp').value=b.dataset.v;calc()}});
+$('jm').onclick=function(){if(J>1){J--;calc()}};$('jp').onclick=function(){if(J<30){J++;calc()}};
+$('cc').addEventListener('click',function(e){var b=e.target.closest('button');if(b){$('cp').value=b.dataset.v;calc()}});
 calc();
 var f=$('f'),s=$('stk');if(f&&s&&'IntersectionObserver' in window){var vis=false,top=true;
  var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.target===f)vis=x.isIntersecting;else top=x.isIntersecting});s.classList.toggle('on',!vis&&!top)});
