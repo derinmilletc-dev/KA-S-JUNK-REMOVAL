@@ -48,3 +48,10 @@ Musteriye e-posta gitmez, cunku musteri e-postasi toplanmiyor; musteri takip say
 
 ## 8. Telefona kurma (PWA)
 Ortak, ekip ve admin sayfalari telefonda "ana ekrana ekle" teklif eder (Android: Kur butonu, iPhone: Safari Paylas > Ana Ekrana Ekle). Uygulama acikken yeni bildirimde telefon bildirimi cikar. Uygulama kapaliyken anlik bildirim (push) icin ayri sunucu kurulumu gerekir; simdilik e-posta bildirimleri bunu karsilar.
+
+## Push bildirimi (telefon kapaliyken)
+1. Secrets: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (portal/config.js icindeki public ile ayni cift).
+2. Deploy: `supabase functions deploy push` ve `supabase functions deploy daily-quote`.
+3. Database > Webhooks: `notifications` Insert ve `leads` Insert -> Edge Function `push`.
+4. Gunun sozu: pg_cron ile her gun `daily-quote` fonksiyonunu `x-cron-secret` basligiyla cagir (Florida 09:00 = UTC 14:00):
+   `select cron.schedule('daily-quote','0 14 * * *',$$select net.http_post(url:='https://<PROJE>.supabase.co/functions/v1/daily-quote', headers:='{"x-cron-secret":"<CRON_SECRET>"}'::jsonb)$$);`
