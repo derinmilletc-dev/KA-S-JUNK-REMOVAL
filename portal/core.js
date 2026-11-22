@@ -1,7 +1,10 @@
 (function(){
   var C = window.KJ || {};
   var ok = !!(C.SUPABASE_URL && C.SUPABASE_ANON_KEY && window.supabase);
-  var sb = ok ? window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY) : null;
+  var sb = ok ? window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }) : null;
+  // Oturum suresi: ortak/ekip 7 gun, admin 30 gun. Bu sureden once kendiliginden cikis yapmaz.
+  var MAXDAYS = /admin/.test(location.pathname) ? 30 : 7;
+  function expired(sess){ var t = sess && sess.user && Date.parse(sess.user.last_sign_in_at || ''); return !!t && Date.now() - t > MAXDAYS * 864e5; }
   var $ = function(id){ return document.getElementById(id); };
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function money(n){ return n == null ? '-' : '$' + Number(n).toFixed(2).replace(/\.00$/, ''); }
@@ -43,9 +46,11 @@
     var lo0 = $('logout'); if (lo0) lo0.style.display = 'none'; var sp1 = $('setpw'); if (sp1) sp1.style.display = 'none';
     if (!sb){ loginUI(); return; }
     sb.auth.getSession().then(function(r){
+      if (r.data.session && expired(r.data.session)) { sb.auth.signOut().then(function(){ loginUI(); }); return; }
       if (r.data.session) { $('loginBox').hidden = true; $('app').hidden = false; if (lo0) lo0.style.display = ''; var sp0 = $('setpw'); if (sp0) sp0.style.display = ''; onReady(r.data.session); }
       else loginUI();
     });
+    document.addEventListener('visibilitychange', function(){ if (!document.hidden) sb.auth.getSession(); });
     sb.auth.onAuthStateChange(function(ev){ if (ev === 'SIGNED_IN' && $('app').hidden) location.reload(); });
     var sp = $('setpw'); if (sp) sp.onclick = function(){
       var p = window.prompt('Yeni sifre (en az 8 karakter):'); if (!p) return;
