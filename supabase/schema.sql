@@ -1230,7 +1230,7 @@ language sql stable security definer set search_path = public as $$
   select coalesce(jsonb_agg(to_jsonb(x) order by x.sort, x.created_at), '[]'::jsonb) from (
     select c.id, c.sort, c.icon, c.minutes, c.title, c.title_en, c.title_es, c.summary, c.summary_en, c.summary_es,
            c.body, c.body_en, c.body_es, c.quiz, c.quiz_en, c.quiz_es, c.created_at, tp.done_at, tp.score
-    from training_courses c cross join me
+    from training_courses c left join me on true
     left join training_progress tp on tp.course_id = c.id and tp.partner_id = me.id
     where c.published
   ) x;
