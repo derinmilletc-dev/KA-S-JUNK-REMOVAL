@@ -42,6 +42,7 @@ KJI.add([
 ['WhatsApp ile gonder','Send on WhatsApp','Enviar por WhatsApp'],
 ['En ust seviyedesin. Seviye son 30 gundeki islerine gore belirlenir; is azalirsa seviye de duser.','You are at the top level. Your level is based on your jobs in the last 30 days; if jobs drop, the level drops too.','Estás en el nivel más alto. El nivel depende de tus trabajos de los últimos 30 días; si bajan, el nivel baja.'],
 // Ekibim
+['Ekip davet linkin','Your team invite link','Tu enlace de invitación'],['Ekip uyelerin','Your team members','Los miembros de tu equipo'],
 ['Ekip uyesi','Team members','Miembros del equipo'],['Odenen ekip payi','Team share paid','Participación de equipo pagada'],['Bekleyen ekip payi','Team share pending','Participación de equipo pendiente'],
 ['WhatsApp ile davet et','Invite on WhatsApp','Invitar por WhatsApp'],['Henuz ekip uyen yok. Linkini paylas.','No team members yet. Share your link.','Aún no tienes miembros. Comparte tu enlace.'],['Pasif','Inactive','Inactivo'],['Ekip payi','Team share','Participación de equipo'],
 // Odeme

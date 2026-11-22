@@ -104,6 +104,29 @@ h3{letter-spacing:-.01em}
 .bkl{position:absolute;top:14px;left:16px;display:inline-flex;align-items:center;gap:4px;color:var(--muted);font-size:13.5px;font-weight:600;text-decoration:none;padding:6px 10px 6px 6px;border-radius:99px;background:var(--paper)}.bkl svg{width:16px;height:16px}
 
 .dq{position:relative;overflow:hidden}.dq small{display:block;position:relative;margin:0 0 8px;color:var(--orange);font-weight:700;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase}
+
+/* v4: ekip sayfasi + ana kart */
+.tstats{grid-template-columns:repeat(3,1fr)!important;gap:8px!important;margin:12px 0 14px}
+.tstats .stat{padding:12px 10px;border-radius:16px;background:#fff;border:1px solid var(--line);box-shadow:0 8px 18px -14px #1F242188;text-align:left}
+.tstats .stat b{font-size:20px;letter-spacing:-.02em}.tstats .stat small{display:block;font-size:11.5px;line-height:1.2;margin-top:2px}
+.tstats .stat.hot{background:var(--tint);border-color:#F26B1D44}
+.inv{border-radius:20px;padding:14px;background:linear-gradient(140deg,#1F2421,#2E3531);color:#fff;margin-bottom:14px;box-shadow:0 14px 28px -16px #1F2421aa}
+.invt{display:flex;gap:14px;align-items:center}.invt b{display:block;font:700 15px 'Bricolage Grotesque',sans-serif;margin-bottom:6px}
+.inv .qr{flex:none;background:#fff;border:0;border-radius:14px;padding:6px;margin:0}.inv .qr svg{width:88px;height:88px;display:block}
+.inv .link{background:#ffffff14;border:1px solid #ffffff22;color:#fff;border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.3;margin:0;overflow-wrap:anywhere;word-break:break-all}
+.inv .row{display:flex;gap:8px;margin:12px 0 0}.inv .row .btn{flex:1;text-align:center}.inv .row .btn.grow{flex:2}
+.inv .btn.ghost{background:#ffffff1f;color:#fff;border:1px solid #ffffff33}
+h4.tm{margin:4px 0 8px;font:700 15px 'Bricolage Grotesque',sans-serif}
+#sheetbox .li{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+#sheetbox>p:last-child .btn[data-x]{width:100%}
+.menu button{color:var(--ink,#1F2421)!important;font-weight:600}
+.hero .chips{display:flex;gap:8px;flex-wrap:wrap}
+.hero .chip:first-child{background:#F26B1D33;border-color:#F26B1D66}
+.hero .hrow{background:#ffffff0d;border:1px solid #ffffff14;border-radius:20px;padding:12px;margin-top:16px}
+.hero .hbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.hero .hbtns .wa{grid-column:1/-1;padding:14px;font-size:16px}
+.hero .hbtns .ghost{background:#ffffff1f!important;color:#fff!important;border:1px solid #ffffff33!important;box-shadow:none!important}
+#main{padding-bottom:84px}
 </style><link rel="manifest" href="manifest-partner.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
 <header><b><a href="../index.html" aria-label="Kais Junk Remove, home" style="color:inherit;text-decoration:none;display:inline-block;padding:6px 0">Kais <span>Partner</span></a></b><button id="logout">Cikis</button></header>
 <main>
@@ -190,8 +213,8 @@ function menuOpen(k){
   var un=NOTES.slice();sheet('<h3>Bildirimler</h3>'+(un.length?un.map(function(n){return '<div class="li'+(n.read?'':' un')+'">'+K.esc(n.text)+'<small>'+K.dt(n.created_at)+'</small></div>'}).join(''):'<p class="muted">Henuz bildirim yok.</p>')+'<p><button class="btn ghost sm" data-x>Kapat</button></p>');
   NOTES.forEach(function(x){x.read=true});return}
  if(k==='team'){var jl=new URL('../join.html?sp='+encodeURIComponent(P.code),location.href).href,earned=0,pend=0;TEAM.forEach(function(t){earned+=Number(t.earned);pend+=Number(t.pending)});
-  sheet('<h3>Ekibim</h3><p class="muted">Davet ettigin ortaklarin tamamlanan islerinden sana ek pay (%'+Number(P.override_pct)+') gelir. Katilim ucreti yoktur; pay sadece gercek musteri islerinden cikar.</p><div class="grid" style="margin:10px 0"><div class="stat"><b>'+TEAM.length+'</b><small>Ekip uyesi</small></div><div class="stat"><b>'+K.money(earned)+'</b><small>Odenen ekip payi</small></div><div class="stat hot"><b>'+K.money(pend)+'</b><small>Bekleyen ekip payi</small></div></div>'
-  +'<div class="qr" style="margin:6px 0">'+K.qrSvg(jl)+'</div><div class="link">'+K.esc(jl)+'</div><p class="row"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa('Earn commission with Kais Junk Remove. Free to join / Gana comisiones con Kais Junk Remove. Es gratis: '+jl)+'">WhatsApp ile davet et</a><button class="btn sm ghost" data-copy="'+K.esc(jl)+'">Kopyala</button></p>'
+  sheet('<h3>Ekibim</h3><p class="muted">Davet ettigin ortaklarin tamamlanan islerinden sana ek pay (%'+Number(P.override_pct)+') gelir. Katilim ucreti yoktur; pay sadece gercek musteri islerinden cikar.</p><div class="grid tstats"><div class="stat"><b>'+TEAM.length+'</b><small>Ekip uyesi</small></div><div class="stat"><b>'+K.money(earned)+'</b><small>Odenen ekip payi</small></div><div class="stat hot"><b>'+K.money(pend)+'</b><small>Bekleyen ekip payi</small></div></div>'
+  +'<div class="inv"><div class="invt"><div class="qr">'+K.qrSvg(jl)+'</div><div><b>Ekip davet linkin</b><div class="link">'+K.esc(jl)+'</div></div></div><p class="row"><a class="btn wa sm grow" target="_blank" rel="noopener" href="'+wa('Earn commission with Kais Junk Remove. Free to join / Gana comisiones con Kais Junk Remove. Es gratis: '+jl)+'">WhatsApp ile davet et</a><button class="btn sm ghost" data-copy="'+K.esc(jl)+'">Kopyala</button></p></div><h4 class="tm">Ekip uyelerin</h4>'
   +(TEAM.length?TEAM.map(function(t){return '<div class="li"><b>'+K.esc(t.name)+'</b>'+(t.active?'':' <span class="tag lost">Pasif</span>')+'<small>'+t.jobs_done+' tamamlanan is &middot; odenen '+K.money(t.earned)+' &middot; bekleyen '+K.money(t.pending)+'</small></div>'}).join(''):'<p class="muted">Henuz ekip uyen yok. Linkini paylas.</p>')+'<p><button class="btn ghost sm" data-x>Kapat</button></p>');return}
  if(k==='pay'){var paid=L.filter(function(l){return l.commission_paid&&l.commission!=null}).map(function(l){return {amt:Number(l.commission),t:l.commission_paid_at,txt:l.summary||'Is',ref:l.ref,tag:''}}).concat(OV.filter(function(o){return o.paid}).map(function(o){return {amt:Number(o.amount),t:o.paid_at,txt:(o.who||'Ekip')+' - '+(o.summary||'is'),ref:o.ref,tag:'Ekip payi'}})).sort(function(a,b){return new Date(b.t||0)-new Date(a.t||0)}),tot=0;paid.forEach(function(l){tot+=l.amt});
   var wait=0;L.forEach(function(l){if(l.status==='done'&&!l.commission_paid&&l.commission!=null)wait+=Number(l.commission)});OV.forEach(function(o){if(!o.paid)wait+=Number(o.amount||0)});
