@@ -1192,6 +1192,126 @@ exception when others then
   raise notice 'Yedek kovasi ayari atlandi: %', sqlerrm;
 end $$;
 
+-- ---------- Egitim (ortak mini kurs) ----------
+-- Dersler: admin yazar, tum ortaklar gorur. Metin bicimi: bos satir = paragraf, "- " madde, "> " tek tusla gonderilen hazir cumle, {calc} kazanc hesaplayici.
+-- Test: her satir "Soru | dogru cevap | yanlis | yanlis" (dogru cevap ilk yazilir, ortakta karisik gorunur).
+create table if not exists training_courses (
+  id uuid primary key default gen_random_uuid(),
+  sort int not null default 100,
+  icon text not null default '📘',
+  minutes int not null default 2 check (minutes between 1 and 60),
+  published boolean not null default true,
+  title text not null, title_en text, title_es text,
+  summary text, summary_en text, summary_es text,
+  body text not null default '', body_en text, body_es text,
+  quiz text, quiz_en text, quiz_es text,
+  created_at timestamptz not null default now()
+);
+alter table training_courses enable row level security;
+drop policy if exists admin_all_tcourses on training_courses;
+create policy admin_all_tcourses on training_courses for all using (is_admin()) with check (is_admin());
+
+create table if not exists training_progress (
+  partner_id uuid not null references partners(id) on delete cascade,
+  course_id uuid not null references training_courses(id) on delete cascade,
+  done_at timestamptz not null default now(),
+  score int,
+  primary key (partner_id, course_id)
+);
+alter table training_progress enable row level security;
+drop policy if exists admin_all_tprogress on training_progress;
+create policy admin_all_tprogress on training_progress for all using (is_admin()) with check (is_admin());
+
+-- Ortak: yayindaki dersler + kendi ilerlemesi
+create or replace function my_training()
+returns jsonb
+language sql stable security definer set search_path = public as $$
+  with me as (select id from partners where lower(email) = lower(coalesce(auth.jwt() ->> 'email','')) and active)
+  select coalesce(jsonb_agg(to_jsonb(x) order by x.sort, x.created_at), '[]'::jsonb) from (
+    select c.id, c.sort, c.icon, c.minutes, c.title, c.title_en, c.title_es, c.summary, c.summary_en, c.summary_es,
+           c.body, c.body_en, c.body_es, c.quiz, c.quiz_en, c.quiz_es, c.created_at, tp.done_at, tp.score
+    from training_courses c cross join me
+    left join training_progress tp on tp.course_id = c.id and tp.partner_id = me.id
+    where c.published
+  ) x;
+$$;
+grant execute on function my_training() to authenticated;
+
+create or replace function training_done(p_course uuid, p_score int default null)
+returns void
+language plpgsql security definer set search_path = public as $$
+declare pid uuid;
+begin
+  select id into pid from partners where lower(email) = lower(coalesce(auth.jwt() ->> 'email','')) and active;
+  if pid is null then raise exception 'Ortak bulunamadi'; end if;
+  if not exists (select 1 from training_courses where id = p_course and published) then raise exception 'Ders yok'; end if;
+  insert into training_progress(partner_id, course_id, score) values (pid, p_course, case when p_score is null then null else greatest(0, least(100, p_score)) end)
+  on conflict (partner_id, course_id) do update set done_at = now(), score = coalesce(excluded.score, training_progress.score);
+end $$;
+grant execute on function training_done(uuid, int) to authenticated;
+
+create or replace function training_undo(p_course uuid)
+returns void
+language sql security definer set search_path = public as $$
+  delete from training_progress tp using partners p
+  where tp.course_id = p_course and tp.partner_id = p.id and lower(p.email) = lower(coalesce(auth.jwt() ->> 'email',''));
+$$;
+grant execute on function training_undo(uuid) to authenticated;
+
+-- Ilk dersler (sadece tablo bosken)
+insert into training_courses(sort, icon, minutes, title, title_en, title_es, summary, summary_en, summary_es, body, body_en, body_es, quiz, quiz_en, quiz_es)
+select * from (values
+(10,'🎯',2,'Musteriye ne soylemeli?','What to tell the customer','Qué decirle al cliente','Kisa ve guven veren tek cumle.','One short, trustworthy sentence.','Una frase corta que da confianza.',
+E'Musteri uzun aciklama istemez. Ne yaptigini, ne kadar kolay oldugunu ve hizli donuldugunu soyle.\n\n> Esyalarin fotografini WhatsApp ile at, adresini yaz, ucretsiz teklif alirsin. 7/24 donuyorlar.\n\n- Kisa tut, linkini veya QR kodunu goster.\n- "Ucretsiz teklif" ve "hizli donus" kelimelerini kullan.\n- Karar vermesi icin bastirma, linki birak.',
+E'Customers do not want long explanations. Say what you do, how easy it is and that they reply fast.\n\n> Send a photo of your items on WhatsApp, add your address and get a free quote. They reply 24/7.\n\n- Keep it short and show your link or QR code.\n- Use the words "free quote" and "fast reply".\n- Do not push. Leave the link and let them decide.',
+E'Al cliente no le gustan las explicaciones largas. Dile qué haces, lo fácil que es y que responden rápido.\n\n> Envía una foto de tus cosas por WhatsApp, escribe tu dirección y recibe una cotización gratis. Responden 24/7.\n\n- Sé breve y muestra tu enlace o código QR.\n- Usa las palabras "cotización gratis" y "respuesta rápida".\n- No presiones. Deja el enlace y que decida.',
+E'Musteriye ne gostermelisin? | Linkini veya QR kodunu | Fiyat listesi | Kendi telefon numaran\nHangisi dogru cumle? | Fotograf at, ucretsiz teklif al | Hemen para gonder | Bir hafta bekle',
+E'What should you show the customer? | Your link or QR code | A price list | Your own phone number\nWhich sentence is right? | Send a photo, get a free quote | Send money now | Wait a week',
+E'¿Qué debes mostrarle al cliente? | Tu enlace o código QR | Una lista de precios | Tu número personal\n¿Cuál frase es correcta? | Envía una foto y recibe cotización gratis | Envía dinero ahora | Espera una semana'),
+(20,'📸',2,'Fotograf nasil istenir?','How to ask for photos','Cómo pedir las fotos','Dogru fotograf = daha hizli ve net teklif.','Good photos mean a faster, clearer quote.','Buenas fotos = cotización más rápida y clara.',
+E'Teklif fotograflara bakilarak verilir. Net fotograf, hizli ve dogru fiyat demektir.\n\n> Tum yigini gosteren 1 genis foto ve buyuk esyalarin yakin fotolarini at. Merdiven, asansor veya kapi kodu varsa yaz.\n\n- 1 genis foto + buyuk esyalarin yakin fotolari.\n- Esyalar nerede? Garaj, ic mekan, sokak onu.\n- Merdiven, asansor, kapi kodu gibi erisim bilgisi.',
+E'The quote is based on the photos. Clear photos mean a fast and accurate price.\n\n> Send one wide photo of the whole pile and close-ups of the big items. Tell us if there are stairs, an elevator or a gate code.\n\n- One wide photo plus close-ups of big items.\n- Where are the items? Garage, indoors, curb.\n- Access info like stairs, elevator, gate code.',
+E'La cotización se hace con las fotos. Fotos claras significan precio rápido y exacto.\n\n> Envía una foto amplia de todo el montón y fotos de cerca de los objetos grandes. Avísanos si hay escaleras, ascensor o código de puerta.\n\n- Una foto amplia y fotos de cerca de lo grande.\n- ¿Dónde están las cosas? Garaje, interior, frente a la casa.\n- Acceso: escaleras, ascensor, código de puerta.',
+E'Kac genis fotograf istenir? | 1 genis foto | Hic | 20 foto\nErisim bilgisi nedir? | Merdiven, asansor, kapi kodu | Musterinin yasi | Odeme sekli',
+E'How many wide photos should you ask for? | 1 wide photo | None | 20 photos\nWhat is access info? | Stairs, elevator, gate code | Customer age | Payment method',
+E'¿Cuántas fotos amplias se piden? | 1 foto amplia | Ninguna | 20 fotos\n¿Qué es información de acceso? | Escaleras, ascensor, código de puerta | Edad del cliente | Forma de pago'),
+(30,'💬',2,'Fiyat ve para konusu','Price and money','Precio y dinero','Fiyat soyleme, para alma.','Never quote a price, never take money.','No des precios y no cobres.',
+E'Senin isin musteriyi bulmak. Fiyat ve odeme Kais ekibinin isi.\n\n- Fiyat soyleme. Teklifi Kais fotograflara bakip verir.\n- Musteri takip linkinden teklifi gorur ve kabul eder.\n- Musteriden para alma. Odeme dogrudan Kais ekibine yapilir.\n- Komisyonun, is tamamlanip odeme alininca panelde gorunur.\n\n> Fiyati fotograflara bakip ekip verecek, ucretsiz. Linke fotograf yuklemen yeterli.',
+E'Your job is to find the customer. Pricing and payment are handled by the Kais team.\n\n- Do not quote a price. Kais gives the quote from the photos.\n- The customer sees and accepts the quote in the tracking link.\n- Never collect money. Payment goes directly to the Kais team.\n- Your commission shows in the panel once the job is done and paid.\n\n> The team will price it from your photos, free of charge. Just upload photos to the link.',
+E'Tu trabajo es encontrar al cliente. El precio y el pago los maneja el equipo de Kais.\n\n- No des precios. Kais cotiza con las fotos.\n- El cliente ve y acepta la cotización en el enlace de seguimiento.\n- Nunca cobres dinero. El pago va directo al equipo de Kais.\n- Tu comisión aparece en el panel cuando el trabajo termina y se paga.\n\n> El equipo lo cotiza con tus fotos, sin costo. Solo sube las fotos al enlace.',
+E'Fiyati kim verir? | Kais ekibi | Ortak | Musteri\nOdemeyi kime yapar musteri? | Dogrudan Kais ekibine | Ortaga | Bir arkadasa',
+E'Who gives the price? | The Kais team | The partner | The customer\nWho does the customer pay? | The Kais team directly | The partner | A friend',
+E'¿Quién da el precio? | El equipo de Kais | El socio | El cliente\n¿A quién paga el cliente? | Directo al equipo de Kais | Al socio | A un amigo'),
+(40,'🧭',3,'Kimler ihtiyac duyar?','Who needs this service','¿Quién necesita este servicio?','Dogru kisileri bul, kazancini hesapla.','Find the right people and see your earnings.','Encuentra a la gente correcta y calcula tus ganancias.',
+E'En cok is su kisilerden gelir:\n\n- Emlakcilar ve ev sahipleri\n- Kiraci cikislari ve tasinma\n- Garaj ve depo temizligi\n- Vefat sonrasi ev bosaltma\n\nHer musterinin ozel takip linki vardir. Is satirindan gonderirsen musteri durumu kendisi gorur, sana sormaz.\n\n{calc}',
+E'Most jobs come from these people:\n\n- Realtors and landlords\n- Tenant move-outs and moving\n- Garage and storage clean-outs\n- Estate clean-outs\n\nEvery customer has a private tracking link. Send it from the job row and they can see the status themselves.\n\n{calc}',
+E'La mayoría de los trabajos vienen de:\n\n- Agentes inmobiliarios y propietarios\n- Salida de inquilinos y mudanzas\n- Limpieza de garajes y bodegas\n- Vaciado de casas tras un fallecimiento\n\nCada cliente tiene un enlace de seguimiento privado. Envíalo desde el trabajo y verá el estado sin preguntarte.\n\n{calc}',
+E'Hangisi iyi bir musteri kaynagi? | Emlakcilar | Hic kimse | Sadece yabancilar\nMusteri durumu nereden gorur? | Ozel takip linkinden | Sana telefon ederek | Gorememez',
+E'Which is a good customer source? | Realtors | Nobody | Only strangers\nWhere does the customer see the status? | The private tracking link | By calling you | Cannot see it',
+E'¿Cuál es una buena fuente de clientes? | Agentes inmobiliarios | Nadie | Solo desconocidos\n¿Dónde ve el cliente el estado? | En el enlace de seguimiento | Llamándote | No puede verlo'),
+(50,'⚠️',2,'Sik hatalar ve tehlikeli atik','Common mistakes and hazardous items','Errores comunes y residuos peligrosos','Komisyonunu kaybettirecek 3 hata.','3 mistakes that cost you commission.','3 errores que te hacen perder comisión.',
+E'Su hatalar komisyonunu kaybettirir:\n\n- Ayni adresi iki kez kaydetme. Ortak payi gitmez.\n- Kendi linkinle gelmeyen musteriyi "Itiraz" ile bildir.\n- Boya, kimyasal, aku, tup gibi tehlikeli atiklar icin once Kais ekibine sor.\n\nEmin degilsen musteriye vaat verme.\n\n> Bu esya icin once ekibe sorayim, size hemen donerim.',
+E'These mistakes cost you commission:\n\n- Do not enter the same address twice. No partner share is paid.\n- If a customer of yours did not come through your link, report it with "Dispute".\n- For paint, chemicals, batteries or gas tanks, ask the Kais team first.\n\nIf you are not sure, do not promise anything.\n\n> Let me check with the team first for this item and I will get back to you right away.',
+E'Estos errores te hacen perder comisión:\n\n- No registres la misma dirección dos veces. No se paga la parte del socio.\n- Si un cliente tuyo no llegó con tu enlace, repórtalo con "Reclamo".\n- Para pintura, químicos, baterías o tanques de gas, pregunta primero al equipo de Kais.\n\nSi no estás seguro, no prometas nada.\n\n> Déjame consultar primero con el equipo por este artículo y te respondo enseguida.',
+E'Tehlikeli atik icin ilk ne yaparsin? | Kais ekibine sorarim | Hemen soz veririm | Hic umursamam\nAyni adresi iki kez kaydedersen? | Ortak payi gitmez | Iki kat kazanirsin | Hicbir sey olmaz',
+E'What do you do first with hazardous items? | Ask the Kais team | Promise right away | Ignore it\nIf you enter the same address twice? | No partner share is paid | You earn double | Nothing happens',
+E'¿Qué haces primero con residuos peligrosos? | Preguntar al equipo de Kais | Prometer enseguida | Ignorarlo\n¿Si registras la misma dirección dos veces? | No se paga la parte del socio | Ganas el doble | No pasa nada')
+) v(sort,icon,minutes,title,title_en,title_es,summary,summary_en,summary_es,body,body_en,body_es,quiz,quiz_en,quiz_es)
+where not exists (select 1 from training_courses);
+
+-- Yeni ders yayinlaninca tum aktif ortaklara bildirim
+create or replace function training_notify() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.published and (tg_op = 'INSERT' or old.published is distinct from true) then
+    insert into notifications(partner_id, text)
+    select p.id, 'Yeni egitim: ' || new.title from partners p where p.active;
+  end if;
+  return new;
+end $$;
+drop trigger if exists training_notify_t on training_courses;
+create trigger training_notify_t after insert or update of published on training_courses for each row execute function training_notify();
+
 -- Giris yapmis kullanicilar (admin, ortak, ekip) tablolari okuyabilsin. Satir guvenligi (RLS) hangi satiri gorecegini belirler.
 do $$ begin
   if exists (select 1 from pg_roles where rolname='authenticated') then

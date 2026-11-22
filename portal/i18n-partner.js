@@ -110,6 +110,8 @@ P(/^Komisyon odemesi yapildi: (.*)$/,'Commission paid: $1','Comisión pagada: $1
 P(/^Ekip payi odendi(.*)$/,'Team share paid$1','Participación de equipo pagada$1');
 P(/^Ekibine yeni ortak katildi: (.*)$/,'A new partner joined your team: $1','Un nuevo socio se unió a tu equipo: $1');
 P(/^Yeni kampanya: (.*)$/,'New campaign: $1','Nueva campaña: $1');
+P(/^Yeni egitim: (.*)$/,'New training: $1','Nueva capacitación: $1');
+P(/^Egitimin %(\d+) tamam\. Kalan dersleri bitir, daha cok kazan!$/,'Your training is $1% complete. Finish the remaining lessons and earn more!','Tu capacitación está al $1%. ¡Termina las lecciones restantes y gana más!');
 P(/^Eski musterin tekrar is verdi: (.*?) \(tekrar musteri payi\)$/,'Your past customer ordered again: $1 (repeat customer share)','Tu cliente anterior volvió a pedir: $1 (comisión por cliente recurrente)');
 P(/^Destek yaniti: (.*)$/,'Support reply: $1','Respuesta de soporte: $1');
 P(/^Itirazin \((.*)\) onaylandi(.*)$/,'Your dispute ($1) was approved$2','Tu reclamo ($1) fue aprobado$2');
