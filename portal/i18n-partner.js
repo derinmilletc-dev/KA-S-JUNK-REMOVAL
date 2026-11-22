@@ -71,6 +71,7 @@ KJI.add([
 ['Sik hatalar','Common mistakes','Errores comunes'],
 ['Ayni adresi iki kez kaydetme (ortak payi gitmez). Kendi linkinle gelmeyen musteriyi "Itiraz" ile bildir.','Do not enter the same address twice (no partner share). If a customer of yours did not come through your link, report it with "Dispute".','No registres la misma dirección dos veces (no hay comisión). Si un cliente tuyo no llegó por tu enlace, repórtalo con "Reclamo".'],
 // Pazarlama
+['Paylas','Share','Compartir'],['Linki kopyala','Copy link','Copiar enlace'],['Kopyalandi','Copied','Copiado'],
 ['Pazarlama paketi','Marketing kit','Kit de marketing'],['Hepsinde senin linkin ve QR kodun var. Indir, yazdir, paylas.','Every item has your link and QR code. Download, print, share.','Todo incluye tu enlace y código QR. Descarga, imprime, comparte.'],['PNG indir','Download PNG','Descargar PNG'],
 ['El ilani (8.5x11)','Flyer (8.5x11)','Volante (8.5x11)'],['Kartvizit (3.5x2 in)','Business card (3.5x2 in)','Tarjeta de presentación (3.5x2 in)'],['Sosyal medya kare','Social post (square)','Publicación (cuadrada)'],['Hikaye (Story)','Story','Historia (Story)'],
 // Destek

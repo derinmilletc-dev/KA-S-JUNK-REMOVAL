@@ -90,10 +90,22 @@ h3{letter-spacing:-.01em}
 @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes sheetup{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 @media(prefers-reduced-motion:reduce){.job,.smart,.sheet>div{animation:none}}
+
+/* sheet header + back button, marketing kit */
+.sheet>div{padding-top:0!important;border-radius:26px 26px 0 0}
+.sh{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:12px;margin:0 -20px 14px;padding:14px 16px 12px;background:#fffffff2;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.sh h3{margin:0;font-size:19px;line-height:1.15;flex:1;min-width:0}
+.bk{flex:none;width:40px;height:40px;border-radius:13px;border:1px solid var(--line);background:var(--paper);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}.bk svg{width:20px;height:20px}.bk:active{transform:scale(.92)}
+.kt{display:flex;gap:8px;overflow-x:auto;margin:12px -20px 0;padding:2px 20px 6px;scrollbar-width:none}.kt::-webkit-scrollbar{display:none}
+.kt button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:9px 15px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}.kt button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.kprev{margin-top:10px;border-radius:20px;background:linear-gradient(135deg,#EFE9DE,#E4DDCF);padding:16px;display:grid;place-items:center;min-height:392px}
+.kprev canvas{display:block;max-width:100%;max-height:360px;width:auto;height:auto;border-radius:10px;box-shadow:0 18px 30px -16px #1F2421aa;background:#fff;transition:opacity .2s}
+.kbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.kbtns .btn{margin:0;width:100%}.kbtns #kdl{grid-column:1/-1;padding:14px;font-size:16px}
+.bkl{position:absolute;top:14px;left:16px;display:inline-flex;align-items:center;gap:4px;color:var(--muted);font-size:13.5px;font-weight:600;text-decoration:none;padding:6px 10px 6px 6px;border-radius:99px;background:var(--paper)}.bkl svg{width:16px;height:16px}
 </style><link rel="manifest" href="manifest-partner.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
 <header><b><a href="../index.html" aria-label="Kais Junk Remove, home" style="color:inherit;text-decoration:none;display:inline-block;padding:6px 0">Kais <span>Partner</span></a></b><button id="logout">Cikis</button></header>
 <main>
-<div id="loginBox" class="card login" hidden><h2>Ortak girisi</h2><p class="muted">Kayitli e-postani yaz, sana giris baglantisi gonderelim.</p>
+<div id="loginBox" class="card login" hidden><a class="bkl" href="../index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>kaisremoval.com</a><h2>Ortak girisi</h2><p class="muted">Kayitli e-postani yaz, sana giris baglantisi gonderelim.</p>
 <form id="lform"><label for="lemail">E-posta</label><input id="lemail" type="email" required autocomplete="email"><p><button class="btn" id="lbtn" style="width:100%">Giris baglantisi gonder</button></p></form><div id="lmsg" class="msg" hidden></div></div>
 <div id="app" hidden>
 <div id="none" class="card" hidden><h3>Ortak kaydi bulunamadi</h3><p class="muted">Bu e-posta bir ortak hesabina bagli degil. Kais ekibiyle iletisime gec.</p></div>
@@ -118,8 +130,13 @@ h3{letter-spacing:-.01em}
 (function(){var K=KJC,$=K.$,P=null,L=[],F='all';
 function wa(text){return 'https://wa.me/?text='+encodeURIComponent(text)}
 function bucket(l){if(l.status==='done')return l.commission_paid?'paid':'done';if(l.status==='lost')return 'lost';return 'open'}
-function sheet(html){$('sheetbox').innerHTML=html;$('sheet').hidden=false;document.body.classList.add('noscroll');$('sheetbox').scrollTop=0}
-function closeSheet(){$('sheet').hidden=true;document.body.classList.remove('noscroll')}
+var sheetOpen=false;
+function sheet(html){var m=html.match(/^<h3>([\s\S]*?)<\/h3>/);var bk='<button type="button" class="bk" data-x aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>';
+ html=m?'<div class="sh">'+bk+'<h3>'+m[1]+'</h3></div>'+html.slice(m[0].length):'<div class="sh">'+bk+'</div>'+html;
+ $('sheetbox').innerHTML=html;$('sheet').hidden=false;document.body.classList.add('noscroll');$('sheetbox').scrollTop=0;
+ if(!sheetOpen){sheetOpen=true;try{history.pushState({kjs:1},'')}catch(e){}}}
+function closeSheet(pop){$('sheet').hidden=true;document.body.classList.remove('noscroll');if(sheetOpen){sheetOpen=false;if(pop!==true){try{history.back()}catch(e){}}}}
+window.addEventListener('popstate',function(){if(sheetOpen)closeSheet(true)});
 $('sheet').addEventListener('click',function(e){if(e.target===$('sheet')||e.target.closest('[data-x]'))closeSheet()});
 function linkSheet(t,title){var u=K.trackLink(t);
  sheet('<h3>'+K.esc(title)+'</h3><p class="muted">Bu ozel link ile musteri isin durumunu takip eder.</p><div class="qr" style="margin:10px 0">'+K.qrSvg(u)+'</div><div class="link">'+K.esc(u)+'</div><p class="row"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa('Track your Kais Junk Remove job here / Sigue tu trabajo de Kais Junk Remove aqui: '+u)+'">WhatsApp ile gonder</a><button class="btn sm ghost" data-copy="'+K.esc(u)+'">Kopyala</button><button class="btn sm ghost" data-x>Kapat</button></p>')}
@@ -186,9 +203,16 @@ if(k==='ach'){var done=L.filter(function(l){return l.status==='done'}).length,re
    +'<h3 style="font-size:17px;margin-top:14px">Bu ayin siralamasi</h3><p class="muted">Sadece isim ve soyad bas harfi gorunur.</p>'+(T.length?T.map(function(x){return '<div class="li" style="'+(x.is_me?'background:var(--tint);border-radius:10px;padding:10px;font-weight:700':'')+'"><b>#'+x.rank+'</b> '+K.esc(x.name)+(x.is_me?' (sen)':'')+'<small>'+x.jobs+' tamamlanan is</small></div>'}).join(''):'<p class="muted">Bu ay henuz tamamlanan is yok. Ilk sen ol!</p>')+'<p><button class="btn ghost sm" data-x>Kapat</button></p>')});return}
  if(k==='learn'){var Q=[['Musteriye ne soylemeli?','"Esyalarin fotografini WhatsApp ile at, adresini yaz, ucretsiz teklif alirsin. 7/24 donuyorlar." Kisa tut, linkini veya QR kodunu goster.'],['Fotograf nasil istenir?','Tum yigini gosteren 1 genis foto + buyuk esyalarin yakin fotolari. Merdiven, asansor, kapi kodu gibi erisim bilgisini de yazsin.'],['Fiyat konusunda','Sen fiyat soyleme. Teklifi Kais fotograflara bakip verir. Musteri takip linkinden teklifi gorur ve kabul eder.'],['Neleri soruyoruz?','Boya, kimyasal, aku, tupleri gibi tehlikeli atiklar icin once Kais ekibine sor. Emin degilsen musteriye vaat verme.'],['Para konusu','Musteriden para alma. Odeme dogrudan Kais ekibine yapilir. Komisyonun, is tamamlanip odeme alininca panelde gorunur.'],['Nerede ise yarar?','Emlakcilar, ev sahipleri, kiraci cikislari, tasinma, garaj temizligi, vefat sonrasi ev bosaltma. Bu kisilere linkini ver.'],['Musteri takibi','Her musterinin ozel takip linki var. Is satirindan "Musteri takip linki" ile gonderirsen musteri durumu kendisi gorur, sana sormaz.'],['Sik hatalar','Ayni adresi iki kez kaydetme (ortak payi gitmez). Kendi linkinle gelmeyen musteriyi "Itiraz" ile bildir.']];
   sheet('<h3>Egitim: nasil daha cok kazanirsin</h3>'+Q.map(function(q){return '<details style="background:var(--paper);border-radius:12px;padding:10px 14px;margin:8px 0"><summary style="cursor:pointer;font-weight:600">'+q[0]+'</summary><p style="margin:8px 0 0">'+K.esc(q[1])+'</p></details>'}).join('')+'<p><button class="btn ghost sm" data-x>Kapat</button></p>');return}
- if(k==='kit'){var base=K.refLink(P.code);
-  sheet('<h3>Pazarlama paketi</h3><p class="muted">Hepsinde senin linkin ve QR kodun var. Indir, yazdir, paylas.</p>'+KJKit.types.map(function(t){return '<div class="tpl"><b>'+KJKit.names[t]+'</b><canvas data-kit="'+t+'" style="width:100%;max-height:260px;object-fit:contain;display:block;margin:8px 0;border-radius:8px;background:#fff"></canvas><button class="btn sm" data-dl="'+t+'">PNG indir</button></div>'}).join('')+'<p><button class="btn ghost sm" data-x>Kapat</button></p>');
-  KJKit.ready().then(function(){document.querySelectorAll('canvas[data-kit]').forEach(function(cv){KJKit.draw(cv,cv.dataset.kit,base+'&utm_medium='+cv.dataset.kit,P.code)})});return}
+ if(k==='kit'){var base=K.refLink(P.code),cur='flyer';
+  sheet('<h3>Pazarlama paketi</h3><p class="muted">Hepsinde senin linkin ve QR kodun var. Indir, yazdir, paylas.</p><div class="kt" id="kt">'+KJKit.types.map(function(t){return '<button type="button" data-kt="'+t+'"'+(t===cur?' class="on"':'')+'>'+KJKit.names[t]+'</button>'}).join('')+'</div><div class="kprev"><canvas id="kc"></canvas></div><div class="kbtns"><button type="button" class="btn" id="kdl">PNG indir</button><button type="button" class="btn ghost" id="ksh">Paylas</button><button type="button" class="btn ghost" id="kcp">Linki kopyala</button></div><div id="kmsg" class="msg" hidden></div>');
+  function kurl(){return base+'&utm_medium='+cur}
+  function kdraw(){var cv=$('kc');cv.style.opacity='.35';KJKit.ready().then(function(){KJKit.draw(cv,cur,kurl(),P.code);cv.style.opacity='1'})}
+  function kblob(cb){$('kc').toBlob(cb,'image/png')}
+  $('kt').onclick=function(e){var b=e.target.closest('[data-kt]');if(!b)return;cur=b.dataset.kt;Array.prototype.forEach.call($('kt').children,function(x){x.classList.toggle('on',x===b)});kdraw()};
+  $('kdl').onclick=function(){kblob(function(bl){var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='kais-'+cur+'.png';document.body.appendChild(a);a.click();a.remove()})};
+  $('ksh').onclick=function(){kblob(function(bl){var f=new File([bl],'kais-'+cur+'.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],url:kurl()}).catch(function(){})}else if(navigator.share){navigator.share({url:kurl()}).catch(function(){})}else{$('kdl').click()}})};
+  $('kcp').onclick=function(){var u=kurl(),ok=function(){K.flash($('kmsg'),'Kopyalandi')};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(ok,ok);else ok()};
+  kdraw();return}
  if(k==='sup'){K.sb.rpc('my_support').then(function(r){var M=r.data||[];
   sheet('<h3>Destek</h3><p class="muted">Soru veya sorun yaz, ekip cevaplar. Cevap bildirimlerine de duser.</p><div>'+(M.length?M.map(function(m){return '<div style="margin:6px 0;'+(m.from_admin?'':'text-align:right')+'"><span style="display:inline-block;max-width:85%;padding:8px 12px;border-radius:12px;background:'+(m.from_admin?'var(--tint)':'var(--paper)')+';text-align:left">'+K.esc(m.body)+'</span><br><small class="muted">'+(m.from_admin?'Kais ekibi &middot; ':'')+K.dt(m.created_at)+'</small></div>'}).join(''):'<p class="muted">Henuz mesaj yok.</p>')+'</div><form id="sf" style="margin-top:12px"><input id="sb" maxlength="1000" required placeholder="Mesajini yaz"><div id="sm" class="msg" hidden></div><p class="row"><button class="btn grow">Gonder</button><button type="button" class="btn ghost" data-x>Kapat</button></p></form>');
   $('sf').onsubmit=function(e){e.preventDefault();K.sb.rpc('partner_support_send',{p_body:$('sb').value}).then(function(r){if(r.error){K.flash($('sm'),'Gonderilemedi: '+r.error.message,true);return}menuOpen('sup')})}})}
