@@ -144,14 +144,6 @@ html,body{overflow-x:clip;max-width:100%}
  #t-partners .row .btn{width:100%}
  #t-partners label{font-size:13px;line-height:1.25;margin-bottom:4px;display:block}
  #t-partners input{width:100%}
- #t-partners .card:last-of-type .tbl thead{display:none}
- #t-partners .card:last-of-type .tbl table,#t-partners .card:last-of-type .tbl tbody{display:block}
- #prows tr{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding:14px;border:1px solid var(--line);border-radius:18px;margin-bottom:12px;background:#fff;box-shadow:0 8px 20px -16px #1F242188}
- #prows td{display:block;padding:0!important;border:0!important;min-width:0}
- #prows td:first-child{grid-column:1/-1;overflow-wrap:anywhere}
- #prows td:last-child{grid-column:1/-1}
- #prows input{width:90px}
- #t-partners .card:last-of-type{background:none;border:0;box-shadow:none;padding:0}
 }
 @media(max-width:600px){
  #t-rep .row>div:last-child{grid-column:1/-1}#t-rep .row .btn{width:100%}
@@ -163,6 +155,29 @@ html,body{overflow-x:clip;max-width:100%}
  #rstats .stat b{font-size:24px}
  .tbl th,.tbl td{padding-left:6px!important;padding-right:6px!important;font-size:13px}
 }
+
+/* ortaklar v5 */
+.plist{display:grid;gap:12px;margin-bottom:14px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+.pc{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:0 10px 24px -18px #1F242188}
+.pc.off{opacity:.65}
+.pch{display:flex;align-items:center;gap:12px}
+.av{flex:none;width:42px;height:42px;border-radius:14px;background:var(--tint);color:var(--deep);display:grid;place-items:center;font:800 18px 'Bricolage Grotesque',sans-serif}
+.pcn{flex:1;min-width:0}.pcn b{font:700 16px 'Bricolage Grotesque',sans-serif}.pcn small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+.pcs div{background:var(--paper);border-radius:14px;padding:9px 10px}.pcs b{display:block;font:700 16px 'Bricolage Grotesque',sans-serif;overflow:hidden;text-overflow:ellipsis}.pcs small{font-size:11.5px;color:var(--muted)}
+.pcs .hot{background:var(--tint)}.pcs .hot b{color:var(--deep)}
+.pcf{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pcf label{font-size:12.5px;color:var(--muted);font-weight:600;margin:0}.pcf input{width:100%;margin-top:4px}
+.pcx{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:12px}.chip2{background:var(--paper);border-radius:99px;padding:5px 10px;font-size:12px;color:var(--muted);max-width:100%;overflow-wrap:anywhere}
+.fold{background:#fff;border:1px solid var(--line);border-radius:20px;margin-bottom:12px;box-shadow:0 8px 20px -16px #1F242188;overflow:hidden}
+.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:16px;font:700 16px 'Bricolage Grotesque',sans-serif}
+.fold>summary::-webkit-details-marker{display:none}.fold>summary small{display:block;font:500 12.5px 'DM Sans',sans-serif;color:var(--muted);margin-top:2px}
+.fold>summary span{width:32px;height:32px;border-radius:10px;background:var(--paper);display:grid;place-items:center;font-size:16px;flex:none}
+.fold>summary::after{content:'';margin-left:auto;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;flex:none;margin-right:4px}.fold[open]>summary::after{transform:rotate(225deg)}
+.foldb{padding:0 16px 16px}
+#tiers{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.tier{display:inline-flex;align-items:center;gap:8px;background:var(--tint);border-radius:99px;padding:6px 6px 6px 14px;font-size:14px}
+.tier button{border:0;background:#fff;border-radius:50%;width:26px;height:26px;font-size:16px;line-height:1;cursor:pointer;color:var(--deep)}
+@media(max-width:600px){#t-partners .fold .row{margin-top:10px}}
 </style><link rel="manifest" href="manifest-admin.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
 <header><a class="brand" href="../index.html" aria-label="Kais Junk Remove, home"><svg viewBox="0 0 200 200" aria-hidden="true"><rect width="200" height="200" rx="44" fill="#2E3531"/><g transform="translate(-9,0)"><rect x="52" y="48" width="28" height="104" fill="#F6F3EE"/><polygon points="80,112 126,48 160,48 114,112" fill="#F6F3EE"/><polygon points="92,96 126,96 166,152 132,152" fill="#F26B1D"/></g></svg><span><b>Kais</b><em>Admin</em></span></a><div class="hright"><span class="hclock" id="hclock" title="Florida saati"></span><button id="hsearch" type="button" aria-label="Ara">🔍</button><button id="hrefresh" type="button" aria-label="Yenile">↻</button><button id="setpw" type="button" style="display:none">Sifre</button><button id="logout">Cikis</button></div></header>
 <main>
@@ -183,14 +198,14 @@ html,body{overflow-x:clip;max-width:100%}
 <section id="t-leads" class="tabsec" hidden><div class="toolbar"><input id="lq2" type="search" placeholder="Ara: isim, adres, is kodu, ortak, ozet"><div class="chipbar" id="lchips"></div></div><p class="muted" id="lcount"></p>
 <div class="tbl"><table><thead><tr><th>Tarih</th><th>Musteri / Adres</th><th>Ortak</th><th>Durum</th><th>Tutar $</th><th>Komisyon</th></tr></thead><tbody id="lrows"></tbody></table></div><p class="muted" id="lempty" hidden>Bu filtreyle is yok.</p><p style="text-align:center"><button class="btn ghost" id="lmore" hidden>Daha fazla goster</button></p></section>
 <section id="t-partners" class="tabsec" hidden>
-<div class="card"><h3>Yeni ortak</h3><form id="pform" class="row"><div class="grow"><label>Ad</label><input id="pn" required></div><div class="grow"><label>E-posta</label><input id="pe" type="email" required></div><div class="grow"><label>Telefon</label><input id="pp"></div><div style="width:110px"><label>Komisyon %</label><input id="pc" type="number" min="0" max="100" step="0.5" value="20"></div><div style="align-self:flex-end"><button class="btn">Ekle</button></div></form></div>
-<div class="card"><h3>Program ayarlari</h3><p class="muted">Seviye: ortagin son 30 gundeki is sayisina gore komisyon yuzdesi. Is azalinca seviye de duser (ortagin kendi yuzdesinden dusukse kendi yuzdesi kalir).</p><div id="tiers"></div>
+<div class="plist" id="prows"></div>
+<details class="fold"><summary><span>➕</span><div>Yeni ortak ekle</div></summary><div class="foldb"><form id="pform" class="row"><div class="grow"><label>Ad</label><input id="pn" required></div><div class="grow"><label>E-posta</label><input id="pe" type="email" required></div><div class="grow"><label>Telefon</label><input id="pp"></div><div style="width:110px"><label>Komisyon %</label><input id="pc" type="number" min="0" max="100" step="0.5" value="20"></div><div style="align-self:flex-end"><button class="btn">Ekle</button></div></form></div></details>
+<details class="fold"><summary><span>⚙️</span><div>Program ayarlari<small>Seviyeler, odeme notlari, kredi</small></div></summary><div class="foldb"><p class="muted">Seviye: ortagin son 30 gundeki is sayisina gore komisyon yuzdesi. Is azalinca seviye de duser (ortagin kendi yuzdesinden dusukse kendi yuzdesi kalir).</p><div id="tiers"></div>
 <form id="tform" class="row"><div style="width:120px"><label>Son 30 gunde kac is</label><input id="tm" type="number" min="1" required></div><div style="width:110px"><label>Komisyon %</label><input id="tp" type="number" min="0" max="100" step="0.5" required></div><div style="align-self:flex-end"><button class="btn sm">Seviye ekle</button></div></form>
 <div class="row" style="margin-top:12px"><div class="grow"><label>Is bitince odeme talimati (musteri takip sayfasinda "Odenecek tutar" altinda gorur, ornek: Zelle ... / Cash / Cash App ...)</label><input id="paynote" maxlength="200"></div></div>
 <div class="row" style="margin-top:12px"><div class="grow"><label>Depozito odeme talimati (musteri takip sayfasinda gorur, ornek: Zelle ... / Cash App ...)</label><input id="dn" maxlength="200"></div></div>
 <div class="row" style="margin-top:12px"><div style="width:230px"><label>Musteri tavsiye kredisi ($, her tamamlanan is)</label><input id="cr" type="number" min="0" step="1"></div><div style="width:230px"><label>Tekrar musteri komisyonu % (12 ay)</label><input id="rp" type="number" min="0" max="100" step="0.5"></div><div class="grow"><label>Google yorum linki</label><input id="rv" type="url" placeholder="https://g.page/r/.../review"></div></div>
-<p class="muted" style="margin-top:12px">Ortak basvuru linki (sponsorsuz): <span id="jl"></span></p></div>
-<div class="card"><div class="tbl"><table><thead><tr><th>Ortak</th><th>Kod / Baglanti</th><th>Komisyon</th><th>Is</th><th>Odenecek</th><th></th></tr></thead><tbody id="prows"></tbody></table></div></div></section>
+<p class="muted" style="margin-top:12px">Ortak basvuru linki (sponsorsuz): <span id="jl"></span></p></div></details></section>
 <section id="t-apps" class="tabsec card" hidden><p class="muted">Davet linkinden gelen ortak basvurulari. Onaylarsan ortak olusur ve davet edenin ekibine baglanir.</p><div id="arows"></div><p class="muted" id="aempty" hidden>Basvuru yok.</p></section>
 <section id="t-claims" class="tabsec card" hidden><div id="crows"></div><p class="muted" id="cempty" hidden>Itiraz yok.</p></section>
 <section id="t-cal" class="tabsec" hidden>
@@ -325,7 +340,12 @@ function render(){
   +'<td><input data-f="price" type="number" min="0" step="1" value="'+(l.price==null?'':l.price)+'" style="width:90px"></td>'
   +'<td>'+(c!=null?K.money(c)+' <small class="muted">(%'+Number(cc(l).pct)+')</small><br><label style="margin:2px 0;font-weight:400"><input data-f="paid" type="checkbox" style="width:auto"'+(l.commission_paid?' checked':'')+'> odendi</label>':'<span class="muted">-</span>')+(ovr(l)!=null?'<br><small>Ust pay: <b>'+K.money(ovr(l))+'</b></small><br><label style="margin:2px 0;font-weight:400"><input data-f="ovpaid" type="checkbox" style="width:auto"'+(l.override_paid?' checked':'')+'> odendi</label>':'')+'</td></tr>'}).join('');
  $('prows').innerHTML=P.map(function(p){var mine=L.filter(function(l){return l.partner_id===p.id}),owe=0;mine.forEach(function(l){var c=comm(l);if(c&&!l.commission_paid)owe+=c});L.forEach(function(l){var k=cc(l);if(k&&k.sponsor_id===p.id&&ovr(l)&&!l.override_paid)owe+=ovr(l)});var team=P.filter(function(x){return x.parent_id===p.id}).length;
-  return '<tr data-id="'+p.id+'"><td><b>'+K.esc(p.name)+'</b><br><small class="muted">'+K.esc(p.email)+(p.phone?' &middot; '+K.esc(p.phone):'')+(p.payout_info?'<br>Odeme: '+K.esc(p.payout_info):'')+(p.parent_id?'<br>Sponsor: '+K.esc(pn(p.parent_id))+susTag(sus(p.name,p.phone,p.email,p.payout_info,P.find(function(x){return x.id===p.parent_id}))):'')+(team?'<br>Ekip: '+team+' ortak':'')+'</small></td><td><b>'+K.esc(p.code)+'</b><br><button class="btn sm ghost" data-a="qr">QR / baglanti</button></td><td><small class="muted">Komisyon</small><br><input data-f="pct" type="number" min="0" max="100" step="0.5" value="'+Number(p.commission_pct)+'" style="width:80px"> %<br><small class="muted">Ust pay</small><br><input data-f="ovpct" type="number" min="0" max="100" step="0.5" value="'+Number(p.override_pct)+'" style="width:80px"> %</td><td>'+mine.length+'</td><td>'+K.money(owe)+'</td><td><button class="btn sm ghost" data-a="tog">'+(p.active?'Durdur':'Aktif et')+'</button></td></tr>'}).join('');
+  var ini=K.esc((p.name||'?').trim().charAt(0).toUpperCase());
+  return '<div class="pc'+(p.active?'':' off')+'" data-id="'+p.id+'"><div class="pch"><span class="av">'+ini+'</span><div class="pcn"><b>'+K.esc(p.name)+'</b> <span class="tag '+(p.active?'done':'lost')+'">'+(p.active?'Aktif':'Pasif')+'</span><small class="muted">'+K.esc(p.email)+(p.phone?' &middot; '+K.esc(p.phone):'')+'</small></div><button class="btn sm ghost" data-a="tog">'+(p.active?'Durdur':'Aktif et')+'</button></div>'
+  +'<div class="pcs"><div><b>'+K.esc(p.code)+'</b><small>Kod</small></div><div><b>'+mine.length+'</b><small>Is</small></div><div class="'+(owe>0?'hot':'')+'"><b>'+K.money(owe)+'</b><small>Odenecek</small></div></div>'
+  +'<div class="pcf"><label>Komisyon %<input data-f="pct" type="number" min="0" max="100" step="0.5" value="'+Number(p.commission_pct)+'"></label><label>Ust pay %<input data-f="ovpct" type="number" min="0" max="100" step="0.5" value="'+Number(p.override_pct)+'"></label></div>'
+  +'<div class="pcx"><button class="btn sm ghost" data-a="qr">QR / baglanti</button>'+(team?'<span class="chip2">Ekip: '+team+'</span>':'')+(p.parent_id?'<span class="chip2">Sponsor: '+K.esc(pn(p.parent_id))+susTag(sus(p.name,p.phone,p.email,p.payout_info,P.find(function(x){return x.id===p.parent_id})))+'</span>':'')+(p.payout_info?'<span class="chip2">Odeme: '+K.esc(p.payout_info)+'</span>':'')+'</div></div>'
+}).join('');
 }
 var CL=[];
 function drawClaims(){var pend=CL.filter(function(c){return c.status==='pending'}).length;$('cb').hidden=!pend;$('cb').textContent=pend;$('cempty').hidden=CL.length>0;
@@ -333,7 +353,7 @@ function drawClaims(){var pend=CL.filter(function(c){return c.status==='pending'
   return '<div style="border-bottom:1px solid var(--line);padding:12px 0" data-id="'+c.id+'"><b>'+K.esc(c.customer_name)+'</b> '+(c.customer_phone?'&middot; '+K.esc(c.customer_phone):'')+' <span class="tag '+(c.status==='approved'?'done':c.status==='rejected'?'lost':'')+'">'+K.esc({pending:'Bekliyor',approved:'Onaylandi',rejected:'Reddedildi'}[c.status])+'</span><br><small class="muted">Ortak: '+(p?K.esc(p.name):'-')+(c.lead_ref?' &middot; Is: '+K.esc(c.lead_ref):'')+' &middot; '+K.dt(c.created_at)+'</small>'+(c.note?'<br><small>'+K.esc(c.note)+'</small>':'')
   +(c.status==='pending'?'<div class="row" style="margin-top:8px"><input class="grow" data-n placeholder="Not (istege bagli)"><button class="btn sm" data-r="1">Onayla</button><button class="btn sm ghost" data-r="0">Reddet</button></div>':(c.admin_note?'<br><small class="muted">Not: '+K.esc(c.admin_note)+'</small>':''))+'</div>'}).join('')}
 function drawSettings(){
- $('tiers').innerHTML=TI.length?TI.map(function(t){return '<div class="row" style="margin:6px 0" data-m="'+t.min_jobs+'"><span>Son 30 gunde <b>'+t.min_jobs+'</b>. isten itibaren: <b>%'+Number(t.pct)+'</b></span><button class="btn sm ghost" data-a="deltier">Sil</button></div>'}).join(''):'<p class="muted">Seviye yok.</p>';
+ $('tiers').innerHTML=TI.length?TI.map(function(t){return '<span class="tier" data-m="'+t.min_jobs+'"><span>30 gunde <b>'+t.min_jobs+'+</b> is &rarr; <b>%'+Number(t.pct)+'</b></span><button type="button" data-a="deltier" aria-label="Sil">&times;</button></span>'}).join(''):'<p class="muted">Seviye yok.</p>';
  $('cr').value=ST.customer_credit;$('rp').value=ST.repeat_pct;$('rv').value=ST.review_url||'';$('dn').value=ST.deposit_note||'';$('paynote').value=ST.pay_note||'';$('jl').textContent=new URL('../join.html',location.href).href}
 function drawApps(){var list=AP.filter(function(a){return a.status==='pending'});$('ab').hidden=!list.length;$('ab').textContent=list.length;$('aempty').hidden=list.length>0;
  $('arows').innerHTML=list.map(function(a){return '<div style="border-bottom:1px solid var(--line);padding:12px 0" data-id="'+a.id+'"><b>'+K.esc(a.name)+'</b> &middot; '+K.esc(a.email)+(a.phone?' &middot; '+K.esc(a.phone):'')+(a.kind==='business'?'<br><span class="tag">Kurumsal</span> '+K.esc(a.company||'')+(a.note?' &middot; '+K.esc(a.note):''):'')+'<br><small class="muted">'+K.dt(a.created_at)+(a.sponsor_code?' &middot; Davet eden kod: '+K.esc(a.sponsor_code):'')+'</small>'+susTag(sus(a.name,a.phone,a.email,'',P.find(function(x){return x.code===a.sponsor_code})))+'<div class="row" style="margin-top:8px"><button class="btn sm" data-ap="1">Onayla</button><button class="btn sm ghost" data-ap="0">Reddet</button></div></div>'}).join('')}
@@ -549,7 +569,7 @@ $('lrows').addEventListener('change',function(e){var tr=e.target.closest('tr'),f
  sb.from('leads').update(u).eq('id',l.id).then(function(r){if(r.error)msg('Kaydedilemedi: '+r.error.message,true);else{Object.assign(l,u);msg('Kaydedildi');load()}})});
 $('pform').onsubmit=function(e){e.preventDefault();var row={name:$('pn').value.trim(),email:$('pe').value.trim().toLowerCase(),phone:$('pp').value.trim()||null,commission_pct:Number($('pc').value),code:code()};
  sb.from('partners').insert(row).select().then(function(r){if(r.error)msg('Eklenemedi: '+r.error.message,true);else{P.unshift(r.data[0]);$('pform').reset();$('pc').value=20;msg('Ortak eklendi. Artik bu e-postayla portal/partner.html uzerinden girebilir.');render()}})};
-$('prows').addEventListener('change',function(e){var f=e.target.dataset.f;if(f!=='pct'&&f!=='ovpct')return;var p=P.find(function(x){return x.id===e.target.closest('tr').dataset.id}),v=Number(e.target.value);
+$('prows').addEventListener('change',function(e){var f=e.target.dataset.f;if(f!=='pct'&&f!=='ovpct')return;var p=P.find(function(x){return x.id===e.target.closest('[data-id]').dataset.id}),v=Number(e.target.value);
  if(!(v>=0&&v<=100)){msg('Yuzde 0-100 arasi olmali',true);render();return}
  var u=f==='pct'?{commission_pct:v}:{override_pct:v};
  sb.from('partners').update(u).eq('id',p.id).then(function(r){if(r.error)msg('Kaydedilemedi: '+r.error.message,true);else{Object.assign(p,u);msg(p.name+' icin '+(f==='pct'?'komisyon':'ust pay')+' %'+v+' yapildi. Tamamlanan islerin hesabi da buna gore guncellenir.');load()}})});
@@ -583,7 +603,7 @@ $('lrows').addEventListener('click',function(e){
  var vb=e.target.closest('[data-a=rev]');if(vb){var txt='Thanks for choosing Kais Junk Remove! If we did a good job, a quick review means a lot to us: '+ST.review_url;navigator.clipboard.writeText(txt).then(function(){vb.textContent='Kopyalandi, WhatsApp\'a yapistir'});return}
  var b=e.target.closest('[data-a=trk]');if(!b)return;var l=L.find(function(x){return x.id===b.closest('tr').dataset.id}),u=K.trackLink(l.track_token);
  $('qr').innerHTML=K.qrSvg(u);$('ql').textContent=u;$('qn').textContent='Musteri takip linki: '+(l.customer_name||l.ref);$('qrm').hidden=false;$('qc').onclick=function(){navigator.clipboard.writeText(u)};$('qx').onclick=function(){$('qrm').hidden=true};$('qrm').scrollIntoView()});
-$('prows').addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var p=P.find(function(x){return x.id===b.closest('tr').dataset.id});
+$('prows').addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var p=P.find(function(x){return x.id===b.closest('[data-id]').dataset.id});
  if(b.dataset.a==='tog')sb.from('partners').update({active:!p.active}).eq('id',p.id).then(function(r){if(!r.error){p.active=!p.active;render()}});
  else{var l=K.refLink(p.code);$('qr').innerHTML=K.qrSvg(l);$('ql').textContent=l;$('qn').textContent=p.name;$('qrm').hidden=false;$('qc').onclick=function(){navigator.clipboard.writeText(l)};$('qx').onclick=function(){$('qrm').hidden=true};$('qrm').scrollIntoView()}});
 })();
