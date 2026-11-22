@@ -116,7 +116,7 @@ Deno.serve(async (req) => {
     const lang = L(body.lang);
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 200) return json({ ok: true });
     const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-    const base = (Deno.env.get("PANEL_URL") ?? "https://kaisremoval.com").replace(/\/$/, "");
+    const base = (() => { let p = (Deno.env.get("PANEL_URL") ?? "").trim(); if (!p) p = "https://kaisremoval.com"; if (!/^https?:\/\//i.test(p)) p = "https://" + p; return p.replace(/\/portal.*$/i, "").replace(/\/+$/, ""); })();
 
     // Hangi panel? (giris sonrasi yonlendirme)
     async function role(): Promise<"admin" | "partner" | "crew" | null> {

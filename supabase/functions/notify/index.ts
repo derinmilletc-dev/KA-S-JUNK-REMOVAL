@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
   if (req.headers.get("x-webhook-secret") !== Deno.env.get("WEBHOOK_SECRET")) return new Response("forbidden", { status: 403 });
   const ev = await req.json();
   const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-  const panel = Deno.env.get("PANEL_URL") ?? "";
+  const panel = (() => { let p = (Deno.env.get("PANEL_URL") ?? "").trim(); if (!p) p = "https://kaisremoval.com"; if (!/^https?:\/\//i.test(p)) p = "https://" + p; return p.replace(/\/portal.*$/i, "").replace(/\/+$/, ""); })();
   const admins = async () => ((await sb.from("admins").select("email")).data ?? []).map((a: { email: string }) => a.email);
   const partnerEmail = async (id: string | null) => (id ? (await sb.from("partners").select("email,name").eq("id", id).maybeSingle()).data : null);
   const rec = ev.record ?? {}, old = ev.old_record ?? {};

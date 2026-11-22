@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
   if (error) return new Response(error.message, { status: 500 });
 
   const from = Deno.env.get("FROM_EMAIL") ?? "Kais Junk Remove <onboarding@resend.dev>";
-  const panel = Deno.env.get("PANEL_URL") ?? "";
+  const panel = (() => { let p = (Deno.env.get("PANEL_URL") ?? "").trim(); if (!p) p = "https://kaisremoval.com"; if (!/^https?:\/\//i.test(p)) p = "https://" + p; return p.replace(/\/portal.*$/i, "").replace(/\/+$/, ""); })();
   let sent = 0, failed = 0;
 
   for (const p of data ?? []) {
@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
         <tr><td style="padding:10px 0;border-bottom:1px solid #EDE7DA">Earned this week</td><td align="right" style="border-bottom:1px solid #EDE7DA"><b>${money(p.earned)}</b></td></tr>
         <tr><td style="padding:10px 0">Waiting to be paid</td><td align="right"><b>${money(p.pending)}</b></td></tr>
         ${p.team_new ? `<tr><td style="padding:10px 0;border-top:1px solid #EDE7DA">New team members</td><td align="right" style="border-top:1px solid #EDE7DA"><b>${p.team_new}</b></td></tr>` : ""}
-      </table>`, panel ? panel : undefined, "Open my partner panel");
+      </table>`, panel + "/portal/partner.html", "Open my partner panel");
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`, "Content-Type": "application/json" },
