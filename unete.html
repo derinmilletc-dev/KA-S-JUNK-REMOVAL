@@ -187,7 +187,8 @@ function draw(st,first){var bx=$('okb'),a=ld()||{},nm=a.n?' '+a.n:'',h='<button 
  bx.innerHTML=h;$('okx').onclick=closeOk;if(st==='ok'&&first){confetti(bx);try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(e){}}}
 function openOk(st,first){ST=st;draw(st,first);$('ok').classList.add('on');document.body.style.overflow='hidden';pill()}
 function closeOk(){$('ok').classList.remove('on');document.body.style.overflow='';if(ST==='ok'||ST==='no'||ST==='member')sv(null);pill()}
-function pill(){var p=$('kpill'),a=ld();if(!a||$('ok').classList.contains('on')||!ST||ST==='member'){p.className='';p.style.display='none';return}
+function lock(){var bb=$('b');if(!bb)return;if(!bb.dataset.t)bb.dataset.t=bb.textContent;var on=ST==='review'&&!!ld();bb.textContent=on?'Solicitud en revisión ⏳':bb.dataset.t}
+function pill(){lock();var p=$('kpill'),a=ld();if(!a||$('ok').classList.contains('on')||!ST||ST==='member'){p.className='';p.style.display='none';return}
  p.style.display='';p.className='on '+(ST==='ok'?'a':ST==='no'?'r':'');p.innerHTML='<i></i>'+TX.pill+(ST==='ok'?TX.pa:ST==='no'?TX.pn:TX.pr);p.onclick=function(){openOk(ST,false)}}
 function check(first){var a=ld();if(!a||!a.t||!K.SUPABASE_URL)return;
  fetch(K.SUPABASE_URL+'/rest/v1/rpc/application_status',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_token:a.t})})
@@ -210,6 +211,8 @@ if(sp){var fr=$('q_src');if(fr){fr.value='Arkadas / ortak';fr.classList.add('v')
 f.addEventListener('change',function(e){var t=e.target;if(t.tagName==='SELECT'){var q=t.dataset.q;if(t.value){A[q]=t.value;t.classList.add('v')}else{delete A[q];t.classList.remove('v')}prog()}});f.addEventListener('click',function(e){var c=e.target.closest('.ch button');if(!c)return;var g=c.parentNode,q=g.dataset.q,on=c.classList.contains('on');g.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(on){delete A[q]}else{c.classList.add('on');A[q]=c.dataset.v;var nx=g.nextElementSibling;while(nx&&nx.tagName!=='LABEL')nx=nx.nextElementSibling;}prog()});
 prog();
 f.addEventListener('submit',function(e){e.preventDefault();
+
+ if(ST==='review'&&ld()){openOk('review',false);return}
  var n=$('n').value.trim(),em=$('e').value.trim();
  if(!n||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){say(T.bad,true);return}
  if(!K.SUPABASE_URL){say(T.closed,true);return}
