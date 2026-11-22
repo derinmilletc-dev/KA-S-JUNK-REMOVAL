@@ -420,9 +420,15 @@ function ndaGate(){
 }
 function ndaView(){var T=KNDA[ndaL()],dt=P&&P.nda_at?new Date(P.nda_at).toLocaleDateString(({tr:'tr-TR',es:'es-US',en:'en-US'})[ndaL()]):'';
  sheet('<h3>'+K.esc(T.view)+'</h3><div class="nb2" style="font-size:14.5px;line-height:1.55">'+(ndaOk()?'<p class="tag done" style="display:inline-block;margin:0 0 10px">'+K.esc(T.done)+' · '+K.esc(P.nda_name||'')+(dt?' · '+K.esc(dt):'')+' · '+K.esc(T.ver)+' '+(P.nda_version||'')+'</p>':'')+ndaBody(T)+'</div>')}
+
+function frozen(){var l=(window.KJI&&KJI.lang)||'en',T={tr:['Hesabın durduruldu','Ortaklık hesabın şu anda durduruldu. Bilgi için Kais ile iletişime geç.','Çıkış yap'],en:['Account paused','Your partner account is paused right now. Please contact Kais for details.','Log out'],es:['Cuenta pausada','Tu cuenta de socio está pausada en este momento. Comunícate con Kais para más información.','Cerrar sesión']}[l]||null;
+ var d=document.createElement('div');d.className='nda';d.style.cssText='align-items:center;justify-content:center;text-align:center;padding:24px;color:#fff';
+ d.innerHTML='<div style="font-size:44px">⏸️</div><h2 style="margin:10px 0 6px;font-size:22px">'+K.esc(T[0])+'</h2><p style="margin:0 0 18px;opacity:.8;max-width:320px;line-height:1.5">'+K.esc(T[1])+'</p><button type="button" class="btn" id="frx" style="min-width:180px">'+K.esc(T[2])+'</button>';
+ document.body.appendChild(d);document.body.style.overflow='hidden';$('frx').onclick=function(){K.sb.auth.signOut().then(function(){location.reload()})}}
 K.start(function(){
  K.sb.from('partners').select('*').limit(1).then(function(r){
   P=r.data&&r.data[0]; if(!P){$('none').hidden=false;return}
+  if(P.active===false){frozen();return}
   $('main').hidden=false;$('newjob').hidden=false;ndaGate();$('hello').textContent='Merhaba, '+P.name;
   var link=K.refLink(P.code);$('rl').textContent=link;$('code').textContent=P.code;$('pct').textContent='%'+Number(P.commission_pct);$('qr').innerHTML=K.qrSvg(link);
   $('wa').onclick=function(){window.open(wa('Kais Junk Remove ile hurda ve esya cikarma isi icin: '+link),'_blank')};
