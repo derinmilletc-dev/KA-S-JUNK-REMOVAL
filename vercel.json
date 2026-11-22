@@ -18,6 +18,10 @@
     {
       "source": "/unete",
       "destination": "/unete.html"
+    },
+    {
+      "source": "/ortak-sunum.pdf",
+      "destination": "/partner-presentation.pdf"
     }
   ]
 }
