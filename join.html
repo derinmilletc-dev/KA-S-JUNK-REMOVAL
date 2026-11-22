@@ -24,6 +24,27 @@ button{width:100%;margin-top:16px;background:var(--orange);color:#fff;border:0;b
 .msg{padding:12px;border-radius:10px;margin-top:14px;font-size:14px}.ok{background:#DDF3E6}.err{background:#F6DAD7}
 blockquote.q{margin:0 0 18px;background:var(--ink);color:#fff;border-radius:18px;padding:22px 22px 18px;position:relative;overflow:hidden}blockquote.q:before{content:'\201C';position:absolute;top:-20px;left:12px;font:700 120px/1 'Bricolage Grotesque',serif;color:var(--orange);opacity:.35}blockquote.q p{margin:0;position:relative;font:600 21px/1.3 'Bricolage Grotesque',sans-serif}blockquote.q cite{display:block;margin-top:10px;color:#ffffffb3;font-size:13px;font-style:normal;position:relative}
 small{color:var(--muted);display:block;margin-top:14px;font-size:13px}
+
+.ctab{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin:0 0 14px;padding:17px 20px;border-radius:16px;background:linear-gradient(135deg,#FF8A3D,#F26B1D);color:#fff;font:700 18px 'DM Sans',sans-serif;text-decoration:none;box-shadow:0 18px 30px -16px rgba(242,107,29,.9);transition:transform .15s}.ctab:active{transform:scale(.98)}.ctab svg{width:20px;height:20px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}.badges span{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:99px;padding:7px 13px 7px 10px;font-size:13.5px;font-weight:600}.badges svg{width:16px;height:16px;color:var(--green);flex:none}
+.calc{background:var(--ink);color:#fff;border-radius:22px;padding:20px 18px 18px;margin:0 0 18px;position:relative;overflow:hidden;background-image:radial-gradient(300px 180px at 100% 0,rgba(242,107,29,.30),transparent 70%)}
+.calc h2{font:700 22px 'Bricolage Grotesque',sans-serif;margin:0 0 4px;color:#fff}.calc .cs{margin:0 0 16px;color:#ffffffb3;font-size:14.5px}
+.calc label{color:#ffffffcc;font-size:13px;font-weight:600;margin:12px 0 6px;display:flex;justify-content:space-between;align-items:baseline}.calc label output{font:700 15px 'DM Sans',sans-serif;color:#fff}
+.money{position:relative}.money i{position:absolute;left:14px;top:50%;transform:translateY(-50%);font:700 22px 'Bricolage Grotesque',sans-serif;color:var(--orange);font-style:normal}
+.money input{padding:12px 14px 12px 34px;font:700 24px 'Bricolage Grotesque',sans-serif;background:#ffffff14;border:1.5px solid #ffffff26;color:#fff;border-radius:14px}.money input:focus{outline:0;border-color:var(--orange);background:#ffffff1c}
+.chips{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chips button{width:auto;flex:none;margin:0;padding:8px 14px;border-radius:99px;background:#ffffff14;border:1px solid #ffffff22;color:#fff;font:600 14px 'DM Sans',sans-serif}.chips button.on{background:#fff;color:var(--ink);border-color:#fff}
+.calc input[type=range]{padding:0;border:0;background:none;accent-color:#F26B1D;height:34px;margin:0;width:100%}
+.res{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.res div{background:#ffffff12;border:1px solid #ffffff1c;border-radius:16px;padding:12px 12px 10px}.res .big{grid-column:1/-1;background:linear-gradient(135deg,#FF8A3D,#F26B1D);border:0;color:#1F2421}
+.res small{display:block;margin:0 0 2px;font-size:12px;font-weight:600;color:inherit;opacity:.78}.res b{display:block;font:800 26px/1.1 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em}.res .big b{font-size:38px}
+.res .big small{opacity:.85}
+.tier{margin-top:14px;font-size:13px;color:#ffffffb3}.tier b{color:#fff}.bar{height:8px;border-radius:99px;background:#ffffff1f;margin:8px 0 6px;overflow:hidden}.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#FF8A3D,#FFC38A);transition:width .35s}
+.calc .fine{display:block;margin-top:12px;font-size:12px;color:#ffffff80}
+.who{margin:0 0 18px;font-size:13px;color:var(--muted)}.who b{display:block;margin-bottom:6px;color:var(--ink);font-size:13px}.who span{display:inline-block;margin:0 6px 6px 0;background:var(--tint);color:var(--deep);border-radius:99px;padding:5px 12px;font-weight:600}
+.qs{margin:20px 2px 0;font-size:13px;color:var(--muted);font-style:italic;text-align:center}
+.stk{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:30;display:flex;transform:translateY(160%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}.stk.on{transform:none}
+.stk a{flex:1;text-align:center;padding:15px;border-radius:16px;background:var(--ink);color:#fff;font:700 16px 'DM Sans',sans-serif;text-decoration:none;box-shadow:0 14px 34px -10px rgba(0,0,0,.55)}.stk a b{color:var(--orange)}
+body{padding-bottom:84px}@media(min-width:700px){.stk{display:none}body{padding-bottom:0}}
+html{scroll-behavior:smooth}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style><link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -32,7 +53,16 @@ small{color:var(--muted);display:block;margin-top:14px;font-size:13px}
 <main>
 <h1>Refer a customer.<br>Earn on every completed job.</h1>
 <p class="lead">Free to join. No fees, no inventory. You share your link; we do the work. You earn a commission on each real job that is completed and paid.</p>
-<blockquote class="q"><p>You will be paid in direct proportion to the value you create.</p><cite>T. Harv Eker</cite></blockquote>
+<a class="ctab" href="#f">Apply now<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+<div class="badges"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>No fees, no hidden costs</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Track every job in your panel</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Repeat clients pay you for 12 months</span></div>
+<section class="calc" id="calc" aria-labelledby="ch"><h2 id="ch">See what you could earn</h2><p class="cs">Type the price of a job. We do the math.</p>
+<label for="cp">Price of the job</label><div class="money"><i>$</i><input id="cp" type="text" inputmode="numeric" value="300" maxlength="5" autocomplete="off"></div>
+<div class="chips" id="cc"><button type="button" data-v="150">$150</button><button type="button" data-v="300" class="on">$300</button><button type="button" data-v="500">$500</button><button type="button" data-v="800">$800</button><button type="button" data-v="1200">$1,200</button></div>
+<label for="cj">Jobs you bring per month<output id="cjo">4</output></label><input id="cj" type="range" min="1" max="20" step="1" value="4">
+<div class="res"><div class="big"><small>You earn per job</small><b id="r1">$60</b></div><div><small>Per month</small><b id="r2">$240</b></div><div><small>Per year</small><b id="r3">$2,880</b></div></div>
+<div class="tier"><span>Your rate: <b id="tp">20%</b></span><div class="bar"><i id="tb"></i></div><span id="tn"></span></div>
+<span class="fine">Estimate only. Commission is paid on jobs that are completed and paid by the customer.</span></section>
+<p class="who"><b>Great for</b><span>Realtors</span><span>Property managers</span><span>Movers</span><span>Neighbors</span><span>Contractors</span></p>
 <div class="steps">
 <div class="step"><i>1</i><span><b>Apply</b><br>Fill in the form below. We review and approve you.</span></div>
 <div class="step"><i>2</i><span><b>Share your link or QR</b><br>Friends, neighbors, realtors, property managers.</span></div>
@@ -44,7 +74,7 @@ small{color:var(--muted);display:block;margin-top:14px;font-size:13px}
 <label for="p">Phone (optional)</label><input id="p" type="tel" autocomplete="tel">
 <button id="b">Apply to join</button><div id="m" class="msg" hidden></div>
 <small>Commission is paid on jobs that are completed and paid by the customer.</small>
-</form></main>
+</form><p class="qs">"You will be paid in direct proportion to the value you create." T. Harv Eker</p></main><div class="stk" id="stk"><a href="#f">Apply to join <b>&rarr;</b></a></div>
 <script src="portal/config.js"></script>
 <script src="attr.js"></script>
 <script>
@@ -59,5 +89,31 @@ f.addEventListener('submit',function(e){e.preventDefault();
  fetch(K.SUPABASE_URL+'/rest/v1/rpc/apply_partner',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_name:n,p_email:em,p_phone:document.getElementById('p').value.trim(),p_sponsor:sp})})
  .then(function(r){b.disabled=false;if(r.ok){f.reset();say('Thanks! We received your application. We will email you once you are approved. Then log in at the partner page with this email.')}else say('Could not send. Please try again.',true)})
  .catch(function(){b.disabled=false;say('Could not send. Please try again.',true)})});
+})();
+</script>
+<script>
+(function(){
+var es=document.documentElement.lang==='es',N={m:'month',next5:'%d more completed jobs to reach %d%%',top:'Top rate reached'},$=function(i){return document.getElementById(i)};
+function fm(n){return '$'+Math.round(n).toLocaleString('en-US')}
+function rate(k){return k>=10?30:k>=5?25:20}
+function calc(){
+ var p=parseInt(($('cp').value||'').replace(/\D/g,''),10)||0,j=+$('cj').value;
+ $('cjo').textContent=j+' / '+N.m;
+ var mo=0;for(var i=1;i<=j;i++)mo+=p*rate(i)/100;
+ var steady=p*rate(j)/100;
+ $('r1').textContent=fm(p*rate(1)/100)+(j>=5?' \u2192 '+fm(p*rate(j)/100):'');
+ $('r2').textContent=fm(mo);$('r3').textContent=fm(mo*12);
+ var r=rate(j);$('tp').textContent=r+'%';
+ var nxt=j<5?5:j<10?10:0;$('tb').style.width=(nxt?Math.min(100,j/nxt*100):100)+'%';
+ $('tn').textContent=nxt?N.next5.replace('%d',nxt-j).replace('%d',nxt===5?25:30):N.top;
+ var cs=document.querySelectorAll('#cc button');for(var k=0;k<cs.length;k++)cs[k].classList.toggle('on',+cs[k].dataset.v===p);
+}
+$('cp').addEventListener('input',function(){this.value=this.value.replace(/\D/g,'').slice(0,5);calc()});
+$('cj').addEventListener('input',calc);
+document.getElementById('cc').addEventListener('click',function(e){var b=e.target.closest('button');if(b){$('cp').value=b.dataset.v;calc()}});
+calc();
+var f=$('f'),s=$('stk');if(f&&s&&'IntersectionObserver' in window){var vis=false,top=true;
+ var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.target===f)vis=x.isIntersecting;else top=x.isIntersecting});s.classList.toggle('on',!vis&&!top)});
+ io.observe(f);io.observe(document.querySelector('.ctab'))}
 })();
 </script></body></html>
