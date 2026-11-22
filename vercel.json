@@ -2,7 +2,22 @@
   "headers": [
     {
       "source": "/supabase/functions/(.*)",
-      "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/join",
+      "destination": "/join.html"
+    },
+    {
+      "source": "/unete",
+      "destination": "/unete.html"
     }
   ]
 }
