@@ -793,7 +793,8 @@ var LASTN=null;
 function beep(){try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.08;o.start();setTimeout(function(){o.stop();a.close()},260)}catch(e){}}
 function poll(){sb.from('leads').select('id',{count:'exact',head:true}).then(function(r){if(!r||r.error||r.count==null)return;if(LASTN!=null&&r.count>LASTN){beep();try{if(window.Notification&&Notification.permission==='granted')new Notification('Kais: yeni talep geldi')}catch(e){}msg('Yeni talep geldi!');load()}LASTN=r.count})}
 poll();setInterval(function(){poll()},45000);
-if(window.Notification&&Notification.permission==='default'){$('notifbtn').hidden=false;$('notifbtn').onclick=function(){Notification.requestPermission().then(function(){$('notifbtn').hidden=true})}}
+if(window.Notification&&Notification.permission==='default'){$('notifbtn').hidden=false;$('notifbtn').onclick=function(){Notification.requestPermission().then(function(){$('notifbtn').hidden=true;K.pushSub('admin','tr')})}}
+K.pushSub('admin','tr');
 document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b)});document.querySelectorAll('.tabsec').forEach(function(sec){sec.hidden=sec.id!=='t-'+b.dataset.t})}});
 $('crows').addEventListener('click',function(e){var b=e.target.closest('[data-r]');if(!b)return;var d=b.closest('[data-id]');
  sb.rpc('resolve_claim',{p_id:d.dataset.id,p_approve:b.dataset.r==='1',p_note:d.querySelector('[data-n]').value}).then(function(r){if(r.error)msg('Hata: '+r.error.message,true);else{msg('Karar kaydedildi');load()}})});

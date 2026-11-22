@@ -1312,6 +1312,45 @@ end $$;
 drop trigger if exists training_notify_t on training_courses;
 create trigger training_notify_t after insert or update of published on training_courses for each row execute function training_notify();
 
+-- ---------- Gercek push bildirimi (telefon kapaliyken bile) ----------
+create table if not exists push_subs (
+  id uuid primary key default gen_random_uuid(),
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  email text not null,
+  role text not null default 'partner' check (role in ('partner','admin','crew')),
+  lang text not null default 'en',
+  created_at timestamptz not null default now()
+);
+create index if not exists push_subs_email_idx on push_subs(lower(email));
+alter table push_subs enable row level security;
+drop policy if exists admin_all_pushsubs on push_subs;
+create policy admin_all_pushsubs on push_subs for all using (is_admin()) with check (is_admin());
+create table if not exists push_log (key text primary key, at timestamptz not null default now());
+alter table push_log enable row level security;
+
+create or replace function push_save(p_endpoint text, p_p256dh text, p_auth text, p_role text default 'partner', p_lang text default 'en')
+returns void
+language plpgsql security definer set search_path = public as $$
+declare em text := lower(coalesce(auth.jwt() ->> 'email',''));
+begin
+  if em = '' then raise exception 'Giris gerekli'; end if;
+  if p_role not in ('partner','admin','crew') then raise exception 'Gecersiz rol'; end if;
+  if p_role = 'admin' and not is_admin() then raise exception 'Yetki yok'; end if;
+  insert into push_subs(endpoint, p256dh, auth, email, role, lang)
+  values (p_endpoint, p_p256dh, p_auth, em, p_role, case when p_lang in ('tr','en','es') then p_lang else 'en' end)
+  on conflict (endpoint) do update set p256dh = excluded.p256dh, auth = excluded.auth, email = excluded.email, role = excluded.role, lang = excluded.lang;
+end $$;
+grant execute on function push_save(text, text, text, text, text) to authenticated;
+
+create or replace function push_remove(p_endpoint text)
+returns void
+language sql security definer set search_path = public as $$
+  delete from push_subs where endpoint = p_endpoint and lower(email) = lower(coalesce(auth.jwt() ->> 'email',''));
+$$;
+grant execute on function push_remove(text) to authenticated;
+
 -- Giris yapmis kullanicilar (admin, ortak, ekip) tablolari okuyabilsin. Satir guvenligi (RLS) hangi satiri gorecegini belirler.
 do $$ begin
   if exists (select 1 from pg_roles where rolname='authenticated') then

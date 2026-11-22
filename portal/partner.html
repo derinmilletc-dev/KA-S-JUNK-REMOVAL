@@ -373,7 +373,7 @@ $('onbc').addEventListener('click',function(){obOpen(false)});
 $('sheetbox').addEventListener('click',function(e){var b=e.target.closest('[data-ob]');if(!b)return;var a=b.dataset.ob;
  if(a==='later'){closeSheet();obCard();return}
  if(a==='install'&&OBE){OBE.prompt();OBE.userChoice&&OBE.userChoice.then(function(c){OBE=null;obCard();if(c&&c.outcome==='accepted'){var o=obGet();o.inst=1;obSet(o)}obOpen(false)});return}
- if(a==='notif'){var p;try{p=Notification.requestPermission()}catch(e2){p=null}Promise.resolve(p).then(function(r){obCard();obOpen(false);if(r==='granted')showNote(o3(['Bildirimler acik. Yeni is gelince haberin olacak.','Alerts are on. You will know when new jobs arrive.','Avisos activados. Sabrás cuando lleguen trabajos nuevos.']))});return}
+ if(a==='notif'){var p;try{p=Notification.requestPermission()}catch(e2){p=null}Promise.resolve(p).then(function(r){obCard();obOpen(false);if(r==='granted')KJC.pushSub('partner',KJI.lang);if(r==='granted')showNote(o3(['Bildirimler acik. Yeni is gelince haberin olacak.','Alerts are on. You will know when new jobs arrive.','Avisos activados. Sabrás cuando lleguen trabajos nuevos.']))});return}
  if(a==='test'){showNote(o3(['Bu bir deneme bildirimi. Her sey hazir!','This is a test alert. All good!','Este es un aviso de prueba. ¡Todo listo!']));b.textContent='✓ '+o3(['Gonderildi','Sent','Enviado']);return}});
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-dl]');if(!b)return;var cv=document.querySelector('canvas[data-kit="'+b.dataset.dl+'"]');cv.toBlob(function(bl){var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='kais-'+b.dataset.dl+'-'+P.code+'.png';a.click()})});
 $('menu').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b)menuOpen(b.dataset.m)});
@@ -399,7 +399,7 @@ K.start(function(){
   $('wa').onclick=function(){window.open(wa('Kais Junk Remove ile hurda ve esya cikarma isi icin: '+link),'_blank')};
   $('copy').onclick=function(){navigator.clipboard.writeText(link).then(function(){$('copy').textContent='Kopyalandi'})};
   $('dl').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('qr').innerHTML],{type:'image/svg+xml'}));a.download='kais-'+P.code+'-qr.svg';a.click()};
-  loadLeads();loadNotes();trPrev();obCard();obAuto();
+  loadLeads();loadNotes();trPrev();obCard();obAuto();KJC.pushSub('partner',(window.KJI&&KJI.lang)||'en');
   try{var dq=KJQuote.today(window.KJI?KJI.lang:'en');$('dql').textContent=({tr:'Günün sözü',es:'Frase del día',en:'Quote of the day'})[(window.KJI&&KJI.lang)||'en']||'Quote of the day';$('dqt').textContent=dq.text;$('dqb').textContent=dq.by;$('dq').hidden=false}catch(e){}
  });
 });})();

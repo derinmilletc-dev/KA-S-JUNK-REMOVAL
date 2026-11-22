@@ -59,7 +59,22 @@
     };
     var lo = $('logout'); if (lo) lo.onclick = function(){ sb.auth.signOut().then(function(){ location.reload(); }); };
   }
-  window.KJC = { sb: sb, $: $, esc: esc, money: money, dt: dt, STATUS: STATUS, flash: flash, refLink: refLink, trackLink: trackLink, newTok: newTok, qrSvg: qrSvg, start: start };
+
+  // ---- Gercek push: izin verilmisse tarayiciyi abone yap ve Supabase'e kaydet (sessiz, hata vermez)
+  function b64u(s){var p='='.repeat((4-s.length%4)%4),b=(s+p).replace(/-/g,'+').replace(/_/g,'/'),r=atob(b),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o}
+  function pushSub(role,lang){
+    try{
+      var key=window.KJ&&window.KJ.VAPID_PUBLIC_KEY;
+      if(!key||!('serviceWorker' in navigator)||!('PushManager' in window)||!window.Notification||Notification.permission!=='granted')return Promise.resolve(false);
+      return navigator.serviceWorker.ready.then(function(reg){
+        return reg.pushManager.getSubscription().then(function(s){return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(key)})});
+      }).then(function(s){
+        var j=s.toJSON();if(!j.keys)return false;
+        return sb.rpc('push_save',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth,p_role:role||'partner',p_lang:lang||'en'}).then(function(r){return !r.error});
+      }).catch(function(){return false});
+    }catch(e){return Promise.resolve(false)}
+  }
+  window.KJC = { sb: sb, $: $, esc: esc, money: money, dt: dt, STATUS: STATUS, flash: flash, refLink: refLink, trackLink: trackLink, newTok: newTok, qrSvg: qrSvg, start: start, pushSub: pushSub };
 })();
 
 // Kaydirma yardimcilari: yatay listelerde "devami var" soluklugu, uzun sayfalarda yukari don dugmesi
