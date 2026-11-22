@@ -49,6 +49,22 @@ html{scroll-behavior:smooth}@media(prefers-reduced-motion:reduce){html{scroll-be
 .calc .stp div{flex:1;text-align:center}.calc .stp b{display:block;font:800 34px/1 'Bricolage Grotesque',sans-serif}.calc .stp small{display:block;margin:2px 0 0;color:#ffffffa0;font-size:13px}
 .calc .one{margin-top:16px;border-radius:18px;padding:16px 16px 14px;background:linear-gradient(135deg,#FF8A3D,#F26B1D);color:#1F2421}.calc .one small{display:block;margin:0;color:#1F2421;font-size:13px;font-weight:700;opacity:.85}.calc .one b{display:block;font:800 46px/1.05 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em}.calc .one span{display:block;margin-top:4px;font-size:14px;font-weight:600;opacity:.85}
 .calc .nt{margin:12px 2px 0;color:#ffffffb8;font-size:13.5px}
+/* compact v2 */
+main{padding-top:16px}h1{font-size:30px!important;margin:6px 0 8px!important}.lead{font-size:16px;margin:0 0 14px}
+.ctab{margin-bottom:10px;padding:15px 18px}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.badges span{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;padding:10px 6px;border-radius:14px;font-size:12.5px;line-height:1.2}
+.badges svg{width:18px;height:18px}
+.calc{padding:16px 16px 14px;margin-bottom:14px}.calc h2{font-size:20px}.calc .cs{margin-bottom:10px;font-size:14px}
+.calc label{margin:10px 0 5px}.money input{font-size:22px;padding:10px 14px 10px 34px}.chips{margin-top:8px}
+.calc .stp button{width:46px;height:46px}.calc .stp b{font-size:28px}
+.calc .one{margin-top:12px;padding:12px 14px}.calc .one b{font-size:40px}
+.calc .nt{margin-top:10px;font-size:13px}
+.steps{display:block!important;background:#fff;border:1px solid var(--line);border-radius:16px;padding:4px 14px;margin:0 0 14px!important}
+.step{border:0!important;border-radius:0!important;padding:10px 0!important;border-bottom:1px solid var(--line)!important;gap:12px}.step:last-child{border-bottom:0!important}
+.step span{font-size:14.5px;line-height:1.35}.step span br{display:none}.step span b{display:block}.step i{width:26px;height:26px;font-size:13px}
+form.card{padding:16px!important;border-radius:18px}form.card label{margin:10px 0 4px}form.card input{padding:11px 12px}form.card button{margin-top:12px}
+.qs{margin-top:14px}
 </style><link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -58,7 +74,7 @@ html{scroll-behavior:smooth}@media(prefers-reduced-motion:reduce){html{scroll-be
 <h1>Refer a customer.<br>Earn on every completed job.</h1>
 <p class="lead">Free to join. No fees, no inventory. You share your link; we do the work. You earn a commission on each real job that is completed and paid.</p>
 <a class="ctab" href="#f">Apply now<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-<div class="badges"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>No fees, no hidden costs</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Track every job in your panel</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Repeat clients pay you for 12 months</span></div>
+<div class="badges"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Free to join</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>Live job tracking</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>12-month repeat pay</span></div>
 <section class="calc" id="calc" aria-labelledby="ch"><h2 id="ch">See what you could earn</h2><p class="cs">Type the price of a job. We do the math.</p>
 <label for="cp">Price of one job</label><div class="money"><i>$</i><input id="cp" type="text" inputmode="numeric" value="300" maxlength="5" autocomplete="off"></div>
 <div class="chips" id="cc"><button type="button" data-v="150">$150</button><button type="button" data-v="300" class="on">$300</button><button type="button" data-v="500">$500</button><button type="button" data-v="800">$800</button><button type="button" data-v="1200">$1,200</button></div>
@@ -66,7 +82,6 @@ html{scroll-behavior:smooth}@media(prefers-reduced-motion:reduce){html{scroll-be
 <div class="one"><small>You earn per month</small><b id="r2">$240</b><span id="r1x"></span></div>
 <p class="nt">Your rate grows as you bring more jobs: 20% to start, 25% after 5, 30% after 10.</p>
 <span class="fine">Estimate only. Commission is paid on jobs that are completed and paid by the customer.</span></section>
-<p class="who"><b>Great for</b><span>Realtors</span><span>Property managers</span><span>Movers</span><span>Neighbors</span><span>Contractors</span></p>
 <div class="steps">
 <div class="step"><i>1</i><span><b>Apply</b><br>Fill in the form below. We review and approve you.</span></div>
 <div class="step"><i>2</i><span><b>Share your link or QR</b><br>Friends, neighbors, realtors, property managers.</span></div>
