@@ -127,6 +127,42 @@ header button:hover{background:#ffffff22}
 input,select,textarea{border-radius:12px}
 .msg{position:sticky;top:70px;z-index:25;border-radius:14px;box-shadow:var(--sh)}
 @media(prefers-reduced-motion:reduce){.kpi{animation:none}#hrefresh.spin{animation:none}}
+
+/* v4: tasma duzeltme + modern mobil */
+html,body{overflow-x:clip;max-width:100%}
+.tabs button,.chipbar button{color:var(--ink)}.tabs button.on,.chipbar button.on{color:#fff}
+.msg{position:fixed!important;left:12px;right:12px;top:auto!important;bottom:98px;z-index:80;box-shadow:0 14px 30px -12px #1F2421aa;margin:0;font-weight:600}
+.msg[hidden]{display:none}
+@media(max-width:600px){
+ .stick{margin:0 -12px 12px!important;padding-left:12px!important;padding-right:12px!important}
+ #t-partners .row,#t-price .row,#t-rep .row{display:grid!important;grid-template-columns:1fr 1fr;gap:10px 12px;align-items:end}
+ #t-partners .row>div,#t-rep .row>div{width:auto!important;min-width:0}
+ #t-partners .row>.grow,#t-partners .row>div:last-child:not(:only-child){grid-column:auto}
+ #t-partners .row>.grow:first-child:only-child,#t-partners .row>.grow:only-child{grid-column:1/-1}
+ #t-partners .row>div:has(#cr),#t-partners .row>div:has(#rp){grid-column:auto}
+ #t-partners .row>div:has(#rv){grid-column:1/-1}
+ #t-partners .row .btn{width:100%}
+ #t-partners label{font-size:13px;line-height:1.25;margin-bottom:4px;display:block}
+ #t-partners input{width:100%}
+ #t-partners .card:last-of-type .tbl thead{display:none}
+ #t-partners .card:last-of-type .tbl table,#t-partners .card:last-of-type .tbl tbody{display:block}
+ #prows tr{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding:14px;border:1px solid var(--line);border-radius:18px;margin-bottom:12px;background:#fff;box-shadow:0 8px 20px -16px #1F242188}
+ #prows td{display:block;padding:0!important;border:0!important;min-width:0}
+ #prows td:first-child{grid-column:1/-1;overflow-wrap:anywhere}
+ #prows td:last-child{grid-column:1/-1}
+ #prows input{width:90px}
+ #t-partners .card:last-of-type{background:none;border:0;box-shadow:none;padding:0}
+}
+@media(max-width:600px){
+ #t-rep .row>div:last-child{grid-column:1/-1}#t-rep .row .btn{width:100%}
+ #t-rep input[type=month]{width:100%;min-width:0}
+ #rstats{grid-template-columns:1fr 1fr!important;gap:10px}
+ #rstats .stat{padding:14px;border-radius:18px;box-shadow:0 8px 20px -16px #1F242188}
+ #rstats .stat:first-child{grid-column:1/-1;border:0;color:#fff;background:linear-gradient(135deg,#F26B1D,#C2500F)}#rstats .stat:first-child small{color:#ffffffd9}
+ #rstats .stat:last-child:nth-child(even){grid-column:1/-1}
+ #rstats .stat b{font-size:24px}
+ .tbl th,.tbl td{padding-left:6px!important;padding-right:6px!important;font-size:13px}
+}
 </style><link rel="manifest" href="manifest-admin.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
 <header><a class="brand" href="../index.html" aria-label="Kais Junk Remove, home"><svg viewBox="0 0 200 200" aria-hidden="true"><rect width="200" height="200" rx="44" fill="#2E3531"/><g transform="translate(-9,0)"><rect x="52" y="48" width="28" height="104" fill="#F6F3EE"/><polygon points="80,112 126,48 160,48 114,112" fill="#F6F3EE"/><polygon points="92,96 126,96 166,152 132,152" fill="#F26B1D"/></g></svg><span><b>Kais</b><em>Admin</em></span></a><div class="hright"><span class="hclock" id="hclock" title="Florida saati"></span><button id="hsearch" type="button" aria-label="Ara">🔍</button><button id="hrefresh" type="button" aria-label="Yenile">↻</button><button id="setpw" type="button" style="display:none">Sifre</button><button id="logout">Cikis</button></div></header>
 <main>
