@@ -102,6 +102,8 @@ h3{letter-spacing:-.01em}
 .kprev canvas{display:block;max-width:100%;max-height:360px;width:auto;height:auto;border-radius:10px;box-shadow:0 18px 30px -16px #1F2421aa;background:#fff;transition:opacity .2s}
 .kbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.kbtns .btn{margin:0;width:100%}.kbtns #kdl{grid-column:1/-1;padding:14px;font-size:16px}
 .bkl{position:absolute;top:14px;left:16px;display:inline-flex;align-items:center;gap:4px;color:var(--muted);font-size:13.5px;font-weight:600;text-decoration:none;padding:6px 10px 6px 6px;border-radius:99px;background:var(--paper)}.bkl svg{width:16px;height:16px}
+
+.dq{position:relative;overflow:hidden}.dq small{display:block;position:relative;margin:0 0 8px;color:var(--orange);font-weight:700;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase}
 </style><link rel="manifest" href="manifest-partner.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
 <header><b><a href="../index.html" aria-label="Kais Junk Remove, home" style="color:inherit;text-decoration:none;display:inline-block;padding:6px 0">Kais <span>Partner</span></a></b><button id="logout">Cikis</button></header>
 <main>
@@ -122,11 +124,11 @@ h3{letter-spacing:-.01em}
 <div class="grid" id="stats" style="margin-bottom:8px"></div>
 <h3 style="margin:18px 0 0">Islerin</h3>
 <div class="filters" id="filters"></div>
-<div id="jobs"></div><blockquote class="quote" style="margin-left:0;margin-right:0"><p>You will be paid in direct proportion to the value you create.</p><cite>T. Harv Eker</cite></blockquote>
+<div id="jobs"></div><blockquote class="quote dq" id="dq" style="margin-left:0;margin-right:0" hidden><small id="dql"></small><p id="dqt"></p><cite id="dqb"></cite></blockquote>
 <div class="empty" id="empty" hidden><p><b>Burada gosterilecek is yok.</b></p><p>Linkini paylas ya da "Yeni is" ile bir musteri ekle.</p></div>
 </div></div></main>
 <button class="btn fab" id="newjob" hidden>+ Yeni is</button>
-<div class="sheet" id="sheet" hidden><div id="sheetbox"></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="kit.js"></script><script src="config.js"></script><script src="core.js"></script><script src="i18n.js"></script><script src="i18n-partner.js"></script><script>
+<div class="sheet" id="sheet" hidden><div id="sheetbox"></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="kit.js"></script><script src="quotes.js"></script><script src="config.js"></script><script src="core.js"></script><script src="i18n.js"></script><script src="i18n-partner.js"></script><script>
 (function(){var K=KJC,$=K.$,P=null,L=[],F='all';
 function wa(text){return 'https://wa.me/?text='+encodeURIComponent(text)}
 function bucket(l){if(l.status==='done')return l.commission_paid?'paid':'done';if(l.status==='lost')return 'lost';return 'open'}
@@ -248,6 +250,7 @@ K.start(function(){
   $('copy').onclick=function(){navigator.clipboard.writeText(link).then(function(){$('copy').textContent='Kopyalandi'})};
   $('dl').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('qr').innerHTML],{type:'image/svg+xml'}));a.download='kais-'+P.code+'-qr.svg';a.click()};
   loadLeads();loadNotes();
+  try{var dq=KJQuote.today(window.KJI?KJI.lang:'en');$('dql').textContent=({tr:'Günün sözü',es:'Frase del día',en:'Quote of the day'})[(window.KJI&&KJI.lang)||'en']||'Quote of the day';$('dqt').textContent=dq.text;$('dqb').textContent=dq.by;$('dq').hidden=false}catch(e){}
  });
 });})();
 </script><script src="pwa.js"></script></body></html>
