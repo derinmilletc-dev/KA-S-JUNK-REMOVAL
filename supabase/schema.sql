@@ -598,19 +598,22 @@ alter table partner_applications enable row level security;
 drop policy if exists admin_all_apps on partner_applications;
 create policy admin_all_apps on partner_applications for all using (is_admin()) with check (is_admin());
 
+alter table partner_applications add column if not exists lang text not null default 'en';
 drop function if exists apply_partner(text,text,text,text);
-create or replace function apply_partner(p_name text, p_email text, p_phone text, p_sponsor text, p_kind text default 'individual', p_company text default null, p_note text default null) returns void
+drop function if exists apply_partner(text,text,text,text,text,text,text);
+create or replace function apply_partner(p_name text, p_email text, p_phone text, p_sponsor text, p_kind text default 'individual', p_company text default null, p_note text default null, p_lang text default 'en') returns void
 language plpgsql security definer set search_path = public as $$
 begin
   if coalesce(trim(p_name),'') = '' or coalesce(p_email,'') !~ '^[^@ ]+@[^@ ]+[.][^@ ]+$' then raise exception 'invalid'; end if;
   if not rate_ok('app:' || client_key(), 3, interval '1 hour') then raise exception 'too many requests'; end if;
   if exists (select 1 from partners where lower(email) = lower(trim(p_email))) then return; end if;
   if exists (select 1 from partner_applications where lower(email) = lower(trim(p_email)) and status = 'pending') then return; end if;
-  insert into partner_applications(name, email, phone, sponsor_code, kind, company, note)
+  insert into partner_applications(name, email, phone, sponsor_code, kind, company, note, lang)
   values (left(trim(p_name),120), lower(left(trim(p_email),200)), left(p_phone,40), nullif(upper(left(trim(coalesce(p_sponsor,'')),12)),''),
-          case when p_kind = 'business' then 'business' else 'individual' end, left(p_company,120), left(p_note,300));
+          case when p_kind = 'business' then 'business' else 'individual' end, left(p_company,120), left(p_note,300),
+          case when p_lang in ('tr','es') then p_lang else 'en' end);
 end $$;
-grant execute on function apply_partner(text,text,text,text,text,text,text) to anon, authenticated;
+grant execute on function apply_partner(text,text,text,text,text,text,text,text) to anon, authenticated;
 
 create or replace function approve_application(p_id uuid) returns void
 language plpgsql security definer set search_path = public as $$

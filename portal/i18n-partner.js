@@ -18,7 +18,7 @@ KJI.add([
 ['Cikis','Log out','Salir'],['Partner','Partner','Socio'],
 ['Ortak girisi','Partner login','Acceso de socios'],
 ['Kayitli e-postani yaz, sana giris baglantisi gonderelim.','Enter your registered email and we will send you a login link.','Escribe tu correo registrado y te enviamos un enlace de acceso.'],
-['E-posta','Email','Correo'],['Giris baglantisi gonder','Send login link','Enviar enlace de acceso'],
+['E-postani ve sifreni yaz.','Enter your email and password.','Escribe tu correo y contraseña.'],['Sifre','Password','Contraseña'],['Giris yap','Log in','Entrar'],['Sifren yoksa bos birak: e-postana giris baglantisi gonderilir.','No password yet? Leave it empty and we email you a login link.','¿Sin contraseña? Déjalo vacío y te enviamos un enlace de acceso.'],['E-posta','Email','Correo'],['Giris baglantisi gonder','Send login link','Enviar enlace de acceso'],
 ['Giris baglantisi e-postana gonderildi. Postani kontrol et.','Login link sent to your email. Check your inbox.','Enlace enviado a tu correo. Revisa tu bandeja.'],
 ['Sistem henuz baglanmadi (portal/config.js bos).','The system is not connected yet.','El sistema aún no está conectado.'],
 ['Ortak kaydi bulunamadi','Partner account not found','No se encontró la cuenta de socio'],

@@ -24,6 +24,25 @@
   function loginUI(onSession){
     $('loginBox').hidden = false; $('app').hidden = true;
     if (!sb){ flash($('lmsg'), 'Sistem henuz baglanmadi (portal/config.js bos).', true); $('lbtn').disabled = true; return; }
+    // "Sifremi unuttum": kayitli e-postaya sifirlama maili (auth-mail fonksiyonu)
+    if (!$('lforgot')){
+      var fl = document.createElement('button'); fl.type = 'button'; fl.id = 'lforgot'; fl.className = 'linkbtn';
+      fl.style.cssText = 'background:none;border:0;padding:10px 0 0;color:#C9500F;font:inherit;font-weight:600;cursor:pointer;text-decoration:underline;display:block;margin:0 auto';
+      var L = (function(){ try { return localStorage.getItem('kj_lang') || 'en'; } catch(e){ return 'en'; } })(); if (L !== 'tr' && L !== 'es') L = 'en';
+      var T = { tr:['Şifremi unuttum','Önce yukarıya e-postanı yaz.','Şifre sıfırlama linki e-postana gönderildi (kayıtlıysa). Spam klasörüne de bak.','Gönderilemedi, tekrar dene.'],
+                en:['Forgot password','Type your email above first.','Reset link sent to your email (if registered). Check Spam too.','Could not send. Try again.'],
+                es:['Olvidé mi contraseña','Escribe tu correo arriba primero.','Enlace enviado a tu correo (si está registrado). Revisa también Spam.','No se pudo enviar. Inténtalo de nuevo.'] }[L];
+      fl.textContent = T[0];
+      fl.onclick = function(){
+        var em = $('lemail').value.trim();
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ flash($('lmsg'), T[1], true); $('lemail').focus(); return; }
+        fl.disabled = true;
+        fetch(window.KJ.SUPABASE_URL + '/functions/v1/auth-mail', { method:'POST', headers:{ 'content-type':'application/json', apikey: window.KJ.SUPABASE_ANON_KEY }, body: JSON.stringify({ action:'forgot', email: em, lang: L }) })
+          .then(function(r){ fl.disabled = false; flash($('lmsg'), r.ok ? T[2] : T[3], !r.ok); })
+          .catch(function(){ fl.disabled = false; flash($('lmsg'), T[3], true); });
+      };
+      $('lform').parentNode.insertBefore(fl, $('lform').nextSibling);
+    }
     $('lform').onsubmit = function(e){
       e.preventDefault();
       var email = $('lemail').value.trim(); $('lbtn').disabled = true;

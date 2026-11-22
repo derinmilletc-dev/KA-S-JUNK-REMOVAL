@@ -416,6 +416,7 @@ input[type=date],input[type=month]{min-width:0;max-width:100%;width:100%;-webkit
 <script>
 (function(){var K=KJC,$=K.$,sb=K.sb,P=[],L=[];
 function msg(t,b){K.flash($('msg'),t,b)}
+function invite(email,lang,who){return sb.auth.getSession().then(function(r){var t=r.data.session&&r.data.session.access_token;return fetch(window.KJ.SUPABASE_URL+'/functions/v1/auth-mail',{method:'POST',headers:{'content-type':'application/json',apikey:window.KJ.SUPABASE_ANON_KEY,Authorization:'Bearer '+t},body:JSON.stringify({action:'invite',email:email,lang:lang||'en'})})}).then(function(x){return x.ok}).catch(function(){return false})}
 function code(){var a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='';for(var i=0;i<6;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
 var EV=[],CR=[],GA=[],RV=[],SM=[],JP=[],CALC={},TI=[],ST={customer_credit:'20',repeat_pct:'10',range_pct:'20',min_charge:'0',pricing_on:'false',review_url:'',deposit_note:'',pay_note:''},AP=[],CAMP=[],LOG=[],PL={};
 var LOADS=[['25','1/4 kamyon'],['50','1/2 kamyon'],['75','3/4 kamyon'],['100','Tam kamyon veya fazlasi']],CATS=['Furniture','Appliances','Garden waste','Garage items','Other'];
@@ -516,7 +517,7 @@ function render(){
   return '<div class="pc'+(p.active?'':' off')+'" data-id="'+p.id+'" data-owe="'+owe+'"><div class="pch"><span class="av">'+ini+'</span><div class="pcn"><b>'+K.esc(p.name)+'</b> <span class="tag '+(p.active?'done':'lost')+'">'+(p.active?'Aktif':'Pasif')+'</span><small class="muted">'+K.esc(p.email)+(p.phone?' &middot; '+K.esc(p.phone):'')+'</small></div><button class="btn sm ghost" data-a="tog">'+(p.active?'Durdur':'Aktif et')+'</button></div>'
   +'<div class="pcs"><div><b>'+K.esc(p.code)+'</b><small>Kod</small></div><div><b>'+mine.length+'</b><small>Is</small></div><div class="'+(owe>0?'hot':'')+'"><b>'+K.money(owe)+'</b><small>Odenecek</small></div></div>'
   +'<div class="pcf"><label>Komisyon %<input data-f="pct" type="number" min="0" max="100" step="0.5" value="'+Number(p.commission_pct)+'"></label><label>Ust pay %<input data-f="ovpct" type="number" min="0" max="100" step="0.5" value="'+Number(p.override_pct)+'"></label></div>'
-  +'<div class="pcx"><button class="btn sm ghost" data-a="qr">QR / baglanti</button><button class="btn sm ghost" data-a="del" style="color:#B3261E;border-color:#E9B8B2">Sil</button>'+(team?'<span class="chip2">Ekip: '+team+'</span>':'')+(p.parent_id?'<span class="chip2">Sponsor: '+K.esc(pn(p.parent_id))+susTag(sus(p.name,p.phone,p.email,p.payout_info,P.find(function(x){return x.id===p.parent_id})))+'</span>':'')+(p.payout_info?'<span class="chip2">Odeme: '+K.esc(p.payout_info)+'</span>':'')+((p.nda_version||0)>=1?'<span class="chip2" style="background:#E6F4EA;color:#1E7B3A" title="'+K.esc(p.nda_name||'')+'">📄 Gizlilik onaylandi &middot; '+K.esc(new Date(p.nda_at).toLocaleDateString('tr-TR'))+'</span>':'<span class="chip2" style="background:#FFF1E6;color:#B4540A">📄 Gizlilik bekliyor</span>')+'</div></div>'
+  +'<div class="pcx"><button class="btn sm ghost" data-a="qr">QR / baglanti</button><button class="btn sm ghost" data-a="invite">Giris maili gonder</button><button class="btn sm ghost" data-a="del" style="color:#B3261E;border-color:#E9B8B2">Sil</button>'+(team?'<span class="chip2">Ekip: '+team+'</span>':'')+(p.parent_id?'<span class="chip2">Sponsor: '+K.esc(pn(p.parent_id))+susTag(sus(p.name,p.phone,p.email,p.payout_info,P.find(function(x){return x.id===p.parent_id})))+'</span>':'')+(p.payout_info?'<span class="chip2">Odeme: '+K.esc(p.payout_info)+'</span>':'')+((p.nda_version||0)>=1?'<span class="chip2" style="background:#E6F4EA;color:#1E7B3A" title="'+K.esc(p.nda_name||'')+'">📄 Gizlilik onaylandi &middot; '+K.esc(new Date(p.nda_at).toLocaleDateString('tr-TR'))+'</span>':'<span class="chip2" style="background:#FFF1E6;color:#B4540A">📄 Gizlilik bekliyor</span>')+'</div></div>'
 }).join('');
 }
 var CL=[];
@@ -802,7 +803,7 @@ $('lrows').addEventListener('change',function(e){var tr=e.target.closest('tr'),f
  if(f==='status')u.status=e.target.value;if(f==='price')u.price=e.target.value===''?null:Number(e.target.value);if(f==='paid')u.commission_paid=e.target.checked;if(f==='sched'){u.scheduled_at=e.target.value||null;if(u.scheduled_at&&(l.status==='new'||l.status==='quoted'))u.status='booked'}if(f==='ovpaid')u.override_paid=e.target.checked;if(f==='pay')u.paid_at=e.target.checked?new Date().toISOString():null;if(f==='crew')u.crew_id=e.target.value||null;if(f==='dep')u.deposit_amount=e.target.value===''?null:Number(e.target.value);if(f==='deppaid')u.deposit_paid_at=e.target.checked?new Date().toISOString():null;if(f==='phpart')u.photos_partner=e.target.checked;if(f==='cpay')u.crew_pay=e.target.value===''?null:Number(e.target.value);if(f==='cpaid')u.crew_paid_at=e.target.checked?new Date().toISOString():null;
  sb.from('leads').update(u).eq('id',l.id).then(function(r){if(r.error)msg('Kaydedilemedi: '+r.error.message,true);else{Object.assign(l,u);msg('Kaydedildi');load()}})});
 $('pform').onsubmit=function(e){e.preventDefault();var row={name:$('pn').value.trim(),email:$('pe').value.trim().toLowerCase(),phone:$('pp').value.trim()||null,commission_pct:Number($('pc').value),code:code()};
- sb.from('partners').insert(row).select().then(function(r){if(r.error)msg('Eklenemedi: '+r.error.message,true);else{P.unshift(r.data[0]);$('pform').reset();$('pc').value=20;msg('Ortak eklendi. Artik bu e-postayla portal/partner.html uzerinden girebilir.');render()}})};
+ sb.from('partners').insert(row).select().then(function(r){if(r.error)msg('Eklenemedi: '+r.error.message,true);else{P.unshift(r.data[0]);$('pform').reset();$('pc').value=20;msg('Ortak eklendi, sifre belirleme maili gonderiliyor...');render();invite(row.email,'tr').then(function(ok){msg(ok?'Ortak eklendi, sifre belirleme maili gonderildi.':'Ortak eklendi ama mail gonderilemedi. Kartindan "Giris maili gonder"e bas.',!ok)})}})};
 $('prows').addEventListener('change',function(e){var f=e.target.dataset.f;if(f!=='pct'&&f!=='ovpct')return;var p=P.find(function(x){return x.id===e.target.closest('[data-id]').dataset.id}),v=Number(e.target.value);
  if(!(v>=0&&v<=100)){msg('Yuzde 0-100 arasi olmali',true);render();return}
  var u=f==='pct'?{commission_pct:v}:{override_pct:v};
@@ -830,7 +831,10 @@ $('t-price').addEventListener('change',function(e){var t=e.target;
 $('cr').onchange=function(){sb.from('settings').upsert({key:'customer_credit',value:String(Number($('cr').value)||0)}).then(function(r){if(r.error)msg('Hata: '+r.error.message,true);else{msg('Kredi kaydedildi');load()}})};
 $('arows').addEventListener('click',function(e){var b=e.target.closest('[data-ap]');if(!b)return;var id=b.closest('[data-id]').dataset.id;
  var q=b.dataset.ap==='1'?sb.rpc('approve_application',{p_id:id}):sb.from('partner_applications').update({status:'rejected'}).eq('id',id);
- q.then(function(r){if(r.error)msg('Hata: '+r.error.message,true);else{msg(b.dataset.ap==='1'?'Ortak olusturuldu. Artik bu e-postayla giris yapabilir.':'Reddedildi');load()}})});
+ q.then(function(r){if(r.error){msg('Hata: '+r.error.message,true);return}
+  if(b.dataset.ap!=='1'){msg('Reddedildi');load();return}
+  var ap=AP.find(function(x){return x.id===id})||{};
+  invite(ap.email,ap.lang,ap.name).then(function(ok){msg(ok?'Ortak olusturuldu, sifre belirleme maili gonderildi.':'Ortak olusturuldu ama mail gonderilemedi. Ortak kartindan "Giris maili gonder"e bas.',!ok);load()})})});
 $('lrows').addEventListener('click',function(e){
  var rb=e.target.closest('[data-rp]');if(rb){var lid=rb.closest('tr').dataset.id;sb.rpc('link_repeat',{p_lead:lid,p_accept:rb.dataset.rp==='1'}).then(function(r){if(r.error)msg('Hata: '+r.error.message,true);else{msg(rb.dataset.rp==='1'?'Ortaga baglandi, ortaga bildirim gitti':'Tamam');load()}});return}
  var cpb=e.target.closest('[data-a=cphotos]');if(cpb){showCust(cpb.closest('tr').dataset.id);return}
@@ -842,6 +846,7 @@ $('lrows').addEventListener('click',function(e){
  $('qr').innerHTML=K.qrSvg(u);$('ql').textContent=u;$('qn').textContent='Musteri takip linki: '+(l.customer_name||l.ref);$('qrm').hidden=false;$('qc').onclick=function(){navigator.clipboard.writeText(u)};$('qx').onclick=function(){$('qrm').hidden=true};$('qrm').scrollIntoView()});
 $('prows').addEventListener('click',function(e){var b=e.target.closest('[data-a]');if(!b)return;var p=P.find(function(x){return x.id===b.closest('[data-id]').dataset.id});
  if(b.dataset.a==='tog')sb.from('partners').update({active:!p.active}).eq('id',p.id).then(function(r){if(!r.error){p.active=!p.active;render()}});
+ else if(b.dataset.a==='invite'){var pp=P.find(function(x){return x.id===b.closest('[data-id]').dataset.id});if(!pp)return;b.disabled=true;invite(pp.email,'tr').then(function(ok){b.disabled=false;msg(ok?'Mail gonderildi: '+pp.email:'Mail gonderilemedi',!ok)})}
  else if(b.dataset.a==='del'){var ow=Number(b.closest('[data-id]').dataset.owe)||0;
   if(ow>0){msg(p.name+' icin odenmemis '+K.money(ow)+' var. Once ode, sonra sil. Simdilik Durdur kullan.',true);return}
   var tm=P.filter(function(x){return x.parent_id===p.id}).length,jb=L.filter(function(l){return l.partner_id===p.id}).length;

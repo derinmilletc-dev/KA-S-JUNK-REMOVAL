@@ -62,18 +62,6 @@ Deno.serve(async (req) => {
       }
     }
   }
-  if (ev.table === "partners" && ev.type === "INSERT" && rec.email) {
-    const link = panel ? `${panel}/?ref=${encodeURIComponent(rec.code)}` : "";
-    const name = esc(String(rec.name ?? "").split(" ")[0] || "there");
-    const body = `<p>Hi ${name}, welcome to the Kais Junk Remove partner program! 🎉</p>
-<p><b>Your code:</b> ${esc(rec.code)}${link ? `<br><b>Your link:</b> ${esc(link)}` : ""}</p>
-<p>1) Open your panel with the button below (log in with this email).<br>2) Share your link or QR code with people who need junk removal.<br>3) You earn commission on every job that is completed and paid. Joining is free.</p>
-<p>Tip: add the panel to your phone's home screen, and pick English or Español at the top.</p>
-<hr style="border:0;border-top:1px solid #e3e7ec;margin:16px 0">
-<p>Hola ${name}, ¡bienvenido al programa de socios de Kais Junk Remove!</p>
-<p><b>Tu código:</b> ${esc(rec.code)}<br>1) Abre tu panel con el botón (entra con este correo).<br>2) Comparte tu enlace o código QR con quien necesite retirar escombros.<br>3) Ganas comisión por cada trabajo completado y pagado. Unirse es gratis.</p>`;
-    await mail([rec.email], "Welcome to Kais Junk Remove / Bienvenido", body, panel && panel + "/portal/partner.html");
-  }
   if (ev.table === "support_msgs" && ev.type === "INSERT") {
     if (rec.from_admin) {
       const p = await partnerEmail(rec.partner_id);

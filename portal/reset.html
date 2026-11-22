@@ -1,0 +1,84 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Kais, Password</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="theme-color" content="#1F2421">
+<link rel="icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#F3EEE4;color:#1F2421;display:grid;place-items:center;padding:20px;min-height:100vh}
+.card{width:100%;max-width:420px;background:#fff;border:1px solid #E7E0D2;border-radius:24px;overflow:hidden;box-shadow:0 20px 50px -25px #1f242166}
+.top{background:#1F2421;padding:18px 24px;display:flex;align-items:center;gap:12px;color:#fff;font-weight:700;font-size:17px;border-bottom:4px solid #F26B1D}
+.top img{width:36px;height:36px;border-radius:9px}
+.in{padding:28px 24px 26px}
+.badge{width:60px;height:60px;border-radius:19px;background:#FDEBDD;display:grid;place-items:center;font-size:30px;margin-bottom:16px}
+h1{margin:0 0 8px;font-size:25px;letter-spacing:-.02em;line-height:1.2}
+p{margin:0 0 18px;color:#5F6762;line-height:1.55;font-size:15px}
+label{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
+.f{position:relative}
+input{width:100%;font:inherit;font-size:16px;padding:14px 48px 14px 14px;border:1.5px solid #DDD6C7;border-radius:14px;outline:none;background:#fff}
+input:focus{border-color:#F26B1D;box-shadow:0 0 0 4px #F26B1D26}
+.eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;font-size:20px;padding:8px;cursor:pointer}
+.bar{height:6px;background:#EFE9DC;border-radius:9px;margin-top:10px;overflow:hidden}.bar i{display:block;height:100%;width:0;border-radius:9px;transition:.25s}
+.hint{font-size:13px;color:#7A817C;margin-top:6px;min-height:18px}
+.btn{width:100%;margin-top:20px;border:0;background:#F26B1D;color:#fff;font:inherit;font-weight:700;font-size:17px;padding:16px;border-radius:14px;cursor:pointer}
+.btn:disabled{opacity:.55;cursor:default}
+.msg{margin-top:14px;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.5}
+.err{background:#FDECEA;color:#9B1C1C}
+.ok{text-align:center}
+.ok .badge{margin:0 auto 16px;background:#E3F5EA}
+@media(prefers-reduced-motion:no-preference){.pop{animation:pop .5s cubic-bezier(.2,1.4,.4,1)}@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}}
+</style></head><body>
+<div class="card"><div class="top"><img src="../apple-touch-icon.png" alt="">Kais Junk Remove</div>
+<div class="in" id="w"><div class="badge" id="bd">🔐</div><h1 id="h">…</h1><p id="p"></p></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script>
+<script>
+(function(){
+var q=new URLSearchParams(location.search),L=q.get('l');if(L!=='tr'&&L!=='es')L='en';
+var mode=q.get('m')==='welcome'?'welcome':'reset';
+var to={admin:'admin.html',crew:'crew.html',partner:'partner.html'}[q.get('to')]||'partner.html';
+var D={
+ tr:{wt:'Hoş geldin! Şifreni belirle',rt:'Yeni şifre seç',wp:'Hesabın hazır. Bir şifre oluştur, bundan sonra e-posta ve şifrenle giriş yaparsın.',rp:'Yeni şifreni yaz. Bundan sonra bununla giriş yaparsın.',pw:'Şifre',pw2:'Şifre (tekrar)',h:'En az 8 karakter. Harf ve rakam karıştır.',
+  s:['Çok zayıf','Zayıf','İyi','Güçlü'],btn:'Şifremi kaydet',short:'En az 8 karakter olmalı.',diff:'İki şifre aynı değil.',fail:'Kaydedilemedi: ',bad:'Link geçersiz ya da süresi dolmuş.',bad2:'Giriş sayfasında “Şifremi unuttum”a dokunup yeni link al.',back:'Giriş sayfasına git',
+  ok:'Hazır, şifren kaydedildi!',ok2:'Panele yönlendiriyorsun…',same:'Yeni şifre eskisiyle aynı olamaz.',wait:'Link kontrol ediliyor…'},
+ en:{wt:'Welcome! Create your password',rt:'Choose a new password',wp:'Your account is ready. Create a password and from now on log in with your email and password.',rp:'Type your new password. You will use it to log in from now on.',pw:'Password',pw2:'Password (again)',h:'At least 8 characters. Mix letters and numbers.',
+  s:['Very weak','Weak','Good','Strong'],btn:'Save my password',short:'Must be at least 8 characters.',diff:'The two passwords do not match.',fail:'Could not save: ',bad:'This link is invalid or has expired.',bad2:'On the login page tap “Forgot password” to get a new link.',back:'Go to login',
+  ok:'All set, password saved!',ok2:'Taking you to your panel…',same:'New password cannot match the old one.',wait:'Checking your link…'},
+ es:{wt:'¡Bienvenido! Crea tu contraseña',rt:'Elige una nueva contraseña',wp:'Tu cuenta está lista. Crea una contraseña y desde ahora entras con tu correo y contraseña.',rp:'Escribe tu nueva contraseña. La usarás para entrar desde ahora.',pw:'Contraseña',pw2:'Contraseña (otra vez)',h:'Mínimo 8 caracteres. Mezcla letras y números.',
+  s:['Muy débil','Débil','Buena','Fuerte'],btn:'Guardar mi contraseña',short:'Debe tener al menos 8 caracteres.',diff:'Las contraseñas no coinciden.',fail:'No se pudo guardar: ',bad:'El enlace no es válido o ya venció.',bad2:'En la página de acceso toca “Olvidé mi contraseña” para recibir uno nuevo.',back:'Ir al acceso',
+  ok:'¡Listo, contraseña guardada!',ok2:'Te llevamos a tu panel…',same:'La nueva contraseña no puede ser igual a la anterior.',wait:'Revisando tu enlace…'}
+}[L];
+document.documentElement.lang=L;
+var $=function(i){return document.getElementById(i)},w=$('w');
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+$('h').textContent=D.wait;
+var sb=window.supabase&&window.KJ&&window.KJ.SUPABASE_URL?window.supabase.createClient(window.KJ.SUPABASE_URL,window.KJ.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
+function bad(){w.innerHTML='<div class="badge">⏰</div><h1>'+esc(D.bad)+'</h1><p>'+esc(D.bad2)+'</p><a class="btn" style="display:block;text-align:center;text-decoration:none" href="'+to+'">'+esc(D.back)+'</a>'}
+function form(){
+ w.innerHTML='<div class="badge">'+(mode==='welcome'?'🎉':'🔐')+'</div><h1>'+esc(mode==='welcome'?D.wt:D.rt)+'</h1><p>'+esc(mode==='welcome'?D.wp:D.rp)+'</p>'+
+ '<form id="f" autocomplete="on"><label for="a">'+esc(D.pw)+'</label><div class="f"><input id="a" type="password" autocomplete="new-password" minlength="8" required><button type="button" class="eye" id="e" aria-label="show">👁️</button></div>'+
+ '<div class="bar"><i id="b"></i></div><div class="hint" id="t">'+esc(D.h)+'</div>'+
+ '<label for="c">'+esc(D.pw2)+'</label><div class="f"><input id="c" type="password" autocomplete="new-password" required></div>'+
+ '<button class="btn" id="s" type="submit">'+esc(D.btn)+'</button><div id="m" class="msg err" hidden></div></form>';
+ var a=$('a'),c=$('c');
+ $('e').onclick=function(){var t=a.type==='password'?'text':'password';a.type=t;c.type=t};
+ a.oninput=function(){var v=a.value,n=0;if(v.length>=8)n++;if(/[a-zç-üğıöşü]/i.test(v)&&/\d/.test(v))n++;if(v.length>=12||/[^\w\s]/.test(v)&&v.length>=8)n++;if(!v)n=-1;
+  var cols=['#E5484D','#F59E0B','#65A30D','#16A34A'],i=Math.max(0,n);
+  $('b').style.width=n<0?'0':(25*(i+1))+'%';$('b').style.background=cols[i];$('t').textContent=n<0?D.h:D.s[i]};
+ $('f').onsubmit=function(ev){ev.preventDefault();var m=$('m');m.hidden=true;
+  if(a.value.length<8){m.textContent=D.short;m.hidden=false;return}
+  if(a.value!==c.value){m.textContent=D.diff;m.hidden=false;return}
+  $('s').disabled=true;
+  sb.auth.updateUser({password:a.value}).then(function(r){
+   if(r.error){$('s').disabled=false;m.textContent=/same/i.test(r.error.message)?D.same:D.fail+r.error.message;m.hidden=false;return}
+   w.className='in ok';w.innerHTML='<div class="badge pop">✅</div><h1>'+esc(D.ok)+'</h1><p>'+esc(D.ok2)+'</p>';
+   setTimeout(function(){location.replace(to)},1600);
+  });
+ };
+ a.focus();
+}
+if(!sb){bad();return}
+var done=false;
+function go(){if(done)return;done=true;form()}
+sb.auth.onAuthStateChange(function(ev,s){if(s&&(ev==='SIGNED_IN'||ev==='PASSWORD_RECOVERY'||ev==='INITIAL_SESSION'))go()});
+sb.auth.getSession().then(function(r){if(r.data.session)go()});
+setTimeout(function(){if(!done)bad()},4000);
+})();
+</script></body></html>
