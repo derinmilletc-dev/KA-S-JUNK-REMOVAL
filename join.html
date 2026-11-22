@@ -4,7 +4,7 @@ main{animation:jin .45s cubic-bezier(.2,.8,.2,1) both}@keyframes jin{from{opacit
 
 /* apply form v2 */
 form.card{padding:0!important;overflow:hidden;scroll-margin-top:80px}
-.fsc{overflow-x:hidden;max-height:min(360px,56vh);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;border-bottom:1px solid var(--line)}
+.fsc{overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;height:min(360px,56vh);contain:layout paint;border-bottom:1px solid var(--line)}
 .fsc::-webkit-scrollbar{width:4px}.fsc::-webkit-scrollbar-thumb{background:#d9d3c9;border-radius:9px}
 .fp{position:static;padding:10px 16px 0;border:0}.fp small{display:none!important}
 .fs{padding-top:12px}.fs+.fs{margin-top:8px}
@@ -14,7 +14,7 @@ form.card{padding:0!important;overflow:hidden;scroll-margin-top:80px}
 .ch button.on{background:var(--ink)!important;color:#fff!important}
 .ch[data-q=vol]{display:grid!important;grid-template-columns:repeat(5,1fr);gap:6px;overflow:visible;margin:6px 0 10px!important;padding:0}.ch[data-q=vol] button{padding:9px 0!important;text-align:center}
 .fs h4{font-size:12px!important;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px!important}.fs h4 i{display:none!important}
-.fs label{margin-top:8px}.fs textarea{min-height:56px!important}
+.fs label{margin-top:8px}.fs textarea{min-height:56px!important;resize:none!important;font-size:16px!important}.fs input{font-size:16px!important}html,body{overflow-x:hidden}
 .fpx{position:sticky;top:0;z-index:5;background:#fff;padding:12px 16px 10px;border-bottom:1px solid var(--line)}
 .fp div{height:6px;border-radius:99px;background:var(--paper,#F4F1EC);overflow:hidden}.fp i{display:block;height:100%;width:8%;background:linear-gradient(90deg,#F26B1D,#E9A23B);border-radius:99px;transition:width .35s}
 .fp small{display:flex;justify-content:space-between;margin:6px 0 0;font-size:12px}
@@ -140,7 +140,7 @@ function say(t,bad){m.hidden=false;m.className='msg '+(bad?'err':'ok');m.textCon
 function prog(){var s=[$('n').value.trim().length>1,/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($('e').value.trim()),!!A.job,!!A.vol,!!A.src],n=s.filter(Boolean).length,pc=Math.max(8,Math.round(n/5*100));$('fpb').style.width=pc+'%';$('fpt').textContent=n+'/5'}
 f.addEventListener('input',prog);(function(){var sc=$('fsc'),fm=$('fmore');if(sc)sc.addEventListener('scroll',function(){if(sc.scrollTop>20)fm.classList.add('off')},{passive:true})})();
 if(sp){var fr=f.querySelector('[data-q=src] [data-v="Arkadas / ortak"]');if(fr){fr.classList.add('on');A.src='Arkadas / ortak'}}
-f.addEventListener('click',function(e){var c=e.target.closest('.ch button');if(!c)return;var g=c.parentNode,q=g.dataset.q,on=c.classList.contains('on');g.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(on){delete A[q]}else{c.classList.add('on');A[q]=c.dataset.v;var nx=g.nextElementSibling;while(nx&&nx.tagName!=='LABEL')nx=nx.nextElementSibling;if(nx&&nx.nextElementSibling&&nx.nextElementSibling.classList.contains('ch'))setTimeout(function(){var sc=$('fsc');if(sc)sc.scrollTo({top:nx.offsetTop-sc.offsetTop-12,behavior:'smooth'})},180)}prog()});
+f.addEventListener('click',function(e){var c=e.target.closest('.ch button');if(!c)return;var g=c.parentNode,q=g.dataset.q,on=c.classList.contains('on');g.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(on){delete A[q]}else{c.classList.add('on');A[q]=c.dataset.v;var nx=g.nextElementSibling;while(nx&&nx.tagName!=='LABEL')nx=nx.nextElementSibling;}prog()});
 prog();
 f.addEventListener('submit',function(e){e.preventDefault();
  var n=$('n').value.trim(),em=$('e').value.trim();
