@@ -178,6 +178,28 @@ html,body{overflow-x:clip;max-width:100%}
 .tier{display:inline-flex;align-items:center;gap:8px;background:var(--tint);border-radius:99px;padding:6px 6px 6px 14px;font-size:14px}
 .tier button{border:0;background:#fff;border-radius:50%;width:26px;height:26px;font-size:16px;line-height:1;cursor:pointer;color:var(--deep)}
 @media(max-width:600px){#t-partners .fold .row{margin-top:10px}}
+
+/* rapor v5 */
+.rctl{padding:14px}.mnav{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.mnav input{flex:1;min-width:0;width:100%;text-align:center;font-weight:700;-webkit-appearance:none;appearance:none}
+.mnav .btn{width:46px;height:46px;font-size:24px;padding:0;display:grid;place-items:center;flex:none}
+.rrow{display:flex;gap:10px;align-items:flex-end}.rrow>div{flex:1;min-width:0}.rrow .btn{flex:none;height:46px}
+.rsum{background:linear-gradient(135deg,#1F2421,#2E3531);color:#fff;border-radius:20px;padding:16px;margin-bottom:12px}
+.rsum b{display:block;font:700 17px 'Bricolage Grotesque',sans-serif;margin-bottom:4px}.rsum span{font-size:13.5px;color:#ffffffbb}
+.rsum em{font-style:normal;font-weight:700}.rsum em.up{color:#6FE0A0}.rsum em.dn{color:#FF9C8A}
+.split{display:flex;height:16px;border-radius:99px;overflow:hidden;background:var(--paper);margin:6px 0 14px;gap:2px}.split i{display:block;min-width:4px}
+.sg{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.dot{flex:none;width:12px;height:12px;border-radius:50%}.sgt{flex:1;min-width:0}.sgt b{display:block;font-weight:600;font-size:14.5px}.sgt small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+.sgv{text-align:right}.sgv b{display:block;font:700 16px 'Bricolage Grotesque',sans-serif}.sgv small{color:var(--muted);font-size:12px}
+.sgm{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
+.rl{display:grid;gap:14px;margin-top:6px}.ri .rih{display:flex;justify-content:space-between;gap:10px;font-size:15px}.ri .rih span{font:700 15px 'Bricolage Grotesque',sans-serif}
+.rbar{height:8px;border-radius:99px;background:var(--paper);margin:7px 0}.rbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#F26B1D,#E9A23B)}
+.rim{display:flex;gap:6px 12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}.rim .pd{color:var(--deep);font-weight:700}
+.cols{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:end;margin-top:10px}
+.col{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}.col small{font-size:10.5px;color:var(--muted);height:14px;white-space:nowrap}
+.col .cb{display:flex;gap:3px;align-items:flex-end;height:120px;width:100%;justify-content:center}
+.col .cb i{display:block;width:38%;max-width:18px;border-radius:6px 6px 2px 2px;background:#F26B1D}.col .cb i.k{background:#1E8E4E}
+.col span{font-size:12px;font-weight:600;color:var(--muted)}.col.cur span{color:var(--deep)}.col.cur{background:var(--tint);border-radius:12px;padding:6px 0}
 </style><link rel="manifest" href="manifest-admin.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
 <header><a class="brand" href="../index.html" aria-label="Kais Junk Remove, home"><svg viewBox="0 0 200 200" aria-hidden="true"><rect width="200" height="200" rx="44" fill="#2E3531"/><g transform="translate(-9,0)"><rect x="52" y="48" width="28" height="104" fill="#F6F3EE"/><polygon points="80,112 126,48 160,48 114,112" fill="#F6F3EE"/><polygon points="92,96 126,96 166,152 132,152" fill="#F26B1D"/></g></svg><span><b>Kais</b><em>Admin</em></span></a><div class="hright"><span class="hclock" id="hclock" title="Florida saati"></span><button id="hsearch" type="button" aria-label="Ara">🔍</button><button id="hrefresh" type="button" aria-label="Yenile">↻</button><button id="setpw" type="button" style="display:none">Sifre</button><button id="logout">Cikis</button></div></header>
 <main>
@@ -213,12 +235,14 @@ html,body{overflow-x:clip;max-width:100%}
 <div class="cal" id="calgrid"></div>
 <div class="card" style="margin-top:14px"><h3>Randevusu olmayan isler</h3><div id="unsch"></div></div></section>
 <section id="t-rep" class="tabsec" hidden>
-<div class="card"><div class="row"><div><label>Ay</label><input type="month" id="rmon"></div><div><label>Operasyon maliyeti ($, istege bagli)</label><input type="number" id="rop" min="0" step="1" placeholder="0"></div><div style="align-self:flex-end"><button class="btn sm ghost" id="rcsv">CSV indir</button></div></div></div>
+<div class="card rctl"><div class="mnav"><button type="button" class="btn sm ghost" id="rprev" aria-label="Onceki ay">&lsaquo;</button><input type="month" id="rmon"><button type="button" class="btn sm ghost" id="rnext" aria-label="Sonraki ay">&rsaquo;</button></div>
+<div class="rrow"><div><label>Operasyon maliyeti ($, istege bagli)</label><input type="number" id="rop" min="0" step="1" placeholder="0"></div><button class="btn sm ghost" id="rcsv" type="button">CSV indir</button></div></div>
+<div class="rsum" id="rsum"></div>
 <div class="grid" id="rstats" style="margin-bottom:14px"></div>
 <div class="card"><h3>Para nereye gitti</h3><div id="rbreak"></div></div>
-<div class="card"><h3>Ortak bazinda</h3><div class="tbl"><table><thead><tr><th>Ortak</th><th>Is</th><th>Ciro</th><th>Komisyon</th><th>Ekip payi</th><th>Odenen</th><th>Bekleyen</th></tr></thead><tbody id="rpart"></tbody></table></div></div>
-<div class="card"><h3>Musteri nereden geldi</h3><p class="muted">Secili ayda gelen talepler. Google, Facebook, ortak, QR...</p><div class="tbl"><table><thead><tr><th>Kaynak</th><th>Talep</th><th>Tamamlanan</th><th>Ciro</th></tr></thead><tbody id="rsrc"></tbody></table></div></div>
-<div class="card"><h3>Son 6 ay</h3><p class="muted">Turuncu: ciro. Yesil: ortak/kredi giderlerinden sonra kalan.</p><div class="bars" id="rtrend"></div></div></section>
+<div class="card"><h3>Ortak bazinda</h3><div id="rpart" class="rl"></div></div>
+<div class="card"><h3>Musteri nereden geldi</h3><p class="muted">Secili ayda gelen talepler. Google, Facebook, ortak, QR...</p><div id="rsrc" class="rl"></div></div>
+<div class="card"><h3>Son 6 ay</h3><p class="muted">Turuncu: ciro. Yesil: ortak/kredi giderlerinden sonra kalan.</p><div class="cols" id="rtrend"></div></div></section>
 <section id="t-price" class="tabsec" hidden>
 <div class="card"><h3>Fiyat hesaplayici</h3><p class="muted">Sitede musteri, sectigi kamyon dolulugu veya esya sayisina gore tahmini fiyat gorur. Fiyatlari sen girersin; hesaplayici acik degilken sitede hic gorunmez.</p>
 <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="pon" style="width:auto"> Sitede goster</label>
@@ -388,13 +412,16 @@ function drawRep(){var mon=$('rmon').value;if(!mon){mon=today().slice(0,7);$('rm
  var R=repData(mon),net=R.kept-op;
  $('rstats').innerHTML=[['Ciro',K.money(R.rev),''],['Ortak ve kredi gideri',K.money(R.cost),''],['Ekip gideri',K.money(R.crew),''],['Sana kalan',K.money(R.kept),'hot'],['Net (operasyon sonrasi)',K.money(net),'']].map(function(x){return '<div class="stat '+x[2]+'"><b>'+K.esc(x[1])+'</b><small>'+x[0]+'</small></div>'}).join('');
  function ex(a,b,big){return '<div class="ex'+(big?' big':'')+'"><span>'+a+'</span><span>'+b+'</span></div>'}
- $('rbreak').innerHTML=ex('Tamamlanan is',R.n)+ex('Ciro',K.money(R.rev))+ex('Ortak komisyonu (odenen / bekleyen)',K.money(R.com)+' <small class="muted">('+K.money(R.comPaid)+' / '+K.money(R.comPend)+')</small>')+ex('Ust pay (odenen / bekleyen)',K.money(R.ov)+' <small class="muted">('+K.money(R.ovPaid)+' / '+K.money(R.ovPend)+')</small>')+ex('Musteri tavsiye kredisi',K.money(R.cr))+ex('Ekip odemesi (odenen / bekleyen)',K.money(R.crew)+' <small class="muted">('+K.money(R.crewPaid)+' / '+K.money(R.crew-R.crewPaid)+')</small>')+ex('Ortaksiz (dogrudan) ciro',K.money(R.direct))+ex('Sana kalan',K.money(R.kept),true)+(op?ex('Operasyon maliyeti','-'+K.money(op))+ex('Net',K.money(net),true):'');
+ var segs=[['Ortak komisyonu',R.com,'#F26B1D','Odenen '+K.money(R.comPaid)+' · bekleyen '+K.money(R.comPend)],['Ust pay',R.ov,'#E9A23B','Odenen '+K.money(R.ovPaid)+' · bekleyen '+K.money(R.ovPend)],['Musteri tavsiye kredisi',R.cr,'#8E6BD8',''],['Ekip odemesi',R.crew,'#3B82C4','Odenen '+K.money(R.crewPaid)+' · bekleyen '+K.money(R.crew-R.crewPaid)],['Sana kalan',R.kept,'#1E8E4E','']];
+ $('rbreak').innerHTML=R.rev>0?'<div class="split">'+segs.map(function(g){var w=Math.max(0,g[1])/R.rev*100;return w>0?'<i style="width:'+w+'%;background:'+g[2]+'" title="'+g[0]+'"></i>':''}).join('')+'</div>'+segs.map(function(g){var pc=Math.round(Math.max(0,g[1])/R.rev*100);return '<div class="sg"><span class="dot" style="background:'+g[2]+'"></span><div class="sgt"><b>'+g[0]+'</b>'+(g[3]?'<small>'+g[3]+'</small>':'')+'</div><div class="sgv"><b>'+K.money(g[1])+'</b><small>%'+pc+'</small></div></div>'}).join('')+'<div class="sgm"><span>'+R.n+' is tamamlandi</span><span>Ortaksiz ciro '+K.money(R.direct)+'</span></div>'+(op?ex('Operasyon maliyeti','-'+K.money(op))+ex('Net',K.money(net),true):''):'<p class="muted">Bu ay henuz biten is yok.</p>';
+ var pv=new Date(mon+'-01T00:00:00Z');pv=new Date(Date.UTC(pv.getUTCFullYear(),pv.getUTCMonth()-1,1)).toISOString().slice(0,7);var RP=repData(pv),df=R.rev-RP.rev;
+ $('rsum').innerHTML='<b>'+(R.n?R.n+' is bitti, ciro '+K.money(R.rev):'Bu ay henuz biten is yok')+'</b><span>'+(RP.rev>0?(df>=0?'Gecen aya gore <em class="up">+'+K.money(df)+' (%'+Math.round(df/RP.rev*100)+')</em>':'Gecen aya gore <em class="dn">'+K.money(df)+' (%'+Math.round(df/RP.rev*100)+')</em>'):'Gecen ay ciro yoktu')+(R.rev>0?' &middot; Sana kalan %'+Math.round(R.kept/R.rev*100):'')+'</span>';
  var byP={};R.rows.forEach(function(l){if(!l.partner_id)return;var x=byP[l.partner_id]=byP[l.partner_id]||{n:0,rev:0,com:0,ov:0,paid:0,pend:0};x.n++;x.rev+=Number(l.price||0);var c=comm(l)||0;x.com+=c;if(l.commission_paid)x.paid+=c;else x.pend+=c});
  R.rows.forEach(function(l){var k=cc(l);if(k&&k.sponsor_id){var x=byP[k.sponsor_id]=byP[k.sponsor_id]||{n:0,rev:0,com:0,ov:0,paid:0,pend:0},o=ovr(l)||0;x.ov+=o;if(l.override_paid)x.paid+=o;else x.pend+=o}});
- var ids=Object.keys(byP);$('rpart').innerHTML=ids.length?ids.sort(function(a,b){return byP[b].rev-byP[a].rev}).map(function(id){var x=byP[id];return '<tr><td>'+K.esc(pn(id))+'</td><td>'+x.n+'</td><td>'+K.money(x.rev)+'</td><td>'+K.money(x.com)+'</td><td>'+K.money(x.ov)+'</td><td>'+K.money(x.paid)+'</td><td>'+K.money(x.pend)+'</td></tr>'}).join(''):'<tr><td colspan="7" class="muted">Bu ay ortakli is yok.</td></tr>';
+ var ids=Object.keys(byP),mxp=Math.max.apply(null,ids.map(function(id){return byP[id].rev}).concat([1]));$('rpart').innerHTML=ids.length?ids.sort(function(a,b){return byP[b].rev-byP[a].rev}).map(function(id){var x=byP[id];return '<div class="ri"><div class="rih"><b>'+K.esc(pn(id))+'</b><span>'+K.money(x.rev)+'</span></div><div class="rbar"><i style="width:'+Math.max(3,Math.round(x.rev/mxp*100))+'%"></i></div><div class="rim"><span>'+x.n+' is</span><span>Komisyon '+K.money(x.com)+'</span>'+(x.ov?'<span>Ekip payi '+K.money(x.ov)+'</span>':'')+'<span>Odenen '+K.money(x.paid)+'</span>'+(x.pend>0?'<span class="pd">Bekleyen '+K.money(x.pend)+'</span>':'')+'</div></div>'}).join(''):'<p class="muted">Bu ay ortakli is yok.</p>';
  var ms=[],d=new Date(mon+'-01T00:00:00Z');for(var i=5;i>=0;i--){var x=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()-i,1));ms.push(x.toISOString().slice(0,7))}
  var D=ms.map(function(m){var r=repData(m);return {m:m,rev:r.rev,kept:r.kept}}),mx=Math.max.apply(null,D.map(function(x){return x.rev}).concat([1]));
- $('rtrend').innerHTML=D.map(function(x){return '<div class="bar2"><span>'+x.m.slice(2)+'</span><div><i style="width:'+Math.round(x.rev/mx*100)+'%"></i><i class="k" style="width:'+Math.max(0,Math.round(x.kept/mx*100))+'%"></i></div><span>'+K.money(x.rev)+'</span></div>'}).join('')}
+ var MN=['Oca','Sub','Mar','Nis','May','Haz','Tem','Agu','Eyl','Eki','Kas','Ara'];$('rtrend').innerHTML=D.map(function(x){return '<div class="col'+(x.m===mon?' cur':'')+'"><small>'+(x.rev?K.money(x.rev):'')+'</small><div class="cb"><i style="height:'+Math.max(3,Math.round(x.rev/mx*100))+'%"></i><i class="k" style="height:'+Math.max(3,Math.round(Math.max(0,x.kept)/mx*100))+'%"></i></div><span>'+MN[Number(x.m.slice(5))-1]+'</span></div>'}).join('')}
 $('rmon').onchange=drawRep;$('rop').onchange=function(){localStorage.setItem('kj_op_'+$('rmon').value,String(Number($('rop').value)||0));drawRep()};
 $('rcsv').onclick=function(){var mon=$('rmon').value,R=repData(mon),cr=Number(ST.customer_credit||0);var q=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'};
  var out=[['ref','tamamlanma','musteri','ortak','tutar','komisyon','ust_pay','kredi'].join(',')].concat(R.rows.map(function(l){var p=P.find(function(x){return x.id===l.partner_id});return [l.ref,l.completed_at,l.customer_name,p?p.name:'',l.price,comm(l),ovr(l),l.referrer_code?cr:''].map(q).join(',')}));
@@ -430,8 +457,10 @@ K.start(function(s){
 function drawSrc(){var mon=$('rmon').value,m={};
  L.forEach(function(l){if(mkey(l.created_at)!==mon)return;var k=l.source||'direct',x=m[k]=m[k]||{n:0,d:0,rev:0};x.n++;if(l.status==='done'){x.d++;x.rev+=Number(l.price||0)}});
  var ks=Object.keys(m).sort(function(a,b){return m[b].n-m[a].n});
- $('rsrc').innerHTML=ks.length?ks.map(function(k){var x=m[k];return '<tr><td>'+K.esc(srcName(k))+'</td><td>'+x.n+'</td><td>'+x.d+'</td><td>'+K.money(x.rev)+'</td></tr>'}).join(''):'<tr><td colspan="4" class="muted">Bu ay talep yok.</td></tr>'}
+ var mxs=Math.max.apply(null,ks.map(function(k){return m[k].n}).concat([1]));$('rsrc').innerHTML=ks.length?ks.map(function(k){var x=m[k];return '<div class="ri"><div class="rih"><b>'+K.esc(srcName(k))+'</b><span>'+x.n+' talep</span></div><div class="rbar"><i style="width:'+Math.max(4,Math.round(x.n/mxs*100))+'%"></i></div><div class="rim"><span>'+x.d+' tamamlandi</span><span>Ciro '+K.money(x.rev)+'</span></div></div>'}).join(''):'<p class="muted">Bu ay talep yok.</p>'}
 $('rmon').addEventListener('change',drawSrc);
+function stepMon(n){var v=$('rmon').value||today().slice(0,7),d=new Date(v+'-01T00:00:00Z');$('rmon').value=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+n,1)).toISOString().slice(0,7);$('rmon').dispatchEvent(new Event('change'))}
+$('rprev').onclick=function(){stepMon(-1)};$('rnext').onclick=function(){stepMon(1)};
 // ---- Ekip
 function drawCrew(){$('clist').innerHTML=CR.length?CR.map(function(c){var n=L.filter(function(l){return l.crew_id===c.id&&l.status!=='lost'}).length;return '<div class="au" data-id="'+c.id+'"><b>'+K.esc(c.name)+'</b> <span class="tag '+(c.active?'done':'lost')+'">'+(c.active?'Aktif':'Kapali')+'</span><small>'+K.esc(c.email)+(c.phone?' &middot; '+K.esc(c.phone):'')+' &middot; '+n+' is</small><div class="row" style="margin-top:6px"><label style="margin:0;font-size:12px">Is basi $</label><input data-f="cdp" type="number" min="0" step="1" value="'+(c.default_pay||0)+'" style="width:80px;padding:6px"><button class="btn sm ghost" data-a="ctog">'+(c.active?'Kapat':'Ac')+'</button></div></div>'}).join(''):'<p class="muted">Ekip yok.</p>'}
 $('cform').onsubmit=function(e){e.preventDefault();sb.from('crews').insert({name:$('cn').value.trim(),email:$('ce').value.trim().toLowerCase(),phone:$('cp').value.trim()||null,default_pay:Number($('cdp').value)||0}).then(function(r){if(r.error)msg('Eklenemedi: '+r.error.message,true);else{$('cform').reset();msg('Ekip eklendi. portal/crew.html ile girebilir.');load()}})};
