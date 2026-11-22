@@ -61,12 +61,20 @@
       });
     };
   }
+  // Ortak giris hareketi: en fazla 30 dakikada bir sayilir (admin panelinde "son giris / giris sayisi")
+  function touchLogin(){
+    try{
+      if(!/partner/.test(location.pathname)||!sb)return;
+      var k='kj_lt',t=+localStorage.getItem(k)||0;if(Date.now()-t<30*60*1000)return;
+      localStorage.setItem(k,String(Date.now()));sb.rpc('partner_touch',{p_kind:'login'}).then(function(){},function(){});
+    }catch(e){}
+  }
   function start(onReady){
     var lo0 = $('logout'); if (lo0) lo0.style.display = 'none'; var sp1 = $('setpw'); if (sp1) sp1.style.display = 'none';
     if (!sb){ loginUI(); return; }
     sb.auth.getSession().then(function(r){
       if (r.data.session && expired(r.data.session)) { sb.auth.signOut().then(function(){ loginUI(); }); return; }
-      if (r.data.session) { $('loginBox').hidden = true; $('app').hidden = false; if (lo0) lo0.style.display = ''; var sp0 = $('setpw'); if (sp0) sp0.style.display = ''; onReady(r.data.session); }
+      if (r.data.session) { $('loginBox').hidden = true; $('app').hidden = false; if (lo0) lo0.style.display = ''; var sp0 = $('setpw'); if (sp0) sp0.style.display = ''; onReady(r.data.session); touchLogin(); }
       else loginUI();
     });
     document.addEventListener('visibilitychange', function(){ if (!document.hidden) sb.auth.getSession(); });
@@ -74,7 +82,7 @@
     var sp = $('setpw'); if (sp) sp.onclick = function(){
       var p = window.prompt('Yeni sifre (en az 8 karakter):'); if (!p) return;
       if (p.length < 8){ window.alert('En az 8 karakter olmali.'); return; }
-      sb.auth.updateUser({ password: p }).then(function(r){ window.alert(r.error ? 'Olmadi: ' + r.error.message : 'Sifre kaydedildi. Artik e-posta ve sifreyle girebilirsin.'); });
+      sb.auth.updateUser({ password: p }).then(function(r){ if(!r.error)sb.rpc('partner_touch',{p_kind:'pw'}).then(function(){},function(){});window.alert(r.error ? 'Olmadi: ' + r.error.message : 'Sifre kaydedildi. Artik e-posta ve sifreyle girebilirsin.'); });
     };
     var lo = $('logout'); if (lo) lo.onclick = function(){ sb.auth.signOut().then(function(){ location.reload(); }); };
   }

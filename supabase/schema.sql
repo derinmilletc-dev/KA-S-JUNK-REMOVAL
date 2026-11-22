@@ -1392,6 +1392,26 @@ begin
 end $$;
 grant execute on function nda_accept(int, text, text) to authenticated;
 
+-- Ortak kurulum takibi: davet, sifre, giris hareketleri
+alter table partners add column if not exists invited_at timestamptz;
+alter table partners add column if not exists pw_set_at timestamptz;
+alter table partners add column if not exists first_login_at timestamptz;
+alter table partners add column if not exists last_login_at timestamptz;
+alter table partners add column if not exists login_count int not null default 0;
+create or replace function partner_touch(p_kind text) returns void
+language plpgsql security definer set search_path = public as $$
+declare em text := lower(coalesce(auth.jwt() ->> 'email', ''));
+begin
+  if em = '' then return; end if;
+  if p_kind = 'pw' then
+    update partners set pw_set_at = now() where lower(email) = em;
+  elsif p_kind = 'login' then
+    update partners set login_count = login_count + 1, first_login_at = coalesce(first_login_at, now()), last_login_at = now() where lower(email) = em;
+  end if;
+end $$;
+revoke all on function partner_touch(text) from public, anon;
+grant execute on function partner_touch(text) to authenticated;
+
 -- Giris yapmis kullanicilar (admin, ortak, ekip) tablolari okuyabilsin. Satir guvenligi (RLS) hangi satiri gorecegini belirler.
 do $$ begin
   if exists (select 1 from pg_roles where rolname='authenticated') then

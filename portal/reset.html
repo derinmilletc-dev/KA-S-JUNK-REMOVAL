@@ -37,13 +37,13 @@ var to={admin:'admin.html',crew:'crew.html',partner:'partner.html'}[q.get('to')]
 var D={
  tr:{wt:'Hoş geldin! Şifreni belirle',rt:'Yeni şifre seç',wp:'Hesabın hazır. Bir şifre oluştur, bundan sonra e-posta ve şifrenle giriş yaparsın.',rp:'Yeni şifreni yaz. Bundan sonra bununla giriş yaparsın.',pw:'Şifre',pw2:'Şifre (tekrar)',h:'En az 8 karakter. Harf ve rakam karıştır.',
   s:['Çok zayıf','Zayıf','İyi','Güçlü'],btn:'Şifremi kaydet',short:'En az 8 karakter olmalı.',diff:'İki şifre aynı değil.',fail:'Kaydedilemedi: ',bad:'Link geçersiz ya da süresi dolmuş.',bad2:'Giriş sayfasında “Şifremi unuttum”a dokunup yeni link al.',back:'Giriş sayfasına git',
-  ok:'Hazır, şifren kaydedildi!',ok2:'Panele yönlendiriyorsun…',same:'Yeni şifre eskisiyle aynı olamaz.',wait:'Link kontrol ediliyor…'},
+  ok:'Şifren güncellendi!',ok2:'Şimdi yeni şifrenle giriş yap. Giriş sayfasına yönlendiriyoruz…',okW:'Hesabın oluşturuldu! 🎉',okW2:'Artık e-posta ve şifrenle giriş yapabilirsin. Seni giriş sayfasına yönlendiriyoruz…',go:'Giriş yap',same:'Yeni şifre eskisiyle aynı olamaz.',wait:'Link kontrol ediliyor…'},
  en:{wt:'Welcome! Create your password',rt:'Choose a new password',wp:'Your account is ready. Create a password and from now on log in with your email and password.',rp:'Type your new password. You will use it to log in from now on.',pw:'Password',pw2:'Password (again)',h:'At least 8 characters. Mix letters and numbers.',
   s:['Very weak','Weak','Good','Strong'],btn:'Save my password',short:'Must be at least 8 characters.',diff:'The two passwords do not match.',fail:'Could not save: ',bad:'This link is invalid or has expired.',bad2:'On the login page tap “Forgot password” to get a new link.',back:'Go to login',
-  ok:'All set, password saved!',ok2:'Taking you to your panel…',same:'New password cannot match the old one.',wait:'Checking your link…'},
+  ok:'Password updated!',ok2:'Now log in with your new password. Taking you to the login page…',okW:'Your account is created! 🎉',okW2:'You can now log in with your email and password. Taking you to the login page…',go:'Log in',same:'New password cannot match the old one.',wait:'Checking your link…'},
  es:{wt:'¡Bienvenido! Crea tu contraseña',rt:'Elige una nueva contraseña',wp:'Tu cuenta está lista. Crea una contraseña y desde ahora entras con tu correo y contraseña.',rp:'Escribe tu nueva contraseña. La usarás para entrar desde ahora.',pw:'Contraseña',pw2:'Contraseña (otra vez)',h:'Mínimo 8 caracteres. Mezcla letras y números.',
   s:['Muy débil','Débil','Buena','Fuerte'],btn:'Guardar mi contraseña',short:'Debe tener al menos 8 caracteres.',diff:'Las contraseñas no coinciden.',fail:'No se pudo guardar: ',bad:'El enlace no es válido o ya venció.',bad2:'En la página de acceso toca “Olvidé mi contraseña” para recibir uno nuevo.',back:'Ir al acceso',
-  ok:'¡Listo, contraseña guardada!',ok2:'Te llevamos a tu panel…',same:'La nueva contraseña no puede ser igual a la anterior.',wait:'Revisando tu enlace…'}
+  ok:'¡Contraseña actualizada!',ok2:'Ahora entra con tu nueva contraseña. Te llevamos al acceso…',okW:'¡Tu cuenta está creada! 🎉',okW2:'Ya puedes entrar con tu correo y contraseña. Te llevamos al acceso…',go:'Entrar',same:'La nueva contraseña no puede ser igual a la anterior.',wait:'Revisando tu enlace…'}
 }[L];
 document.documentElement.lang=L;
 var $=function(i){return document.getElementById(i)},w=$('w');
@@ -68,8 +68,12 @@ function form(){
   $('s').disabled=true;
   sb.auth.updateUser({password:a.value}).then(function(r){
    if(r.error){$('s').disabled=false;m.textContent=/same/i.test(r.error.message)?D.same:D.fail+r.error.message;m.hidden=false;return}
-   w.className='in ok';w.innerHTML='<div class="badge pop">✅</div><h1>'+esc(D.ok)+'</h1><p>'+esc(D.ok2)+'</p>';
-   setTimeout(function(){location.replace(to)},1600);
+   var fin=function(){sb.auth.signOut().then(fin2,fin2)};
+   var fin2=function(){
+    w.className='in ok';w.innerHTML='<div class="badge pop">🎉</div><h1>'+esc(mode==='welcome'?D.okW:D.ok)+'</h1><p>'+esc(mode==='welcome'?D.okW2:D.ok2)+'</p><a class="btn" style="display:block;text-align:center;text-decoration:none" href="'+to+'">'+esc(D.go)+' &rarr;</a>';
+    setTimeout(function(){location.replace(to)},3500);
+   };
+   try{sb.rpc('partner_touch',{p_kind:'pw'}).then(fin,fin)}catch(e){fin()}
   });
  };
  a.focus();
