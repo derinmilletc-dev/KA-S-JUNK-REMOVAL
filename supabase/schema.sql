@@ -1351,6 +1351,34 @@ language sql security definer set search_path = public as $$
 $$;
 grant execute on function push_remove(text) to authenticated;
 
+-- ---------- Ortak gizlilik sozlesmesi (dijital onay) ----------
+alter table partners add column if not exists nda_version int;
+alter table partners add column if not exists nda_name text;
+alter table partners add column if not exists nda_at timestamptz;
+create table if not exists partner_nda (
+  id uuid primary key default gen_random_uuid(),
+  partner_id uuid not null references partners(id) on delete cascade,
+  version int not null,
+  signed_name text not null,
+  lang text,
+  accepted_at timestamptz not null default now()
+);
+alter table partner_nda enable row level security;
+drop policy if exists admin_all_nda on partner_nda;
+create policy admin_all_nda on partner_nda for all using (is_admin()) with check (is_admin());
+
+create or replace function nda_accept(p_version int, p_name text, p_lang text default 'en') returns void
+language plpgsql security definer set search_path = public as $$
+declare pid uuid; nm text := left(trim(coalesce(p_name,'')),120);
+begin
+  if length(nm) < 3 then raise exception 'Ad soyad gerekli'; end if;
+  select id into pid from partners where lower(email) = lower(coalesce(auth.jwt() ->> 'email','')) limit 1;
+  if pid is null then raise exception 'Ortak bulunamadi'; end if;
+  update partners set nda_version = p_version, nda_name = nm, nda_at = now() where id = pid;
+  insert into partner_nda(partner_id, version, signed_name, lang) values (pid, p_version, nm, left(coalesce(p_lang,''),5));
+end $$;
+grant execute on function nda_accept(int, text, text) to authenticated;
+
 -- Giris yapmis kullanicilar (admin, ortak, ekip) tablolari okuyabilsin. Satir guvenligi (RLS) hangi satiri gorecegini belirler.
 do $$ begin
   if exists (select 1 from pg_roles where rolname='authenticated') then

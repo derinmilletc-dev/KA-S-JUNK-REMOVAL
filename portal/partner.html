@@ -15,6 +15,14 @@
 .job .amts small{color:var(--muted)}.tag.paid{background:#DDF3E6;color:var(--green)}
 .empty{text-align:center;padding:34px 10px;color:var(--muted)}
 .fab{position:fixed;right:18px;bottom:18px;z-index:5;box-shadow:0 8px 24px #1F24213a;border-radius:99px;padding:14px 22px}
+.nda{position:fixed;inset:0;z-index:40;background:#1F2421;display:flex;flex-direction:column;overscroll-behavior:contain}
+.nda .nh{padding:calc(16px + env(safe-area-inset-top)) 18px 12px;color:#fff}.nda .nh h2{margin:0;font-size:20px;line-height:1.2}.nda .nh p{margin:4px 0 0;font-size:13px;opacity:.7}
+.nda .nbar{height:3px;background:#ffffff26;margin:0 18px 10px;border-radius:3px;overflow:hidden}.nda .nbar i{display:block;height:100%;width:0;background:#F26B1D;transition:width .15s}
+.nda .nb{flex:1;overflow:auto;background:#fff;margin:0 12px;border-radius:18px;padding:18px 18px 8px;-webkit-overflow-scrolling:touch;font-size:14.5px;line-height:1.55}
+.nda .nb .in,.nb2 .in{color:#5b625e;margin:0 0 14px}.nda .nb h4,.nb2 h4{margin:16px 0 4px;font-size:14px;display:flex;gap:8px;align-items:center}.nda .nb h4 b,.nb2 h4 b{background:#F26B1D;color:#fff;border-radius:7px;min-width:22px;height:22px;display:inline-grid;place-items:center;font-size:12px}.nda .nb p,.nb2 p{margin:0}
+.nda .nh2{height:14px}.nda .nf{padding:12px 14px calc(14px + env(safe-area-inset-bottom));color:#fff}.nda .nf .hint{font-size:12.5px;text-align:center;opacity:.75;margin:0 0 8px}
+.nda .nf label{color:#fff;font-size:12.5px;margin:0 0 4px;display:block}.nda .nf input[type=text]{width:100%;margin:0 0 10px}.nda .nf .ck{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;margin:0 0 12px;line-height:1.35}.nda .nf .ck input{width:20px;height:20px;margin:1px 0 0;flex:none}
+.nda .nf .btn{width:100%}.nda .nf .btn[disabled]{opacity:.4}.nda .nf.lock input,.nda .nf.lock .ck{opacity:.45;pointer-events:none}
 .sheet{position:fixed;inset:0;background:#1F242199;z-index:10;display:flex;align-items:flex-end;justify-content:center}
 .sheet>div{background:#fff;width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:20px;max-height:92vh;overflow:auto}
 @media(min-width:600px){.sheet{align-items:center}.sheet>div{border-radius:22px}}
@@ -173,7 +181,7 @@ h4.tm{margin:4px 0 8px;font:700 15px 'Bricolage Grotesque',sans-serif}
 <div class="hbtns"><button class="btn wa" id="wa">WhatsApp ile paylas</button><button class="btn ghost" id="copy">Kopyala</button><button class="btn ghost" id="dl">QR indir</button></div></section>
 <div id="smart"></div>
 <div id="camp"></div>
-<button type="button" class="onbc" id="onbc" hidden></button><div class="menu" id="menu"><button data-m="notes"><i>🔔</i>Bildirim <span class="bd" id="bd" hidden></span></button><button data-m="team"><i>👥</i>Ekibim</button><button data-m="pay"><i>💵</i>Odemeler</button><button data-m="share"><i>💬</i>Metinler</button><button data-m="ach"><i>🏆</i>Basarilar</button><button data-m="learn"><i>🎓</i>Egitim <span class="bd" id="lbd" hidden></span></button><button data-m="kit"><i>🖨️</i>Pazarlama</button><button data-m="sup"><i>🛟</i>Destek</button><button data-m="claim"><i>⚖️</i>Itiraz</button><button data-m="prof"><i>👤</i>Profil</button></div>
+<button type="button" class="onbc" id="onbc" hidden></button><div class="menu" id="menu"><button data-m="notes"><i>🔔</i>Bildirim <span class="bd" id="bd" hidden></span></button><button data-m="team"><i>👥</i>Ekibim</button><button data-m="pay"><i>💵</i>Odemeler</button><button data-m="share"><i>💬</i>Metinler</button><button data-m="ach"><i>🏆</i>Basarilar</button><button data-m="learn"><i>🎓</i>Egitim <span class="bd" id="lbd" hidden></span></button><button data-m="kit"><i>🖨️</i>Pazarlama</button><button data-m="sup"><i>🛟</i>Destek</button><button data-m="claim"><i>⚖️</i>Itiraz</button><button data-m="nda"><i>📄</i>Gizlilik</button><button data-m="prof"><i>👤</i>Profil</button></div>
 <div class="week" id="week" hidden></div>
 <div class="card" id="lvl" hidden></div>
 <div class="grid" id="stats" style="margin-bottom:8px"></div>
@@ -183,7 +191,7 @@ h4.tm{margin:4px 0 8px;font:700 15px 'Bricolage Grotesque',sans-serif}
 <div class="empty" id="empty" hidden><p><b>Burada gosterilecek is yok.</b></p><p>Linkini paylas ya da "Yeni is" ile bir musteri ekle.</p></div>
 </div></div></main>
 <button class="btn fab" id="newjob" hidden>+ Yeni is</button>
-<div class="sheet" id="sheet" hidden><div id="sheetbox"></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="kit.js"></script><script src="quotes.js"></script><script src="config.js"></script><script src="core.js"></script><script src="i18n.js"></script><script src="i18n-partner.js"></script><script>
+<div class="sheet" id="sheet" hidden><div id="sheetbox"></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script><script src="kit.js"></script><script src="quotes.js"></script><script src="nda.js"></script><script src="config.js"></script><script src="core.js"></script><script src="i18n.js"></script><script src="i18n-partner.js"></script><script>
 (function(){var K=KJC,$=K.$,P=null,L=[],F='all';
 function wa(text){return 'https://wa.me/?text='+encodeURIComponent(text)}
 function bucket(l){if(l.status==='done')return l.commission_paid?'paid':'done';if(l.status==='lost')return 'lost';return 'open'}
@@ -272,6 +280,7 @@ if(k==='ach'){var done=L.filter(function(l){return l.status==='done'}).length,re
  if(k==='sup'){K.sb.rpc('my_support').then(function(r){var M=r.data||[];
   sheet('<h3>Destek</h3><p class="muted">Soru veya sorun yaz, ekip cevaplar. Cevap bildirimlerine de duser.</p><div>'+(M.length?M.map(function(m){return '<div style="margin:6px 0;'+(m.from_admin?'':'text-align:right')+'"><span style="display:inline-block;max-width:85%;padding:8px 12px;border-radius:12px;background:'+(m.from_admin?'var(--tint)':'var(--paper)')+';text-align:left">'+K.esc(m.body)+'</span><br><small class="muted">'+(m.from_admin?'Kais ekibi &middot; ':'')+K.dt(m.created_at)+'</small></div>'}).join(''):'<p class="muted">Henuz mesaj yok.</p>')+'</div><form id="sf" style="margin-top:12px"><input id="sb" maxlength="1000" required placeholder="Mesajini yaz"><div id="sm" class="msg" hidden></div><p class="row"><button class="btn grow">Gonder</button><button type="button" class="btn ghost" data-x>Kapat</button></p></form>');
   $('sf').onsubmit=function(e){e.preventDefault();K.sb.rpc('partner_support_send',{p_body:$('sb').value}).then(function(r){if(r.error){K.flash($('sm'),'Gonderilemedi: '+r.error.message,true);return}menuOpen('sup')})}})}
+ if(k==='nda'){ndaView();return}
  if(k==='prof'){sheet('<h3>Profil</h3><form id="pf"><label>Ad</label><input id="pfn" required value="'+K.esc(P.name)+'"><label>Telefon</label><input id="pfp" value="'+K.esc(P.phone||'')+'" autocomplete="tel"><label>Odeme bilgisi</label><input id="pfo" value="'+K.esc(P.payout_info||'')+'" placeholder="Zelle: mail veya telefon / PayPal"><p class="muted">E-posta: '+K.esc(P.email)+' (degistirmek icin Kais ekibine yaz)</p><div id="pfm" class="msg" hidden></div><p class="row"><button class="btn grow">Kaydet</button><button type="button" class="btn ghost" data-x>Kapat</button></p></form>');
   $('pf').onsubmit=function(e){e.preventDefault();K.sb.rpc('update_my_profile',{p_name:$('pfn').value,p_phone:$('pfp').value,p_payout:$('pfo').value}).then(function(r){if(r.error){K.flash($('pfm'),'Kaydedilemedi: '+r.error.message,true);return}P.name=$('pfn').value.trim()||P.name;P.phone=$('pfp').value;P.payout_info=$('pfo').value;$('hello').textContent='Merhaba, '+P.name;K.flash($('pfm'),'Kaydedildi')})};return}
  if(k==='claim'){K.sb.rpc('my_claims').then(function(r){var C=r.data||[];
@@ -391,15 +400,35 @@ $('newjob').onclick=function(){sheet('<h3>Yeni is olustur</h3><p class="muted">M
   K.sb.rpc('partner_create_lead',{p_ref:ref,p_name:n,p_address:$('ja').value.trim(),p_summary:$('js').value.trim(),p_token:t}).then(function(r){
    if(r.error){K.flash($('jm'),'Olusturulamadi: '+r.error.message,true);return}
    linkSheet(t,n+' icin link hazir');loadLeads()})}};
+
+// ---- Gizlilik sozlesmesi
+function ndaL(){var l=(window.KJI&&KJI.lang)||'en';return KNDA[l]?l:'en'}
+function ndaBody(T){return '<p class="in">'+K.esc(T.intro)+'</p>'+T.s.map(function(x,i){return '<h4><b>'+(i+1)+'</b>'+K.esc(x[0])+'</h4><p>'+K.esc(x[1])+'</p>'}).join('')}
+function ndaOk(){return P&&(P.nda_version||0)>=KNDA.v}
+function ndaGate(){
+ if(!P||ndaOk()||$('nda'))return;var L=ndaL(),T=KNDA[L],d=document.createElement('div');d.className='nda';d.id='nda';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
+ d.innerHTML='<div class="nh"><h2>'+K.esc(T.title)+'</h2><p>'+K.esc(T.sub)+'</p></div><div class="nbar"><i id="ndap"></i></div><div class="nb" id="ndab">'+ndaBody(T)+'</div><div class="nf lock" id="ndaf"><p class="hint" id="ndah">'+K.esc(T.scroll)+' &darr;</p><label for="ndan">'+K.esc(T.name)+'</label><input type="text" id="ndan" autocomplete="name" maxlength="120" placeholder="'+K.esc(T.ph)+'"><label class="ck"><input type="checkbox" id="ndac"><span>'+K.esc(T.check)+'</span></label><button type="button" class="btn" id="ndag" disabled>'+K.esc(T.btn)+'</button><p class="muted" id="ndam" style="color:#ffb4a8;margin:8px 0 0;font-size:13px"></p></div>';
+ document.body.appendChild(d);document.body.style.overflow='hidden';
+ var nb=$('ndab'),seen=false;
+ function chk(){var m=nb.scrollHeight-nb.clientHeight,pr=m<=4?1:Math.min(1,nb.scrollTop/m);$('ndap').style.width=Math.round(pr*100)+'%';if(pr>=.98&&!seen){seen=true;$('ndaf').classList.remove('lock');$('ndah').textContent=''}upd()}
+ function upd(){$('ndag').disabled=!(seen&&$('ndac').checked&&$('ndan').value.trim().length>=3)}
+ nb.addEventListener('scroll',chk,{passive:true});$('ndac').onchange=upd;$('ndan').oninput=upd;setTimeout(chk,100);window.addEventListener('resize',chk);
+ $('ndag').onclick=function(){var b=this;b.disabled=true;b.textContent=T.saving;$('ndam').textContent='';
+  K.sb.rpc('nda_accept',{p_version:KNDA.v,p_name:$('ndan').value.trim(),p_lang:L}).then(function(r){
+   if(r.error){b.disabled=false;b.textContent=T.btn;$('ndam').textContent=T.err;return}
+   P.nda_version=KNDA.v;P.nda_name=$('ndan').value.trim();P.nda_at=new Date().toISOString();d.remove();document.body.style.overflow='';obCard();obAuto()})}
+}
+function ndaView(){var T=KNDA[ndaL()],dt=P&&P.nda_at?new Date(P.nda_at).toLocaleDateString(({tr:'tr-TR',es:'es-US',en:'en-US'})[ndaL()]):'';
+ sheet('<h3>'+K.esc(T.view)+'</h3><div class="nb2" style="font-size:14.5px;line-height:1.55">'+(ndaOk()?'<p class="tag done" style="display:inline-block;margin:0 0 10px">'+K.esc(T.done)+' · '+K.esc(P.nda_name||'')+(dt?' · '+K.esc(dt):'')+' · '+K.esc(T.ver)+' '+(P.nda_version||'')+'</p>':'')+ndaBody(T)+'</div>')}
 K.start(function(){
  K.sb.from('partners').select('*').limit(1).then(function(r){
   P=r.data&&r.data[0]; if(!P){$('none').hidden=false;return}
-  $('main').hidden=false;$('newjob').hidden=false;$('hello').textContent='Merhaba, '+P.name;
+  $('main').hidden=false;$('newjob').hidden=false;ndaGate();$('hello').textContent='Merhaba, '+P.name;
   var link=K.refLink(P.code);$('rl').textContent=link;$('code').textContent=P.code;$('pct').textContent='%'+Number(P.commission_pct);$('qr').innerHTML=K.qrSvg(link);
   $('wa').onclick=function(){window.open(wa('Kais Junk Remove ile hurda ve esya cikarma isi icin: '+link),'_blank')};
   $('copy').onclick=function(){navigator.clipboard.writeText(link).then(function(){$('copy').textContent='Kopyalandi'})};
   $('dl').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('qr').innerHTML],{type:'image/svg+xml'}));a.download='kais-'+P.code+'-qr.svg';a.click()};
-  loadLeads();loadNotes();trPrev();obCard();obAuto();KJC.pushSub('partner',(window.KJI&&KJI.lang)||'en');
+  loadLeads();loadNotes();trPrev();obCard();if(ndaOk())obAuto();KJC.pushSub('partner',(window.KJI&&KJI.lang)||'en');
   try{var dq=KJQuote.today(window.KJI?KJI.lang:'en');$('dql').textContent=({tr:'Günün sözü',es:'Frase del día',en:'Quote of the day'})[(window.KJI&&KJI.lang)||'en']||'Quote of the day';$('dqt').textContent=dq.text;$('dqb').textContent=dq.by;$('dq').hidden=false}catch(e){}
  });
 });})();

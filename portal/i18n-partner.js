@@ -26,7 +26,7 @@ KJI.add([
 ['Bu link veya QR ile gelen her musteri senin adina kaydedilir.','Every customer who comes through this link or QR is recorded under your name.','Cada cliente que llegue con este enlace o QR se registra a tu nombre.'],
 ['Kodun:','Your code:','Tu código:'],['Komisyon:','Commission:','Comisión:'],
 ['WhatsApp ile paylas','Share on WhatsApp','Compartir por WhatsApp'],['Kopyala','Copy','Copiar'],['Kopyalandi','Copied','Copiado'],['QR indir','Download QR','Descargar QR'],
-['Bildirim','Alerts','Avisos'],['Ekibim','My team','Mi equipo'],['Odemeler','Payouts','Pagos'],['Metinler','Messages','Mensajes'],['Basarilar','Badges','Logros'],['Egitim','Training','Guía'],['Pazarlama','Marketing','Marketing'],['Destek','Support','Soporte'],['Itiraz','Dispute','Reclamo'],['Profil','Profile','Perfil'],
+['Bildirim','Alerts','Avisos'],['Gizlilik','Confidentiality','Confidencialidad'],['Ekibim','My team','Mi equipo'],['Odemeler','Payouts','Pagos'],['Metinler','Messages','Mensajes'],['Basarilar','Badges','Logros'],['Egitim','Training','Guía'],['Pazarlama','Marketing','Marketing'],['Destek','Support','Soporte'],['Itiraz','Dispute','Reclamo'],['Profil','Profile','Perfil'],
 ['Bildirimler','Notifications','Notificaciones'],['Henuz bildirim yok.','No notifications yet.','Aún no hay notificaciones.'],['Kapat','Close','Cerrar'],
 ['Son 7 gun talep','Requests (7 days)','Solicitudes (7 días)'],['Tamamlanan','Completed','Completados'],['Kazancin','Your earnings','Tus ganancias'],
 ['Bu ay kazanc','Earned this month','Ganado este mes'],['Toplam kazanc','Total earned','Total ganado'],['Odeme bekleyen','Awaiting payout','Pago pendiente'],['Tamamlanan is','Completed jobs','Trabajos completados'],
