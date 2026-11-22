@@ -363,9 +363,12 @@ function obOpen(auto){var st=obState(),Y=function(a,b,c){return o3([a,b,c])};
  else s2='<div class="ob-s"><div class="ob-t"><i>2</i><b>'+Y('Bildirimleri ac','Turn on alerts','Activa los avisos')+'</b></div><p>'+Y('Yeni talep, tamamlanan is ve odeme icin bildirim al.','Get alerts for new requests, completed jobs and payments.','Recibe avisos de nuevas solicitudes, trabajos y pagos.')+'</p><button type="button" class="btn" data-ob="notif">🔔 '+Y('Bildirimleri ac','Turn on alerts','Activar avisos')+'</button></div>';
  sheet('<h3>'+Y('Kurulum','Setup','Configuración')+'</h3><div class="ob-h"><img src="icon-192.png" alt=""><div><h4>'+Y('Kais Partner\'i telefonuna ekle','Add Kais Partner to your phone','Agrega Kais Partner a tu teléfono')+'</h4><p>'+Y('Daha hizli, uygulama gibi, hicbir bildirimi kacirma.','Faster, like an app, never miss an alert.','Más rápido, como una app, sin perder avisos.')+'</p></div></div><div class="ob-bar"><i style="width:'+Math.max(8,st.n*50)+'%"></i></div>'+s1+s2
   +'<div class="ob-b">'+(st.all?'<button type="button" class="btn" data-x>🎉 '+Y('Hazirim','All set','Listo')+'</button>':'<button type="button" class="btn ghost" data-ob="later">'+Y('Sonra','Later','Luego')+'</button>')+'</div>');
- if(auto){var o=obGet();o.n=(o.n||0)+1;o.t=Date.now();obSet(o)}}
-function obAuto(){if(!P||!obMobile())return;var st=obState();if(st.all){var o0=obGet();if(!o0.done){o0.done=1;obSet(o0)}return}var o=obGet();if(o.done)return;if((o.n||0)>=3)return;if(o.t&&Date.now()-o.t<2*864e5)return;
- setTimeout(function(){if($('sheet')&&$('sheet').hidden)obOpen(true)},1600)}
+ if(auto){var o=obGet();o.t=Date.now();o.s=1;obSet(o)}}
+function obDue(){var st=obState();if(st.all)return false;var o=obGet();
+ if(st.canN&&st.perm!=='granted')return !o.s;
+ return !o.t||Date.now()-o.t>=2*36e5}
+function obTry(){if(!P||!obMobile()||!$('sheet')||!$('sheet').hidden)return;if(obDue())obOpen(true)}
+function obAuto(){if(!P||!obMobile())return;var st=obState();if(st.all)return;var o=obGet();delete o.s;obSet(o);setTimeout(obTry,1600);setInterval(obTry,10*60*1000);document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(obTry,800)})}
 $('onbc').addEventListener('click',function(){obOpen(false)});
 $('sheetbox').addEventListener('click',function(e){var b=e.target.closest('[data-ob]');if(!b)return;var a=b.dataset.ob;
  if(a==='later'){closeSheet();obCard();return}
