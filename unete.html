@@ -1,6 +1,21 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><style>html{touch-action:manipulation}@view-transition{navigation:auto}
 ::view-transition-old(root){animation:vtout .22s ease both}::view-transition-new(root){animation:vtin .32s cubic-bezier(.2,.8,.2,1) both}@keyframes vtout{to{opacity:0}}@keyframes vtin{from{opacity:0;transform:translateY(14px)}}
 main{animation:jin .45s cubic-bezier(.2,.8,.2,1) both}@keyframes jin{from{opacity:0;transform:translateY(14px)}}@media(prefers-reduced-motion:reduce){main{animation:none}}
+
+/* apply form v2 */
+form.card{padding:0!important;overflow:hidden;scroll-margin-top:80px}
+.fp{position:sticky;top:0;z-index:5;background:#fff;padding:12px 16px 10px;border-bottom:1px solid var(--line)}
+.fp div{height:6px;border-radius:99px;background:var(--paper,#F4F1EC);overflow:hidden}.fp i{display:block;height:100%;width:8%;background:linear-gradient(90deg,#F26B1D,#E9A23B);border-radius:99px;transition:width .35s}
+.fp small{display:flex;justify-content:space-between;margin:6px 0 0;font-size:12px}
+.fs{padding:18px 16px 6px;scroll-margin-top:70px}.fs+.fs{border-top:1px solid var(--line)}
+.fs h4{margin:0 0 4px;display:flex;align-items:center;gap:10px;font:700 17px 'Bricolage Grotesque',sans-serif}.fs h4 i{width:26px;height:26px;border-radius:50%;background:var(--tint);color:var(--deep);display:grid;place-items:center;font-style:normal;font-size:13px}
+.fs label{font-size:14px}.fs label em{font-style:normal;font-weight:400;color:var(--muted)}
+.ch{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}
+.ch button{width:auto;margin:0;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:99px;padding:10px 16px;font-weight:600;font-size:14.5px;transition:.15s}
+.ch button:hover{background:#fff;border-color:var(--orange)}.ch button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.fs textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;min-height:84px;resize:vertical}.fs textarea:focus{outline:2px solid var(--orange);border-color:var(--orange)}
+.fa{padding:6px 16px 18px}.fa small{margin-top:12px}
+.fa button#b{margin-top:8px;padding:15px;font-size:16px;border-radius:14px;box-shadow:0 12px 24px -14px #C2500Faa}
 </style><script>document.addEventListener("gesturestart",function(e){e.preventDefault()},{passive:false})</script><title>Sé Socio de Kais | Kais Junk Remove</title>
 <meta name="description" content="Recomienda clientes a Kais Junk Remove y gana una comisión por cada trabajo completado. Unirse es gratis.">
 <link rel="canonical" href="https://kaisremoval.com/unete.html">
@@ -88,26 +103,42 @@ form.card{padding:16px!important;border-radius:18px}form.card label{margin:10px 
 <div class="step"><i>3</i><span><b>Sigue y cobra</b><br>Mira cada trabajo y tu comisión en tu panel de socio.</span></div>
 </div>
 <form class="card" id="f" novalidate>
+<div class="fp"><div><i id="fpb"></i></div><small class="muted"><span>Toma un minuto. Las preguntas nos ayudan a aprobarte más rápido.</span><span id="fpt">0%</span></small></div>
+<section class="fs"><h4><i>1</i>Sobre ti</h4>
 <label for="n">Nombre completo</label><input id="n" autocomplete="name" required>
 <label for="e">Correo electrónico</label><input id="e" type="email" autocomplete="email" required>
 <label for="p">Teléfono (opcional)</label><input id="p" type="tel" autocomplete="tel">
-<button id="b">Solicitar unirme</button><div id="m" class="msg" hidden></div>
-<small>La comisión se paga por trabajos completados y pagados por el cliente.</small>
+<label for="c">Ciudad o zona donde trabajas (opcional)</label><input id="c" autocomplete="address-level2"></section>
+<section class="fs"><h4><i>2</i>Tu trabajo</h4>
+<label>¿A qué te dedicas? <em>(opcional)</em></label><div class="ch" data-q="job"><button type="button" data-v="Emlakci">Agente inmobiliario</button><button type="button" data-v="Mulk yoneticisi">Administrador de propiedades</button><button type="button" data-v="Nakliye / usta">Mudanzas / contratista</button><button type="button" data-v="Temizlik / hizmet">Limpieza / servicios</button><button type="button" data-v="Diger">Otro</button></div>
+<label>¿Cuántos clientes podrías traer al mes? <em>(opcional)</em></label><div class="ch" data-q="vol"><button type="button" data-v="1-2">1-2</button><button type="button" data-v="3-5">3-5</button><button type="button" data-v="6-10">6-10</button><button type="button" data-v="10+">10+</button><button type="button" data-v="Emin degil">Aún no sé</button></div>
+<label>¿Cómo supiste de nosotros? <em>(opcional)</em></label><div class="ch" data-q="src"><button type="button" data-v="Instagram">Instagram</button><button type="button" data-v="Facebook">Facebook</button><button type="button" data-v="Arkadas / ortak">Amigo o socio</button><button type="button" data-v="Google">Google</button><button type="button" data-v="Diger">Otro</button></div>
+<label for="mo">Cuéntanos un poco más (opcional)</label><textarea id="mo" maxlength="120" placeholder="Dónde trabajas, a quién conoces, lo que ayude"></textarea></section>
+<div class="fa"><button id="b">Solicitar unirme</button><div id="m" class="msg" hidden></div>
+<small>La comisión se paga por trabajos completados y pagados por el cliente.</small></div>
 </form><p class="qs">"Se te pagará en proporción directa al valor que creas." T. Harv Eker</p></main><div class="stk" id="stk"><a href="#f">Solicitar unirme <b>&rarr;</b></a></div>
 <script src="portal/config.js"></script>
 <script src="attr.js"></script>
 <script>
 (function(){var K=window.KJ||{},sp=(new URLSearchParams(location.search).get('sp')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
-var f=document.getElementById('f'),m=document.getElementById('m'),b=document.getElementById('b');
+var f=document.getElementById('f'),m=document.getElementById('m'),b=document.getElementById('b'),A={},$=function(i){return document.getElementById(i)};
+var T={"bad": "Escribe tu nombre y un correo válido.", "fail": "No se pudo enviar. Inténtalo de nuevo.", "closed": "Las solicitudes aún no están abiertas. Vuelve pronto.", "ok": "¡Gracias! Recibimos tu solicitud. Te escribiremos por correo cuando te aprobemos. Luego entra a la página de socios con este correo."};
 function say(t,bad){m.hidden=false;m.className='msg '+(bad?'err':'ok');m.textContent=t}
+function prog(){var s=[$('n').value.trim().length>1,/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($('e').value.trim()),!!A.job,!!A.vol,!!A.src],n=s.filter(Boolean).length,pc=Math.max(8,Math.round(n/5*100));$('fpb').style.width=pc+'%';$('fpt').textContent=n+'/5'}
+f.addEventListener('input',prog);
+if(sp){var fr=f.querySelector('[data-q=src] [data-v="Arkadas / ortak"]');if(fr){fr.classList.add('on');A.src='Arkadas / ortak'}}
+f.addEventListener('click',function(e){var c=e.target.closest('.ch button');if(!c)return;var g=c.parentNode,q=g.dataset.q,on=c.classList.contains('on');g.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(on){delete A[q]}else{c.classList.add('on');A[q]=c.dataset.v;var nx=g.nextElementSibling;while(nx&&nx.tagName!=='LABEL')nx=nx.nextElementSibling;if(nx&&nx.nextElementSibling&&nx.nextElementSibling.classList.contains('ch'))setTimeout(function(){nx.scrollIntoView({behavior:'smooth',block:'center'})},180)}prog()});
+prog();
 f.addEventListener('submit',function(e){e.preventDefault();
- var n=document.getElementById('n').value.trim(),em=document.getElementById('e').value.trim();
- if(!n||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){say('Escribe tu nombre y un correo válido.',true);return}
- if(!K.SUPABASE_URL){say('Las solicitudes aún no están abiertas. Vuelve pronto.',true);return}
+ var n=$('n').value.trim(),em=$('e').value.trim();
+ if(!n||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){say(T.bad,true);return}
+ if(!K.SUPABASE_URL){say(T.closed,true);return}
+ var parts=[];if(A.job)parts.push('Meslek: '+A.job);if(A.vol)parts.push('Aylik musteri: '+A.vol);if(A.src)parts.push('Duydugu yer: '+A.src);if($('c').value.trim())parts.push('Sehir: '+$('c').value.trim().slice(0,40));if($('mo').value.trim())parts.push('Not: '+$('mo').value.trim().replace(/\s+/g,' '));
+ var note=parts.join(' | ').slice(0,300);
  b.disabled=true;
- fetch(K.SUPABASE_URL+'/rest/v1/rpc/apply_partner',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_name:n,p_email:em,p_phone:document.getElementById('p').value.trim(),p_sponsor:sp})})
- .then(function(r){b.disabled=false;if(r.ok){f.reset();say('¡Gracias! Recibimos tu solicitud. Te escribiremos cuando seas aprobado. Luego inicia sesión en la página de socios con este correo.')}else say('No se pudo enviar. Inténtalo de nuevo.',true)})
- .catch(function(){b.disabled=false;say('No se pudo enviar. Inténtalo de nuevo.',true)})});
+ fetch(K.SUPABASE_URL+'/rest/v1/rpc/apply_partner',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_name:n,p_email:em,p_phone:$('p').value.trim(),p_sponsor:sp,p_note:note||null})})
+ .then(function(r){b.disabled=false;if(r.ok){f.reset();A={};f.querySelectorAll('.ch .on').forEach(function(x){x.classList.remove('on')});prog();say(T.ok);m.scrollIntoView({behavior:'smooth',block:'center'})}else say(T.fail,true)})
+ .catch(function(){b.disabled=false;say(T.fail,true)})});
 })();
 </script>
 <script>
