@@ -151,6 +151,14 @@ h4.tm{margin:4px 0 8px;font:700 15px 'Bricolage Grotesque',sans-serif}
 .tq .fb{border-radius:12px;padding:10px 12px;margin:2px 0 10px;font-size:14px}.tq .fb p{margin:4px 0 0;font-weight:500;line-height:1.45}.tq .fb.good{background:#E7F6EC;color:#14532d}.tq .fb.bad{background:#FDECEA;color:#7f1d1d}
 .trv{background:var(--paper);border-radius:14px;padding:10px 12px;margin-top:10px}.trv .rv{padding:8px 0;border-top:1px solid var(--line)}.trv .rv:first-of-type{border-top:0}.trv small{display:block;color:var(--muted)}.trv .rt{font-weight:700;color:#14532d;margin:2px 0}.trv p{margin:2px 0 0;font-weight:500;font-size:13.5px;line-height:1.45}
 .tpv{background:#FFF4EA;border:1px dashed var(--orange);border-radius:12px;padding:8px 12px;font-size:12.5px;margin:0 0 10px}
+.onbc{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 12px;padding:12px 14px;border:1px solid #F26B1D55;background:linear-gradient(120deg,#FFF4EA,#fff);border-radius:16px;font:inherit;color:var(--ink);text-align:left;cursor:pointer;box-shadow:0 10px 24px -18px #F26B1D}.onbc[hidden]{display:none}.onbc .ic{width:38px;height:38px;border-radius:12px;background:var(--orange);display:grid;place-items:center;font-size:19px;flex:none}.onbc b{display:block;font-size:14.5px}.onbc small{color:var(--muted);font-size:12.5px}.onbc .go{margin-left:auto;font-weight:800;color:var(--orange)}
+.ob-h{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;background:linear-gradient(150deg,#1F2421,#2c342f);color:#fff;border-radius:22px;padding:16px;margin:2px 0 12px;position:relative;overflow:hidden}.ob-h:after{content:'';position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,#F26B1D55,transparent 70%)}.ob-h img{width:64px;height:64px;border-radius:16px;box-shadow:0 8px 20px -6px #000}.ob-h h4{margin:0;font:700 17px 'Bricolage Grotesque',sans-serif}.ob-h p{margin:3px 0 0;font-size:13.5px;opacity:.78}
+.ob-bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin:2px 0 12px}.ob-bar i{display:block;height:100%;background:linear-gradient(90deg,#F26B1D,#E9A23B);border-radius:99px;transition:width .5s}
+.ob-s{border:1px solid var(--line);border-radius:18px;padding:14px;margin:0 0 10px;background:#fff}.ob-s.ok{background:#F1FAF4;border-color:#bfe3cc}.ob-s.lock{opacity:.6}
+.ob-t{display:flex;align-items:center;gap:10px;margin-bottom:6px}.ob-t i{width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font:700 14px 'DM Sans',sans-serif;font-style:normal;flex:none}.ob-s.ok .ob-t i{background:#1b7a3d}.ob-t b{font-size:15.5px}
+.ob-s p{margin:2px 0 8px;font-size:14px;color:#4a4f4b;line-height:1.45}
+.ob-st{display:grid;gap:8px;margin:6px 0 4px}.ob-st div{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:center;background:var(--paper);border-radius:12px;padding:8px 10px;font-size:14px}.ob-st svg{width:28px;height:28px}.ob-st b{font-weight:700}
+.ob-b{display:flex;gap:8px;margin-top:6px}.ob-b .btn{flex:1}
 </style><link rel="manifest" href="manifest-partner.json"><meta name="theme-color" content="#f97316"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"></head><body>
 <header><b><a href="../index.html" aria-label="Kais Junk Remove, home" style="color:inherit;text-decoration:none;display:inline-block;padding:6px 0">Kais <span>Partner</span></a></b><button id="logout">Cikis</button></header>
 <main>
@@ -165,7 +173,7 @@ h4.tm{margin:4px 0 8px;font:700 15px 'Bricolage Grotesque',sans-serif}
 <div class="hbtns"><button class="btn wa" id="wa">WhatsApp ile paylas</button><button class="btn ghost" id="copy">Kopyala</button><button class="btn ghost" id="dl">QR indir</button></div></section>
 <div id="smart"></div>
 <div id="camp"></div>
-<div class="menu" id="menu"><button data-m="notes"><i>🔔</i>Bildirim <span class="bd" id="bd" hidden></span></button><button data-m="team"><i>👥</i>Ekibim</button><button data-m="pay"><i>💵</i>Odemeler</button><button data-m="share"><i>💬</i>Metinler</button><button data-m="ach"><i>🏆</i>Basarilar</button><button data-m="learn"><i>🎓</i>Egitim <span class="bd" id="lbd" hidden></span></button><button data-m="kit"><i>🖨️</i>Pazarlama</button><button data-m="sup"><i>🛟</i>Destek</button><button data-m="claim"><i>⚖️</i>Itiraz</button><button data-m="prof"><i>👤</i>Profil</button></div>
+<button type="button" class="onbc" id="onbc" hidden></button><div class="menu" id="menu"><button data-m="notes"><i>🔔</i>Bildirim <span class="bd" id="bd" hidden></span></button><button data-m="team"><i>👥</i>Ekibim</button><button data-m="pay"><i>💵</i>Odemeler</button><button data-m="share"><i>💬</i>Metinler</button><button data-m="ach"><i>🏆</i>Basarilar</button><button data-m="learn"><i>🎓</i>Egitim <span class="bd" id="lbd" hidden></span></button><button data-m="kit"><i>🖨️</i>Pazarlama</button><button data-m="sup"><i>🛟</i>Destek</button><button data-m="claim"><i>⚖️</i>Itiraz</button><button data-m="prof"><i>👤</i>Profil</button></div>
 <div class="week" id="week" hidden></div>
 <div class="card" id="lvl" hidden></div>
 <div class="grid" id="stats" style="margin-bottom:8px"></div>
@@ -225,9 +233,9 @@ $('smart').addEventListener('click',function(e){var b=e.target.closest('[data-sm
 var OV=[],TEAM=[],LV=null,NOTES=[],WEEK=null,CAMPS=[];
 function drawBell(){var n=NOTES.filter(function(x){return !x.read}).length;$('bd').hidden=!n;$('bd').textContent=n}
 var SEEN=null;
-function loadNotes(){return K.sb.rpc('my_notes').then(function(r){NOTES=r.data||[];var n=NOTES.filter(function(x){return !x.read});if(SEEN!==null&&n.length>SEEN&&window.Notification&&Notification.permission==='granted'&&document.hidden){try{new Notification('Kais Partner',{body:KJI.tx(n[0].text),icon:'icon-192.png'})}catch(e){}}SEEN=n.length;drawBell()})}
+function loadNotes(){return K.sb.rpc('my_notes').then(function(r){NOTES=r.data||[];var n=NOTES.filter(function(x){return !x.read});if(SEEN!==null&&n.length>SEEN&&window.Notification&&Notification.permission==='granted'&&document.hidden){showNote(KJI.tx(n[0].text))}SEEN=n.length;drawBell()})}
 setInterval(function(){if(K.sb)loadNotes()},60000);
-if(window.Notification&&Notification.permission==='default'){document.addEventListener('click',function f(){document.removeEventListener('click',f);Notification.requestPermission()},{once:true})}
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&K.sb)loadNotes()});
 var TPL=[['English',"Got stuff you need gone? Kais Junk Remove hauls it away anywhere in Florida. Send photos, get your quote on WhatsApp.\n{L}"],
 ['English (short)',"Need junk removed in Florida? Quote by photo, open 24/7: {L}"],
 ['Espanol',"Tienes cosas que quieres sacar de casa? Kais Junk Remove las retira en todo Florida. Manda fotos y recibe tu cotizacion por WhatsApp: {L}"],
@@ -325,6 +333,45 @@ $('sheetbox').addEventListener('click',function(e){var b=e.target.closest('[data
    c.done_at=new Date().toISOString();if(sc!=null)c.score=sc;trBadge();TQ=null;var x=trStats();if(x.d===x.n)trCert();else sheet(trList())});return}
  if(a==='undo'){var id2=b.dataset.id,c2=TCR.find(function(x){return x.id===id2});if(TPREV){var lo2=trLocal();delete lo2[id2];trLocalSet(lo2);c2.done_at=null;c2.score=null;trBadge();TQ=null;trLesson(id2);return}K.sb.rpc('training_undo',{p_course:id2}).then(function(r){if(r.error)return;c2.done_at=null;c2.score=null;trBadge();TQ=null;trLesson(id2)});return}});
 $('sheetbox').addEventListener('input',function(e){var t=e.target;if(t.dataset&&t.dataset.tr==='cj'){TCV.jobs=Number(t.value);trCalcUpd()}});
+
+// ---- Kurulum rehberi (ana ekrana ekle + bildirim izni)
+var OBE=null,OBL=(window.KJI&&KJI.lang)||'en';
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();OBE=e;obCard()});
+window.addEventListener('appinstalled',function(){OBE=null;obCard()});
+function o3(a){return a[OBL==='tr'?0:OBL==='es'?2:1]}
+function obStandalone(){return !!((window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone)}
+function obIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)}
+function obMobile(){return obIOS()||/android/i.test(navigator.userAgent)}
+function obSafari(){return obIOS()&&!/CriOS|FxiOS|EdgiOS|OPiOS|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent)}
+function obNotifOK(){return 'Notification' in window&&(!obIOS()||obStandalone())}
+function obPerm(){return 'Notification' in window?Notification.permission:'unsupported'}
+function obGet(){try{return JSON.parse(localStorage.getItem('kj_onb')||'{}')}catch(e){return {}}}
+function obSet(o){try{localStorage.setItem('kj_onb',JSON.stringify(o))}catch(e){}}
+function obState(){var inst=obStandalone(),pm=obPerm();return {inst:inst,perm:pm,canN:obNotifOK(),n:(inst?1:0)+(pm==='granted'?1:0),all:inst&&pm==='granted'}}
+function showNote(text){var o={body:text,icon:'icon-192.png',badge:'icon-192.png',tag:'kj-note'};try{if(navigator.serviceWorker&&navigator.serviceWorker.ready){navigator.serviceWorker.ready.then(function(r){return r.showNotification('Kais Partner',o)}).catch(function(){try{new Notification('Kais Partner',o)}catch(e){}})}else new Notification('Kais Partner',o)}catch(e){}}
+function obCard(){var c=$('onbc');if(!c||!P)return;var st=obState();if(st.all||!obMobile()){c.hidden=true;return}c.hidden=false;
+ c.innerHTML='<span class="ic">📲</span><span><b>'+o3(['Kurulumu tamamla','Finish setup','Termina la configuración'])+'</b><small>'+o3(['Ana ekrana ekle ve bildirimleri ac','Add to home screen and turn on alerts','Agrega a inicio y activa los avisos'])+' · '+st.n+'/2</small></span><span class="go">→</span>'}
+function obSteps(){var sh='<svg viewBox="0 0 28 28" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V4M9 9l5-5 5 5M7 13H6a2 2 0 00-2 2v8a2 2 0 002 2h16a2 2 0 002-2v-8a2 2 0 00-2-2h-1"/></svg>',pl='<svg viewBox="0 0 28 28" fill="none" stroke="#1F2421" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="20" height="20" rx="5"/><path d="M14 9v10M9 14h10"/></svg>',ok='<svg viewBox="0 0 28 28" fill="none" stroke="#1b7a3d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="14" r="10"/><path d="M9.5 14.5l3 3 6-6.5"/></svg>';
+ if(obIOS())return '<div class="ob-st"><div>'+sh+'<span>'+o3(['Safari\'de alttaki <b>Paylas</b> simgesine dokun','In Safari, tap the <b>Share</b> icon at the bottom','En Safari, toca el icono <b>Compartir</b> abajo'])+'</span></div><div>'+pl+'<span>'+o3(['<b>"Ana Ekrana Ekle"</b> sec','Choose <b>"Add to Home Screen"</b>','Elige <b>"Añadir a pantalla de inicio"</b>'])+'</span></div><div>'+ok+'<span>'+o3(['<b>Ekle</b>\'ye bas, sonra uygulamayi ana ekrandan ac','Tap <b>Add</b>, then open the app from your home screen','Toca <b>Añadir</b> y abre la app desde tu inicio'])+'</span></div></div>'+(obSafari()?'':'<p style="color:#b45309;font-weight:600">'+o3(['Bu tarayicida olmayabilir. Linki Safari\'de ac.','This may not work in this browser. Open the link in Safari.','Puede no funcionar en este navegador. Abre el enlace en Safari.'])+'</p>');
+ return '<div class="ob-st"><div>'+pl+'<span>'+o3(['Tarayici menusunu (<b>⋮</b>) ac','Open the browser menu (<b>⋮</b>)','Abre el menú del navegador (<b>⋮</b>)'])+'</span></div><div>'+ok+'<span>'+o3(['<b>"Ana ekrana ekle"</b> veya <b>"Uygulamayi yukle"</b> sec','Choose <b>"Add to Home screen"</b> or <b>"Install app"</b>','Elige <b>"Añadir a pantalla de inicio"</b> o <b>"Instalar app"</b>'])+'</span></div></div>'}
+function obOpen(auto){var st=obState(),Y=function(a,b,c){return o3([a,b,c])};
+ var s1=st.inst?'<div class="ob-s ok"><div class="ob-t"><i>✓</i><b>'+Y('Ana ekranda','On your home screen','En tu pantalla de inicio')+'</b></div><p>'+Y('Harika! Uygulamayi ana ekrandan aciyorsun.','Great! You are using the app from your home screen.','¡Genial! Estás usando la app desde tu inicio.')+'</p></div>'
+  :'<div class="ob-s"><div class="ob-t"><i>1</i><b>'+Y('Ana ekrana ekle','Add to home screen','Agrégala a tu inicio')+'</b></div><p>'+Y('Tek dokunusla ac, yeni is ve komisyonu hemen gor.','Open in one tap and see new jobs and commission right away.','Ábrela con un toque y mira trabajos y comisiones al instante.')+'</p>'+(OBE?'<button type="button" class="btn" data-ob="install">📲 '+Y('Ana ekrana ekle','Add to home screen','Agregar a inicio')+'</button>':obSteps())+'</div>';
+ var s2;if(st.perm==='granted')s2='<div class="ob-s ok"><div class="ob-t"><i>✓</i><b>'+Y('Bildirimler acik','Alerts are on','Avisos activados')+'</b></div><p>'+Y('Yeni talep, is ve odeme olunca haberin olacak.','You will know about new requests, jobs and payments.','Sabrás de nuevas solicitudes, trabajos y pagos.')+'</p><button type="button" class="btn ghost sm" data-ob="test">'+Y('Deneme bildirimi gonder','Send a test alert','Enviar aviso de prueba')+'</button></div>';
+ else if(!st.canN)s2='<div class="ob-s lock"><div class="ob-t"><i>2</i><b>'+Y('Bildirimleri ac','Turn on alerts','Activa los avisos')+'</b></div><p>'+(obIOS()?Y('iPhone\'da bildirimler sadece ana ekrandaki uygulamada calisir. Once 1. adimi yap, uygulamayi ana ekrandan ac.','On iPhone, alerts only work in the home screen app. Do step 1 first, then open the app from your home screen.','En iPhone los avisos solo funcionan en la app del inicio. Haz el paso 1 y abre la app desde tu inicio.'):Y('Bu tarayici bildirimleri desteklemiyor.','This browser does not support alerts.','Este navegador no admite avisos.'))+'</p></div>';
+ else if(st.perm==='denied')s2='<div class="ob-s"><div class="ob-t"><i>2</i><b>'+Y('Bildirim engellenmis','Alerts are blocked','Avisos bloqueados')+'</b></div><p>'+Y('Telefon Ayarlari > Kais Partner (veya tarayici) > Bildirimler kismindan izin ver.','Allow it in Phone Settings > Kais Partner (or your browser) > Notifications.','Permítelo en Ajustes > Kais Partner (o tu navegador) > Notificaciones.')+'</p></div>';
+ else s2='<div class="ob-s"><div class="ob-t"><i>2</i><b>'+Y('Bildirimleri ac','Turn on alerts','Activa los avisos')+'</b></div><p>'+Y('Yeni talep, tamamlanan is ve odeme icin bildirim al.','Get alerts for new requests, completed jobs and payments.','Recibe avisos de nuevas solicitudes, trabajos y pagos.')+'</p><button type="button" class="btn" data-ob="notif">🔔 '+Y('Bildirimleri ac','Turn on alerts','Activar avisos')+'</button></div>';
+ sheet('<h3>'+Y('Kurulum','Setup','Configuración')+'</h3><div class="ob-h"><img src="icon-192.png" alt=""><div><h4>'+Y('Kais Partner\'i telefonuna ekle','Add Kais Partner to your phone','Agrega Kais Partner a tu teléfono')+'</h4><p>'+Y('Daha hizli, uygulama gibi, hicbir bildirimi kacirma.','Faster, like an app, never miss an alert.','Más rápido, como una app, sin perder avisos.')+'</p></div></div><div class="ob-bar"><i style="width:'+Math.max(8,st.n*50)+'%"></i></div>'+s1+s2
+  +'<div class="ob-b">'+(st.all?'<button type="button" class="btn" data-x>🎉 '+Y('Hazirim','All set','Listo')+'</button>':'<button type="button" class="btn ghost" data-ob="later">'+Y('Sonra','Later','Luego')+'</button>')+'</div>');
+ if(auto){var o=obGet();o.n=(o.n||0)+1;o.t=Date.now();obSet(o)}}
+function obAuto(){if(!P||!obMobile())return;var st=obState();if(st.all){var o0=obGet();if(!o0.done){o0.done=1;obSet(o0)}return}var o=obGet();if(o.done)return;if((o.n||0)>=3)return;if(o.t&&Date.now()-o.t<2*864e5)return;
+ setTimeout(function(){if($('sheet')&&$('sheet').hidden)obOpen(true)},1600)}
+$('onbc').addEventListener('click',function(){obOpen(false)});
+$('sheetbox').addEventListener('click',function(e){var b=e.target.closest('[data-ob]');if(!b)return;var a=b.dataset.ob;
+ if(a==='later'){closeSheet();obCard();return}
+ if(a==='install'&&OBE){OBE.prompt();OBE.userChoice&&OBE.userChoice.then(function(c){OBE=null;obCard();if(c&&c.outcome==='accepted'){var o=obGet();o.inst=1;obSet(o)}obOpen(false)});return}
+ if(a==='notif'){var p;try{p=Notification.requestPermission()}catch(e2){p=null}Promise.resolve(p).then(function(r){obCard();obOpen(false);if(r==='granted')showNote(o3(['Bildirimler acik. Yeni is gelince haberin olacak.','Alerts are on. You will know when new jobs arrive.','Avisos activados. Sabrás cuando lleguen trabajos nuevos.']))});return}
+ if(a==='test'){showNote(o3(['Bu bir deneme bildirimi. Her sey hazir!','This is a test alert. All good!','Este es un aviso de prueba. ¡Todo listo!']));b.textContent='✓ '+o3(['Gonderildi','Sent','Enviado']);return}});
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-dl]');if(!b)return;var cv=document.querySelector('canvas[data-kit="'+b.dataset.dl+'"]');cv.toBlob(function(bl){var a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='kais-'+b.dataset.dl+'-'+P.code+'.png';a.click()})});
 $('menu').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b)menuOpen(b.dataset.m)});
 var EVS=[],PHS=[];
@@ -349,8 +396,8 @@ K.start(function(){
   $('wa').onclick=function(){window.open(wa('Kais Junk Remove ile hurda ve esya cikarma isi icin: '+link),'_blank')};
   $('copy').onclick=function(){navigator.clipboard.writeText(link).then(function(){$('copy').textContent='Kopyalandi'})};
   $('dl').onclick=function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('qr').innerHTML],{type:'image/svg+xml'}));a.download='kais-'+P.code+'-qr.svg';a.click()};
-  loadLeads();loadNotes();trPrev();
+  loadLeads();loadNotes();trPrev();obCard();obAuto();
   try{var dq=KJQuote.today(window.KJI?KJI.lang:'en');$('dql').textContent=({tr:'Günün sözü',es:'Frase del día',en:'Quote of the day'})[(window.KJI&&KJI.lang)||'en']||'Quote of the day';$('dqt').textContent=dq.text;$('dqb').textContent=dq.by;$('dq').hidden=false}catch(e){}
  });
 });})();
-</script><script src="pwa.js"></script></body></html>
+</script><script>window.kjNoPwaBanner=1</script><script src="pwa.js"></script></body></html>

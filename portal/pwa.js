@@ -21,6 +21,7 @@ es:['Instalar como app','Agrégala a tu pantalla de inicio.','Instalar','Luego',
 en:['Install as an app','Add it to your home screen for one-tap access.','Install','Later','Safari: tap Share > "Add to Home Screen"']}[L]||null;
 T=T||['Install as an app','Add it to your home screen for one-tap access.','Install','Later','Safari: tap Share > "Add to Home Screen"'];
 function done(){try{localStorage.setItem('kj_pwa_no','1')}catch(e){}}
+if(window.kjNoPwaBanner)return;
 if(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone){done();return}
 window.addEventListener('appinstalled',done);
 try{var seen=+localStorage.getItem('kj_pwa_seen')||0;if(localStorage.getItem('kj_pwa_no')||seen>=1)return}catch(e){}
