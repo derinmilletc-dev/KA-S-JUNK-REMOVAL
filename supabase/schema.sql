@@ -599,21 +599,31 @@ drop policy if exists admin_all_apps on partner_applications;
 create policy admin_all_apps on partner_applications for all using (is_admin()) with check (is_admin());
 
 alter table partner_applications add column if not exists lang text not null default 'en';
-drop function if exists apply_partner(text,text,text,text);
-drop function if exists apply_partner(text,text,text,text,text,text,text);
-create or replace function apply_partner(p_name text, p_email text, p_phone text, p_sponsor text, p_kind text default 'individual', p_company text default null, p_note text default null, p_lang text default 'en') returns void
+alter table partner_applications add column if not exists token uuid not null default gen_random_uuid();
+create unique index if not exists partner_applications_token_idx on partner_applications(token);
+drop function if exists apply_partner(text,text,text,text,text,text,text,text);
+create or replace function apply_partner(p_name text, p_email text, p_phone text, p_sponsor text, p_kind text default 'individual', p_company text default null, p_note text default null, p_lang text default 'en') returns text
 language plpgsql security definer set search_path = public as $$
+declare t uuid;
 begin
   if coalesce(trim(p_name),'') = '' or coalesce(p_email,'') !~ '^[^@ ]+@[^@ ]+[.][^@ ]+$' then raise exception 'invalid'; end if;
   if not rate_ok('app:' || client_key(), 3, interval '1 hour') then raise exception 'too many requests'; end if;
-  if exists (select 1 from partners where lower(email) = lower(trim(p_email))) then return; end if;
-  if exists (select 1 from partner_applications where lower(email) = lower(trim(p_email)) and status = 'pending') then return; end if;
+  if exists (select 1 from partners where lower(email) = lower(trim(p_email))) then return 'member'; end if;
+  select token into t from partner_applications where lower(email) = lower(trim(p_email)) and status = 'pending' order by created_at desc limit 1;
+  if t is not null then return t::text; end if;
   insert into partner_applications(name, email, phone, sponsor_code, kind, company, note, lang)
   values (left(trim(p_name),120), lower(left(trim(p_email),200)), left(p_phone,40), nullif(upper(left(trim(coalesce(p_sponsor,'')),12)),''),
           case when p_kind = 'business' then 'business' else 'individual' end, left(p_company,120), left(p_note,300),
-          case when p_lang in ('tr','es') then p_lang else 'en' end);
+          case when p_lang in ('tr','es') then p_lang else 'en' end)
+  returning token into t;
+  return t::text;
 end $$;
 grant execute on function apply_partner(text,text,text,text,text,text,text,text) to anon, authenticated;
+create or replace function application_status(p_token uuid) returns text
+language sql security definer stable set search_path = public as $$
+  select coalesce((select status from partner_applications where token = p_token), 'none')
+$$;
+grant execute on function application_status(uuid) to anon, authenticated;
 
 create or replace function approve_application(p_id uuid) returns void
 language plpgsql security definer set search_path = public as $$

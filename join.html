@@ -116,6 +116,22 @@ form.card{padding:16px!important;border-radius:18px}form.card label{margin:10px 
 @keyframes kpulse{0%,100%{box-shadow:0 0 0 0 #F26B1D66}50%{box-shadow:0 0 0 8px #F26B1D00}}
 @keyframes kfall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(420px) rotate(540deg)}}
 @media(prefers-reduced-motion:reduce){#ok *{animation:none!important}#ok .ck path{stroke-dashoffset:0}}
+</style><style>
+#ok .x{position:absolute;top:10px;right:12px;border:0;background:#F3EEE4;width:32px;height:32px;border-radius:50%;font-size:18px;line-height:1;cursor:pointer;color:#5F6762}
+#ok .rv{width:84px;height:84px;margin:0 auto 18px;position:relative;display:grid;place-items:center;font-size:36px}
+#ok .rv:before,#ok .rv:after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid #F26B1D;opacity:0;animation:krad 2.2s infinite}
+#ok .rv:after{animation-delay:1.1s}#ok .rv b{position:relative;width:70px;height:70px;border-radius:50%;background:#FDEBDD;display:grid;place-items:center;font-weight:400}
+#ok .lv{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#16A34A;background:#E3F5EA;border-radius:99px;padding:5px 12px;margin-bottom:14px}
+#ok .lv i{width:8px;height:8px;border-radius:50%;background:#16A34A;animation:kpulse2 1.4s infinite}
+#ok .st span.w b{background:#EFE9DC}
+#ok .st:before{display:none}
+#ok .ico{width:84px;height:84px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;font-size:38px;background:#EDE9FE}
+#ok a.sec{background:#F3EEE4;color:#1F2421}
+#kpill{position:fixed;left:14px;bottom:14px;z-index:60;display:none;align-items:center;gap:8px;background:#1F2421;color:#fff;border:0;border-radius:99px;padding:11px 16px 11px 13px;font:600 14px/1 inherit;font-family:inherit;box-shadow:0 10px 30px -8px #0008;cursor:pointer}
+#kpill.on{display:flex}#kpill i{width:9px;height:9px;border-radius:50%;background:#F59E0B;animation:kpulse2 1.4s infinite}#kpill.a i{background:#16A34A}#kpill.r i{background:#8B5CF6}
+@keyframes krad{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.35);opacity:0}}
+@keyframes kpulse2{0%,100%{opacity:1}50%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){#ok .rv:before,#ok .rv:after{display:none}}
 </style></head><body>
 <header style="display:flex;justify-content:space-between;align-items:center"><div><a href="index.html" aria-label="Kais Junk Remove, home" style="color:inherit;text-decoration:none;border:0;padding:0;font:inherit;border-radius:0">Kais <span>Junk Remove</span></a></div><span style="display:flex;align-items:center"><a href="portal/partner.html" style="color:#fff;font:600 14px 'DM Sans',sans-serif;text-decoration:none;border:1px solid #ffffff55;border-radius:10px;padding:7px 12px">Partner login</a><a href="unete.html" hreflang="es" style="color:#fff;font:600 14px 'DM Sans',sans-serif;text-decoration:none;border:1px solid #ffffff55;border-radius:10px;padding:7px 12px;margin-left:8px">ES</a></span></header>
 <main>
@@ -152,15 +168,41 @@ form.card{padding:16px!important;border-radius:18px}form.card label{margin:10px 
 <div class="fa"><button id="b">Apply to join</button><div id="m" class="msg" hidden></div>
 <small>Commission is paid on jobs that are completed and paid by the customer.</small></div>
 </form><p class="qs">"You will be paid in direct proportion to the value you create." T. Harv Eker</p></main><div class="stk" id="stk"><a href="#f">Apply to join <b>&rarr;</b></a></div>
-<div id="ok" role="dialog" aria-modal="true" aria-labelledby="okh"><div class="bx"><div class="ck"><svg viewBox="0 0 52 52"><path d="M12 27l9 9 19-20"/></svg></div><h2 id="okh">Application received!</h2><p>Your request is under review. We will email you very shortly. Please check your inbox and stay tuned.</p><div class="st"><span class="d"><b>&#10003;</b>Received</span><span class="c"><b>2</b>Under review</span><span><b>3</b>Approved by email</span></div><div class="sp">&#128236; Our email may land in Spam or Junk. Please check there too.</div><div class="bye">Have a great day! &#128154;</div><a href="index.html">Back to home</a></div></div><script src="portal/config.js"></script>
+<div id="ok" role="dialog" aria-modal="true"><div class="bx" id="okb"></div></div><button id="kpill" type="button"></button><script src="portal/config.js"></script>
 <script src="attr.js"></script>
 <script>
 (function(){var K=window.KJ||{},sp=(new URLSearchParams(location.search).get('sp')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
 var f=document.getElementById('f'),m=document.getElementById('m'),b=document.getElementById('b'),A={},$=function(i){return document.getElementById(i)};
 var T={"bad": "Please enter your name and a valid email.", "fail": "Could not send. Please try again.", "closed": "Applications are not open yet. Please check back soon.", "ok": "Thanks! We received your application. We will email you once you are approved. Then log in at the partner page with this email."};
-function celebrate(){var o=$('ok'),bx=o.querySelector('.bx');o.classList.add('on');document.body.style.overflow='hidden';
- var c=['#F26B1D','#16A34A','#F59E0B','#1F2421','#3B82F6'];for(var i=0;i<28;i++){var d=document.createElement('i');d.className='cf';d.style.left=(Math.random()*100)+'%';d.style.background=c[i%5];d.style.animationDelay=(Math.random()*.6)+'s';bx.appendChild(d)}
- setTimeout(function(){bx.querySelectorAll('.cf').forEach(function(x){x.remove()})},3500)}
+var TX={"review_t": "Under review", "review_p": "Your request is being reviewed. We will email you very shortly. Keep this page open or come back later: it updates by itself.", "live": "Live · checking automatically", "s1": "Received", "s2": "Under review", "s3": "Decision", "spam": "Our email may land in Spam or Junk. Please check there too.", "bye": "Have a great day!", "ok_t": "You're approved! 🎉", "ok_p": "Welcome aboard! We emailed you a link to create your password. Check your inbox (and Spam).", "ok_b": "Go to partner login", "no_t": "Not approved this time", "no_p": "Thank you for your interest. We can't add you right now. If you have questions, call or text us and we'll be happy to help.", "no_b": "Call us", "mem_t": "You already have an account", "mem_p": "This email is already a partner. Log in with your email and password.", "mem_b": "Go to partner login", "close": "Close", "pill": "Application: ", "pr": "under review", "pa": "approved", "pn": "decision ready", "hi": "Hi", "new": "Start a new application", "tel": "tel:+14074462534"},KEY='kj_app',ST=null,POLL=null,OKST={pending:'review',approved:'ok',rejected:'no'};
+function ld(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}}
+function sv(o){try{o?localStorage.setItem(KEY,JSON.stringify(o)):localStorage.removeItem(KEY)}catch(e){}}
+function confetti(bx){var c=['#F26B1D','#16A34A','#F59E0B','#1F2421','#3B82F6'];for(var i=0;i<28;i++){var d=document.createElement('i');d.className='cf';d.style.left=(Math.random()*100)+'%';d.style.background=c[i%5];d.style.animationDelay=(Math.random()*.6)+'s';bx.appendChild(d)}setTimeout(function(){bx.querySelectorAll('.cf').forEach(function(x){x.remove()})},3500)}
+function steps(n){var l=[TX.s1,TX.s2,TX.s3],h='<div class="st">';l.forEach(function(t,i){h+='<span class="'+(i<n?'d':i==n?'c':'w')+'"><b>'+(i<n?'&#10003;':i+1)+'</b>'+t+'</span>'});return h+'</div>'}
+function draw(st,first){var bx=$('okb'),a=ld()||{},nm=a.n?' '+a.n:'',h='<button class="x" id="okx" aria-label="'+TX.close+'">&times;</button>';
+ if(st==='review')h+='<div class="rv"><b>&#9203;</b></div><div class="lv"><i></i>'+TX.live+'</div><h2>'+TX.review_t+'</h2><p>'+(a.n?TX.hi+nm+'. ':'')+TX.review_p+'</p>'+steps(1)+'<div class="sp">&#128236; '+TX.spam+'</div><div class="bye">'+TX.bye+' &#128154;</div>';
+ else if(st==='ok')h+='<div class="ck"><svg viewBox="0 0 52 52"><path d="M12 27l9 9 19-20"/></svg></div><h2>'+TX.ok_t+'</h2><p>'+TX.ok_p+'</p>'+steps(3)+'<a href="portal/partner.html">'+TX.ok_b+'</a>';
+ else if(st==='no')h+='<div class="ico">&#128172;</div><h2>'+TX.no_t+'</h2><p>'+TX.no_p+'</p><a href="'+TX.tel+'">'+TX.no_b+'</a>';
+ else h+='<div class="ico">&#128081;</div><h2>'+TX.mem_t+'</h2><p>'+TX.mem_p+'</p><a href="portal/partner.html">'+TX.mem_b+'</a>';
+ bx.innerHTML=h;$('okx').onclick=closeOk;if(st==='ok'&&first){confetti(bx);try{navigator.vibrate&&navigator.vibrate([60,40,60])}catch(e){}}}
+function openOk(st,first){ST=st;draw(st,first);$('ok').classList.add('on');document.body.style.overflow='hidden';pill()}
+function closeOk(){$('ok').classList.remove('on');document.body.style.overflow='';if(ST==='ok'||ST==='no'||ST==='member')sv(null);pill()}
+function pill(){var p=$('kpill'),a=ld();if(!a||$('ok').classList.contains('on')||!ST||ST==='member'){p.className='';p.style.display='none';return}
+ p.style.display='';p.className='on '+(ST==='ok'?'a':ST==='no'?'r':'');p.innerHTML='<i></i>'+TX.pill+(ST==='ok'?TX.pa:ST==='no'?TX.pn:TX.pr);p.onclick=function(){openOk(ST,false)}}
+function check(first){var a=ld();if(!a||!a.t||!K.SUPABASE_URL)return;
+ fetch(K.SUPABASE_URL+'/rest/v1/rpc/application_status',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_token:a.t})})
+ .then(function(r){return r.ok?r.json():null}).then(function(v){if(!v)return;if(v==='none'){sv(null);ST=null;pill();return}
+  var st=OKST[v]||'review',prev=ST;ST=st;
+  if(first)openOk(st,st==='ok');else if(st!==prev)openOk(st,true);
+  if(st!=='review'){clearInterval(POLL);POLL=null}}).catch(function(){})}
+function startPoll(){clearInterval(POLL);POLL=setInterval(function(){if(!document.hidden)check(false)},6000)}
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&ld())check(false)});
+$('ok').addEventListener('click',function(e){if(e.target===$('ok'))closeOk()});
+function celebrate(t,nm){var tk=t&&String(t).replace(/"/g,'');
+ if(tk==='member'){openOk('member',false);return}
+ if(tk){sv({t:tk,n:String(nm||'').trim().split(' ')[0].slice(0,20)})}
+ openOk('review',false);if(tk){startPoll()}}
+(function(){var a=ld();if(a&&a.t){ST='review';check(true);startPoll()}})();
 function say(t,bad){m.hidden=false;m.className='msg '+(bad?'err':'ok');m.textContent=t}
 function prog(){var s=[$('n').value.trim().length>1,/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($('e').value.trim()),!!A.job,!!A.vol,!!A.src],n=s.filter(Boolean).length,pc=Math.max(8,Math.round(n/5*100));$('fpb').style.width=pc+'%';$('fpt').textContent=n+'/5'}
 f.addEventListener('input',prog);(function(){var sc=$('fsc'),fm=$('fmore');if(sc)sc.addEventListener('scroll',function(){if(sc.scrollTop>20)fm.classList.add('off')},{passive:true})})();
@@ -175,7 +217,7 @@ f.addEventListener('submit',function(e){e.preventDefault();
  var note=parts.join(' | ').slice(0,300);
  b.disabled=true;
  fetch(K.SUPABASE_URL+'/rest/v1/rpc/apply_partner',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_name:n,p_email:em,p_phone:$('p').value.trim(),p_sponsor:sp,p_note:note||null,p_lang:'en'})})
-  .then(function(r){b.disabled=false;if(r.ok){f.reset();A={};f.querySelectorAll('select').forEach(function(x){x.classList.remove('v')});prog();celebrate();try{fetch(K.SUPABASE_URL+'/functions/v1/auth-mail',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY},body:JSON.stringify({action:'applied',email:em,lang:'en'})}).catch(function(){})}catch(x){}}else say(T.fail,true)})
+  .then(function(r){b.disabled=false;if(r.ok){f.reset();A={};f.querySelectorAll('select').forEach(function(x){x.classList.remove('v')});prog();r.json().then(function(t){celebrate(t,n)}).catch(function(){celebrate(null,n)});try{fetch(K.SUPABASE_URL+'/functions/v1/auth-mail',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY},body:JSON.stringify({action:'applied',email:em,lang:'en'})}).catch(function(){})}catch(x){}}else say(T.fail,true)})
  .catch(function(){b.disabled=false;say(T.fail,true)})});
 })();
 </script>
