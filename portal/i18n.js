@@ -20,7 +20,7 @@
   function init(o){
     src=o.src||'tr';var langs=o.langs||['tr','en','es'],saved=null;try{saved=localStorage.getItem('kj_lang')}catch(e){}
     var nav=(navigator.language||'en').slice(0,2).toLowerCase();
-    lang=langs.indexOf(saved)>-1?saved:(langs.indexOf(nav)>-1?nav:(langs.indexOf('en')>-1?'en':langs[0]));
+    lang=langs.indexOf(saved)>-1?saved:((nav==='es'&&langs.indexOf('es')>-1)?'es':(langs.indexOf('en')>-1?'en':langs[0]));
     on=lang!==src;document.documentElement.lang=lang;
     function boot(){
       var h=document.querySelector('header');
