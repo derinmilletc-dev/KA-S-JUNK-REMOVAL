@@ -15,6 +15,7 @@ form.card{padding:0!important;overflow:hidden;scroll-margin-top:80px}
 .ch[data-q=vol]{display:grid!important;grid-template-columns:repeat(5,1fr);gap:6px;overflow:visible;margin:6px 0 10px!important;padding:0}.ch[data-q=vol] button{padding:9px 0!important;text-align:center}
 .fs h4{font-size:12px!important;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px!important}.fs h4 i{display:none!important}
 .fs label{margin-top:8px}.fs textarea{min-height:56px!important;resize:none!important;font-size:16px!important}.fs input{font-size:16px!important}html,body{overflow-x:hidden}
+.sel{position:relative;margin:4px 0 10px}.sel select{width:100%;appearance:none;-webkit-appearance:none;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 38px 12px 12px;font:inherit;font-size:16px;color:var(--ink);height:48px}.sel select:invalid,.sel select.e{color:#9a9a92}.sel:after{content:"";position:absolute;right:15px;top:50%;width:8px;height:8px;border-right:2px solid #8a8a82;border-bottom:2px solid #8a8a82;transform:translateY(-70%) rotate(45deg);pointer-events:none}.sel select:focus{outline:2px solid var(--orange);border-color:var(--orange)}.sel select.v{background:#FFF4EA;border-color:var(--orange);font-weight:600}
 .fpx{position:sticky;top:0;z-index:5;background:#fff;padding:12px 16px 10px;border-bottom:1px solid var(--line)}
 .fp div{height:6px;border-radius:99px;background:var(--paper,#F4F1EC);overflow:hidden}.fp i{display:block;height:100%;width:8%;background:linear-gradient(90deg,#F26B1D,#E9A23B);border-radius:99px;transition:width .35s}
 .fp small{display:flex;justify-content:space-between;margin:6px 0 0;font-size:12px}
@@ -122,9 +123,9 @@ form.card{padding:16px!important;border-radius:18px}form.card label{margin:10px 
 </section>
 <section class="fs"><h4><i>2</i>Tu trabajo</h4>
 <label for="c">Ciudad o zona donde trabajas (opcional)</label><input id="c" autocomplete="address-level2">
-<label>¿A qué te dedicas? <em>(opcional)</em></label><div class="ch" data-q="job"><button type="button" data-v="Emlakci">Agente inmobiliario</button><button type="button" data-v="Mulk yoneticisi">Administrador de propiedades</button><button type="button" data-v="Nakliye / usta">Mudanzas / contratista</button><button type="button" data-v="Temizlik / hizmet">Limpieza / servicios</button><button type="button" data-v="Diger">Otro</button></div>
-<label>¿Cuántos clientes podrías traer al mes? <em>(opcional)</em></label><div class="ch" data-q="vol"><button type="button" data-v="1-2">1-2</button><button type="button" data-v="3-5">3-5</button><button type="button" data-v="6-10">6-10</button><button type="button" data-v="10+">10+</button><button type="button" data-v="Emin degil">No sé</button></div>
-<label>¿Cómo supiste de nosotros? <em>(opcional)</em></label><div class="ch" data-q="src"><button type="button" data-v="Instagram">Instagram</button><button type="button" data-v="Facebook">Facebook</button><button type="button" data-v="Arkadas / ortak">Amigo o socio</button><button type="button" data-v="Google">Google</button><button type="button" data-v="Diger">Otro</button></div>
+<label for="q_job">¿A qué te dedicas? <em>(opcional)</em></label><div class="sel"><select data-q="job" id="q_job"><option value="">Elegir…</option><option value="Emlakci">Agente inmobiliario</option><option value="Mulk yoneticisi">Administrador de propiedades</option><option value="Nakliye / usta">Mudanzas / contratista</option><option value="Temizlik / hizmet">Limpieza / servicios</option><option value="Diger">Otro</option></select></div>
+<label for="q_vol">¿Cuántos clientes podrías traer al mes? <em>(opcional)</em></label><div class="sel"><select data-q="vol" id="q_vol"><option value="">Elegir…</option><option value="1-2">1-2</option><option value="3-5">3-5</option><option value="6-10">6-10</option><option value="10+">10+</option><option value="Emin degil">No sé</option></select></div>
+<label for="q_src">¿Cómo supiste de nosotros? <em>(opcional)</em></label><div class="sel"><select data-q="src" id="q_src"><option value="">Elegir…</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option><option value="Arkadas / ortak">Amigo o socio</option><option value="Google">Google</option><option value="Diger">Otro</option></select></div>
 <label for="mo">Cuéntanos un poco más (opcional)</label><textarea id="mo" maxlength="120" placeholder="Dónde trabajas, a quién conoces, lo que ayude"></textarea></section></div>
 <div class="fmore" id="fmore">&#8595; Preguntas opcionales abajo</div>
 <div class="fa"><button id="b">Solicitar unirme</button><div id="m" class="msg" hidden></div>
@@ -139,8 +140,8 @@ var T={"bad": "Escribe tu nombre y un correo válido.", "fail": "No se pudo envi
 function say(t,bad){m.hidden=false;m.className='msg '+(bad?'err':'ok');m.textContent=t}
 function prog(){var s=[$('n').value.trim().length>1,/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($('e').value.trim()),!!A.job,!!A.vol,!!A.src],n=s.filter(Boolean).length,pc=Math.max(8,Math.round(n/5*100));$('fpb').style.width=pc+'%';$('fpt').textContent=n+'/5'}
 f.addEventListener('input',prog);(function(){var sc=$('fsc'),fm=$('fmore');if(sc)sc.addEventListener('scroll',function(){if(sc.scrollTop>20)fm.classList.add('off')},{passive:true})})();
-if(sp){var fr=f.querySelector('[data-q=src] [data-v="Arkadas / ortak"]');if(fr){fr.classList.add('on');A.src='Arkadas / ortak'}}
-f.addEventListener('click',function(e){var c=e.target.closest('.ch button');if(!c)return;var g=c.parentNode,q=g.dataset.q,on=c.classList.contains('on');g.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(on){delete A[q]}else{c.classList.add('on');A[q]=c.dataset.v;var nx=g.nextElementSibling;while(nx&&nx.tagName!=='LABEL')nx=nx.nextElementSibling;}prog()});
+if(sp){var fr=$('q_src');if(fr){fr.value='Arkadas / ortak';fr.classList.add('v');A.src='Arkadas / ortak'}}
+f.addEventListener('change',function(e){var t=e.target;if(t.tagName==='SELECT'){var q=t.dataset.q;if(t.value){A[q]=t.value;t.classList.add('v')}else{delete A[q];t.classList.remove('v')}prog()}});f.addEventListener('click',function(e){var c=e.target.closest('.ch button');if(!c)return;var g=c.parentNode,q=g.dataset.q,on=c.classList.contains('on');g.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});if(on){delete A[q]}else{c.classList.add('on');A[q]=c.dataset.v;var nx=g.nextElementSibling;while(nx&&nx.tagName!=='LABEL')nx=nx.nextElementSibling;}prog()});
 prog();
 f.addEventListener('submit',function(e){e.preventDefault();
  var n=$('n').value.trim(),em=$('e').value.trim();
@@ -150,7 +151,7 @@ f.addEventListener('submit',function(e){e.preventDefault();
  var note=parts.join(' | ').slice(0,300);
  b.disabled=true;
  fetch(K.SUPABASE_URL+'/rest/v1/rpc/apply_partner',{method:'POST',headers:{'Content-Type':'application/json',apikey:K.SUPABASE_ANON_KEY,Authorization:'Bearer '+K.SUPABASE_ANON_KEY},body:JSON.stringify({p_name:n,p_email:em,p_phone:$('p').value.trim(),p_sponsor:sp,p_note:note||null})})
- .then(function(r){b.disabled=false;if(r.ok){f.reset();A={};f.querySelectorAll('.ch .on').forEach(function(x){x.classList.remove('on')});prog();say(T.ok);m.scrollIntoView({behavior:'smooth',block:'center'})}else say(T.fail,true)})
+ .then(function(r){b.disabled=false;if(r.ok){f.reset();A={};f.querySelectorAll('select').forEach(function(x){x.classList.remove('v')});prog();say(T.ok);m.scrollIntoView({behavior:'smooth',block:'center'})}else say(T.fail,true)})
  .catch(function(){b.disabled=false;say(T.fail,true)})});
 })();
 </script>
